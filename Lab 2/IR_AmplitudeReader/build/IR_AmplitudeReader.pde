@@ -9,6 +9,8 @@ void setup()
 {
   portMode(0, INPUT) ;      //   ***** from 253 template file
   portMode(1, INPUT) ;      //   ***** from 253 template file
+  
+  Serial.begin(9600);
     
   LCD.clear();
   LCD.home();
@@ -30,4 +32,7 @@ void loop()
 	LCD.setCursor(0,1);
 	LCD.print( amplitudeValue );
         delay(100);
+        
+        Serial.println( amplitudeValue );
+        
 } 
