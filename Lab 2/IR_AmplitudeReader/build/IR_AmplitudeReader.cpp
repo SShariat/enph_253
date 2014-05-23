@@ -6,6 +6,7 @@
 #include <HardwareSerial.h>
 void setup();
 void loop();
+float sensorValue = 0;
 float amplitudeValue = 0;
 
 void setup()
@@ -23,14 +24,15 @@ void setup()
 
 void loop()
 {
-	
-	amplitudeValue = 5.0/( analogRead(1) );
+	sensorValue = analogRead(1);
+
+	amplitudeValue = (sensorValue * (5.0)/( 1023 ));
 	
 	LCD.clear(); LCD.home(); LCD.setCursor(0,0);
-	LCD.print('Voltage:');
+	LCD.print("Voltage:");
 
-	LCD.clear(); LCD.home(); LCD.setCursor(0,1);
-	LCD.print(amplitudeValue);
-        delay(20);
+	LCD.setCursor(0,1);
+	LCD.print( amplitudeValue );
+        delay(100);
 } 
 
