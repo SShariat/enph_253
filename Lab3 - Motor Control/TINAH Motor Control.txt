@@ -7,12 +7,7 @@ void setup()
   portMode(0, INPUT) ;      //   ***** from 253 template file
   portMode(1, INPUT) ;      //   ***** from 253 template file
     
-  LCD.clear();
-  LCD.home();
-  LCD.setCursor(0,0); LCD.print("Hello World!");
-  LCD.setCursor(0,1); LCD.print("Press Start");
-  while ( !(startbutton()) );
-
+  
 }
 
 void loop()
@@ -21,5 +16,16 @@ void loop()
 	
 	speed = analogRead(6);
 	
-	motor.speed(3,speed);
+	if(speed < 512){
+		motor.speed(3,-2*speed);
+	} else
+		motor.speed(3,-2*(speed-512));
+	}
+
+    LCD.clear();
+    LCD.home();
+    LCD.setCursor(0,0); LCD.print("Motor Program");
+    LCD.setCursor(0,1); LCD.print(speed);
+	delay(50);
+
 }
