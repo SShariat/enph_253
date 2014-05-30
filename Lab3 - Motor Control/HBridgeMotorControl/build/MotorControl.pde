@@ -14,13 +14,16 @@ void loop()
 {
 	int speed = 0;
 	
-	speed = analogRead(6);
+	speed = 2*(analogRead(6) - 511);
 	
-	if(speed < 512) {
-		motor.speed(3,-2*speed);
-	} else {
-		motor.speed(3,2*(speed-512));
-	}
+        if (speed >1023) {
+         speed = 1023;
+        } else if ( speed < -1023) {
+          speed = -1023;
+        }
+
+	motor.speed(3,speed);
+
 
     LCD.clear();
     LCD.home();
