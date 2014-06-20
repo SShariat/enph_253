@@ -22,7 +22,12 @@ void setup()
    int motorSpeed_2 = 0;
    int outputSpeed_1 = 0;
    int outputSpeed_2 = 0;
-  
+
+	LCD.clear();  LCD.home() ;
+       // 16 positions on LCD screen:   1234567890123456
+         LCD.setCursor(0,0); LCD.print("M6:");  LCD.print(outputSpeed_1);LCD.print("M7:");  LCD.print(outputSpeed_2)
+         LCD.setCursor(0,1); LCD.print("<stop>");
+   
 /////////////////////////////////////////////////
 // DC MOTOR RUN
 /////////////////////////////////////////////////

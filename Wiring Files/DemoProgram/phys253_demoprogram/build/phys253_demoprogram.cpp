@@ -52,7 +52,7 @@ void loop()
 // 16 positions on LCD screen:   1234567890123456
   LCD.setCursor(0,0); LCD.print("Digital Inputs, ");
   LCD.setCursor(0,1); LCD.print("press, <start>");
-  while ( !(startbutton()) ) ;              // a convenient way to wait at a screen until the user presses the start button
+  while ( !(startbutton()) && !(stopbutton())) ;              // a convenient way to wait at a screen until the user presses the start button
     
 
   LCD.clear();  LCD.home() ;
