@@ -1,6 +1,5 @@
 void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	
-	//This block prints out the starting message for this module?
 	LCD.clear(); LCD.home();
 	LCD.setCursor(0,0); LCD.print("Change Constants");
 	LCD.setCursor(0,1); LCD.print("Press Start");
