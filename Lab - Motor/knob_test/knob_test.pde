@@ -51,6 +51,9 @@ while ( !(stopbutton()) ) {
          LCD.setCursor(0,0); LCD.print("M6:");  LCD.print(outputSpeed_1);LCD.print("M7:");  LCD.print(outputSpeed_2);
          LCD.setCursor(0,1); LCD.print("<stop>");
 			
+       motor.speed(1,outputSpeed_1);
+       motor.speed(2,outputSpeed_2);
+       
        /* motor.speed(i, motorSpeed) ;
         if (stopbutton()) {break;} ;
         delay(knob(7)) ;
@@ -58,12 +61,7 @@ while ( !(stopbutton()) ) {
         if (stopbutton()) {break;} ;
         delay(knob(7)) ;    
         motor.stop(i) ; */
-        delay(300);
-		
-        RCServo1.write(motorSpeed/5.6);
-		
-		
-      
-  }
-   motor.stop_all() ;
+        delay(200);
+	
 }
+

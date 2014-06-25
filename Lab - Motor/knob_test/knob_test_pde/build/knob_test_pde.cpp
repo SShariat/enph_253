@@ -4,6 +4,10 @@
 #include <Servo253.h>
 
 
+#include "WProgram.h"
+#include <HardwareSerial.h>
+void setup();
+void loop();
 void setup() 
 {
   portMode(0, INPUT);
@@ -23,10 +27,6 @@ void setup()
    int outputSpeed_1 = 0;
    int outputSpeed_2 = 0;
 
-	LCD.clear();  LCD.home() ;
-       // 16 positions on LCD screen:   1234567890123456
-         LCD.setCursor(0,0); LCD.print("M6:");  LCD.print(outputSpeed_1);LCD.print("M7:");  LCD.print(outputSpeed_2);
-         LCD.setCursor(0,1); LCD.print("<stop>");
    
 /////////////////////////////////////////////////
 // DC MOTOR RUN
@@ -43,27 +43,21 @@ while ( !(stopbutton()) ) {
          motorSpeed_1 = knob(6) ;
          outputSpeed_1 = (motorSpeed_1-512)*2+1;
 		 
-		 motorSpeed_2 = knob(7) ;
+	 motorSpeed_2 = knob(7) ;
          outputSpeed_2 = (motorSpeed_2-512)*2+1;
          
          LCD.clear();  LCD.home() ;
        // 16 positions on LCD screen:   1234567890123456
-         LCD.setCursor(0,0); LCD.print("M6:");  LCD.print(outputSpeed_1);LCD.print("M7:");  LCD.print(outputSpeed_2);
-         LCD.setCursor(0,1); LCD.print("<stop>");
+         LCD.setCursor(0,0); LCD.print("M6:");  LCD.print(outputSpeed_1);
+         LCD.setCursor(0,1); LCD.print("M7:");  LCD.print(outputSpeed_2);
 			
-       /* motor.speed(i, motorSpeed) ;
-        if (stopbutton()) {break;} ;
-        delay(knob(7)) ;
-        motor.speed(i, -motorSpeed);
-        if (stopbutton()) {break;} ;
-        delay(knob(7)) ;    
-        motor.stop(i) ; */
-        delay(300);
-		
-        RCServo1.write(motorSpeed/5.6);
-		
-		
+        motor.speed(2, outputSpeed_1);
+        motor.speed(3, outputSpeed_2);
+        	
+	delay(200);
       
   }
    motor.stop_all() ;
 }
+
+
