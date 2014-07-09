@@ -37,7 +37,12 @@ void loop()
 
 	
 	init_variables(const_values,const_names, NUM_CONST);
-	//DO STUFF BLOCK
+	
+	
+	//go_forward();
+	
+	
+	
 }
 void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	
@@ -70,13 +75,27 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	delay(200);
 	}
 }
+//This runs the go forward script where the motor speed of the robot is simply set
+//to go forward
+/*
+int  const_values [NUM_CONST] = {1,2,3,0,12};
+char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
+*/
+
+
 void init_variables(int values[], char names[][STR_SIZE], int array_size){
 	
 	LCD.clear(); LCD.home();
-	LCD.setCursor(0,0); LCD.print("Initialize constants?");
+	LCD.setCursor(0,0); LCD.print("Init-Constants");
 	LCD.setCursor(0,1); LCD.print("Press Start");
 	while (!(startbutton()));
 
-
-};
+//	initialization template, for now you have to make sure the names match up so that it is not confusing when you code	
+//	int ___ = value[]; 
+	int foo 	= values[0];
+	int bar 	= values[1];
+	int bletch 	= values[2];
+	int foofoo 	= values[3];
+	int lol 	= values[4];
+}
 

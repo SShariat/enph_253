@@ -3,7 +3,7 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	LCD.clear(); LCD.home();
 	LCD.setCursor(0,0); LCD.print("Change Constants");
 	LCD.setCursor(0,1); LCD.print("Press Start");
-	while (!(startbutton()));
+	while(!(startbutton()));
 	
 	while(!(stopbutton())){
 	
