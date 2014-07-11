@@ -25,19 +25,24 @@ char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "l
 
 void setup()
 {
- // Nothing to see here, move along.
+	// Servomotor initialization.
+	RCServo0.attach(RCServo0Output);
+	RCServo1.attach(RCServo1Output);
+	RCServo2.attach(RCServo2Output);
 }
 
 void loop()
 {
-	change_constants(const_values,const_names, NUM_CONST);
+	// These dudes are commented out for now; I'm just worried about getting the servos to work.
 
-	
-	init_variables(const_values,const_names, NUM_CONST);
-	
-	
-	//go_forward(); Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function
-				// and call it something else.
+	 change_constants(const_values,const_names, NUM_CONST);
 
-	//artifact_collect(); Code which will detect and collect an artifact.	
+	 init_variables(const_values,const_names, NUM_CONST);
+	
+	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
+	// go_forward(); 
+
+
+	// Artifact detection and collection code.
+	artifact_collect();
 }
