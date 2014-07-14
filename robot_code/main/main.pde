@@ -9,6 +9,23 @@
 // The number of variables we can define. Needs to be updated should any new ones be added.
 #define NUM_CONST 5
 
+
+// This is the PD control variables' initialization section. These don't change (except for speed and threshold, I'll deal with them later).
+int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
+int speed = 450;     // The default speed at which the motors will run.
+
+int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
+int lastState = 0;   // The previous state of the robot.
+int thisState = 0;   // The state which the robot is currently running in (i.e. a plateau)
+int lastTime = 0;    // The time the robot spent in the last state.
+int thisTime = 0;    // The time the robot has spent in this state.
+int i = 0;           // i for iterations, because I'm old-school like that.
+
+int pro = 0;         // Taking a leaf out of Andre's book, this stands for the proportional function.
+int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
+int result = 0;      // The result, or sum of the two above functions.
+
+
 /*
 //////////////////////////////////////////////// I dunno what all this stuff it, I'll leave it alone.
 ROBOT TEMPLATE FILE
@@ -21,7 +38,7 @@ ROBOT TEMPLATE FILE
 // Initialize Arrays
 // This gives our constants values, then assigns them names.
 int  const_values [NUM_CONST] = {1,2,3,0,12};
-char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
+char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
 
 void setup()
 {
