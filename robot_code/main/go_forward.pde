@@ -1,4 +1,4 @@
-// This is the tape following code. However, it is entirely 
+// This is the tape following code. However, it is entirely copied from Charles, and does not have its constants properly set up.
 
 
 
