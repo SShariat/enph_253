@@ -26,6 +26,8 @@ void artifact_collect(){
 		LCD.home();
 		LCD.setCursor(0,0); LCD.print("Switch Pressed?");
 
+		RCServo1.write(180);
+
 		if(digitalRead(10) == 1) {
 
 			LCD.setCursor(0,1); LCD.print("ye");
@@ -44,7 +46,7 @@ void artifact_collect(){
 			RCServo2.write(90);
 			delay(1000);
 
-			RCServo1.write(30);
+			RCServo1.write(100);
 			delay(1000);
 
 			RCServo0.write(180);
@@ -52,7 +54,7 @@ void artifact_collect(){
 
 			RCServo0.write(0);
 			delay(500);
-			RCServo1.write(0);
+			RCServo1.write(180);
 			delay(500);
 			RCServo2.write(0);
 			delay(500);
