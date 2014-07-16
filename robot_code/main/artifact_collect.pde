@@ -8,7 +8,7 @@ void artifact_collect(){
 
 	bool servo = false;
 
-	while(!(stopbutton())){
+	//while( !( stopbutton() ) ) {
 
 		// double angle = 0;
 		
@@ -22,22 +22,16 @@ void artifact_collect(){
 	 //    LCD.setCursor(0,1); LCD.print(angle);
 		// delay(50);
 
-		LCD.clear();
-		LCD.home();
-		LCD.setCursor(0,0); LCD.print("Switch Pressed?");
-
-		RCServo1.write(180);
-
 		if(digitalRead(10) == 1) {
 
-			LCD.setCursor(0,1); LCD.print("ye");
+			LCD.setCursor(0,1); LCD.print("Object Detected!");
 			delay(50);
 
 			servo = true;
 
 		} else {
 
-			LCD.setCursor(0,1); LCD.print("no");
+			LCD.setCursor(0,1); LCD.print("Scanning...");
 			delay(50);		
 		}
 
@@ -61,5 +55,5 @@ void artifact_collect(){
 
 			servo = false;
 		}
-	}
-};
+	//}
+}

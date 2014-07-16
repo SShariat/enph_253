@@ -48,20 +48,44 @@ void setup()
 	RCServo2.attach(RCServo2Output);
 
 	RCServo1.write(180);
+
+	while(!(startbutton())){
+		LCD.clear();
+		LCD.home();
+		LCD.setCursor(0,0); LCD.print("Howdy!");
+		LCD.setCursor(0,1); LCD.print("Press Start!");
+		delay(50);
+	}
+
+	LCD.clear();
 }
 
 void loop()
 {
 	// These dudes are commented out for now; I'm just worried about getting the servos to work.
 
-	 change_constants(const_values,const_names, NUM_CONST);
+	// change_constants(const_values,const_names, NUM_CONST);
 
-	 init_variables(const_values,const_names, NUM_CONST);
+	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	// go_forward(); 
-
+	//tape_follow; 
 
 	// Artifact detection and collection code.
+	
+
+	// Temporary 'go forward' code, does not follow tape at all.
+	motor.speed(3, speed);
+	motor.speed(2, speed);
+
+	speed = knob(6);
+
+	LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	LCD.setCursor(11,0); LCD.print(speed);
+	delay(50);
+
 	artifact_collect();
+
+	LCD.clear();
+	LCD.home();
 }

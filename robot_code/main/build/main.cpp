@@ -54,22 +54,48 @@ void setup()
 	RCServo0.attach(RCServo0Output);
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
+
+	RCServo1.write(180);
+
+	while(!(startbutton())){
+		LCD.clear();
+		LCD.home();
+		LCD.setCursor(0,0); LCD.print("Howdy!");
+		LCD.setCursor(0,1); LCD.print("Press Start!");
+		delay(50);
+	}
+
+	LCD.clear();
 }
 
 void loop()
 {
 	// These dudes are commented out for now; I'm just worried about getting the servos to work.
 
-	 change_constants(const_values,const_names, NUM_CONST);
+	// change_constants(const_values,const_names, NUM_CONST);
 
-	 init_variables(const_values,const_names, NUM_CONST);
+	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	// go_forward(); 
-
+	//tape_follow; 
 
 	// Artifact detection and collection code.
+	
+
+	// Temporary 'go forward' code, does not follow tape at all.
+	motor.speed(3, speed);
+	motor.speed(2, speed);
+
+	speed = knob(6);
+
+	LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	LCD.setCursor(11,0); LCD.print(speed);
+	delay(50);
+
 	artifact_collect();
+
+	LCD.clear();
+	LCD.home();
 }
 // The artifact collection code. This detects an artifact impact, picks it up, swings the arm over the bucket, drops it off, then returns to its default state.
 
@@ -81,7 +107,7 @@ void artifact_collect(){
 
 	bool servo = false;
 
-	while(!(stopbutton())){
+	//while( !( stopbutton() ) ) {
 
 		// double angle = 0;
 		
@@ -95,22 +121,16 @@ void artifact_collect(){
 	 //    LCD.setCursor(0,1); LCD.print(angle);
 		// delay(50);
 
-		LCD.clear();
-		LCD.home();
-		LCD.setCursor(0,0); LCD.print("Switch Pressed?");
-
-		RCServo1.write(180);
-
 		if(digitalRead(10) == 1) {
 
-			LCD.setCursor(0,1); LCD.print("ye");
+			LCD.setCursor(0,1); LCD.print("Object Detected!");
 			delay(50);
 
 			servo = true;
 
 		} else {
 
-			LCD.setCursor(0,1); LCD.print("no");
+			LCD.setCursor(0,1); LCD.print("Scanning...");
 			delay(50);		
 		}
 
@@ -134,8 +154,8 @@ void artifact_collect(){
 
 			servo = false;
 		}
-	}
-};
+	//}
+}
 void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	
 	LCD.clear(); LCD.home();
