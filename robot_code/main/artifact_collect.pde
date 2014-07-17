@@ -37,21 +37,46 @@ void artifact_collect(){
 
 		if(servo == true){
 
-			RCServo2.write(90);
+			// RCServo1.write(120); //Vertical arm up
+			// delay(1000);
+
+		  for(int pos = 160; pos > 100; pos -= 1)  // goes from 0 degrees to 180 degrees 
+		  {                                  // in steps of 1 degree 
+		    RCServo1.write(pos);              // tell servo to go to position in variable 'pos' 
+		    delay(15);                       // waits 15ms for the servo to reach the position 
+		  } 
+
+
+
+			// RCServo2.write(180);
+			// delay(1000);
+
+
+		  for(int pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
+		  {                                  // in steps of 1 degree 
+		    RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
+		    delay(15);                       // waits 15ms for the servo to reach the position 
+		  } 
+
+
+			RCServo0.write(180); //drop off the artifact
 			delay(1000);
 
-			RCServo1.write(100);
-			delay(1000);
-
-			RCServo0.write(180);
-			delay(3000);
-
-			RCServo0.write(0);
+			RCServo0.write(0); // return artifact dropper to default
 			delay(500);
-			RCServo1.write(180);
-			delay(500);
+
 			RCServo2.write(0);
 			delay(500);
+
+			// for(int pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees 
+			//   {                                
+			//     RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
+			//     delay(5);                       // waits 15ms for the servo to reach the position 
+			//   }
+
+			RCServo1.write(160);  //return to normal height
+			delay(500);
+
 
 			servo = false;
 		}
