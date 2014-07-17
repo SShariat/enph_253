@@ -68,17 +68,17 @@ void loop()
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	tape_follow(); 
+	three_tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
-	motor.speed(3, speed);
-	motor.speed(2, speed);
+	// motor.speed(3, speed);
+	// motor.speed(2, speed);
 
-	speed = knob(6);
+	// speed = knob(6);
 
-	LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	LCD.setCursor(11,0); LCD.print(speed);
-	delay(50);
+	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	// LCD.setCursor(11,0); LCD.print(speed);
+	// delay(50);
 
 	// artifact_collect();
 
