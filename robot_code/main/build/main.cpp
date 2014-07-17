@@ -3,22 +3,6 @@
 #include <LiquidCrystal.h>
 #include <Servo253.h>
 
-<<<<<<< HEAD
-#define STR_SIZE 10
-#define NUM_CONST 5
-
-/*
-////////////////////////////////////////////////
-ROBOT TEMPLATE FILE
-- Menu Template
-- Constant Declarations
-- Function Declarations
-- DO STUFF BLOCK
-/////////////////////////////////////////////////
-*/
-
-//Initialize Arrays
-=======
 // How long our variable names must be. Keep them short!
 #define STR_SIZE 10
 
@@ -27,21 +11,10 @@ ROBOT TEMPLATE FILE
 
 
 // This is the PD control variables' initialization section. These don't change (except for speed and threshold, I'll deal with them later).
->>>>>>> origin/master
 #include "WProgram.h"
 #include <HardwareSerial.h>
 void setup();
 void loop();
-<<<<<<< HEAD
-void change_constants(int values[], char names[][STR_SIZE], int array_size);
-void init_variables(int values[], char names[][STR_SIZE], int array_size);
-int  const_values [NUM_CONST] = {1,2,3,0,12};
-char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
-
-void setup()
-{
- 
-=======
 void artifact_collect();
 void change_constants(int values[], char names[][STR_SIZE], int array_size);
 void init_variables(int values[], char names[][STR_SIZE], int array_size);
@@ -93,34 +66,17 @@ void setup()
 	}
 
 	LCD.clear();
->>>>>>> origin/master
 }
 
 void loop()
 {
-<<<<<<< HEAD
-	change_constants(const_values,const_names, NUM_CONST);
-
-	
-	init_variables(const_values,const_names, NUM_CONST);
-	
-	
-	//go_forward();
-	
-	
-	
-=======
-	// These dudes are commented out for now; I'm just worried about getting the servos to work.
-
 	// change_constants(const_values,const_names, NUM_CONST);
 
+	
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	//tape_follow; 
-
-	// Artifact detection and collection code.
-	
+	tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
 	motor.speed(3, speed);
@@ -132,8 +88,9 @@ void loop()
 	LCD.setCursor(11,0); LCD.print(speed);
 	delay(50);
 
-	artifact_collect();
+	// artifact_collect();
 
+	delay(50);
 	LCD.clear();
 	LCD.home();
 }
@@ -220,18 +177,13 @@ void artifact_collect(){
 			servo = false;
 		}
 	//}
->>>>>>> origin/master
 }
 void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	
 	LCD.clear(); LCD.home();
 	LCD.setCursor(0,0); LCD.print("Change Constants");
 	LCD.setCursor(0,1); LCD.print("Press Start");
-<<<<<<< HEAD
-	while (!(startbutton()));
-=======
 	while(!(startbutton()));
->>>>>>> origin/master
 	
 	while(!(stopbutton())){
 	
@@ -244,11 +196,7 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	LCD.setCursor(0,0); LCD.print("Name: "); LCD.print(names[index]);
 	LCD.setCursor(0,1); LCD.print("Value: ");LCD.print(values[index]);
 	
-<<<<<<< HEAD
-
-=======
 	//This is the Editing Block. While you are holding the Start Button you are editing the current constant that you are at.
->>>>>>> origin/master
 	while(startbutton()){
 		int new_value = knob(6);
 		values[index] = new_value;		
@@ -261,11 +209,6 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	delay(200);
 	}
 }
-<<<<<<< HEAD
-//This runs the go forward script where the motor speed of the robot is simply set
-//to go forward
-=======
->>>>>>> origin/master
 /*
 int  const_values [NUM_CONST] = {1,2,3,0,12};
 char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
@@ -287,8 +230,6 @@ void init_variables(int values[], char names[][STR_SIZE], int array_size){
 	int foofoo 	= values[3];
 	int lol 	= values[4];
 }
-<<<<<<< HEAD
-=======
 // This is the tape following code. It is the same as Charles', with changed constants to make up for the different weight/turning radius.
 
 void tape_follow(){
@@ -371,5 +312,4 @@ void tape_follow(){
 	thisState = state;
 
 };
->>>>>>> origin/master
 

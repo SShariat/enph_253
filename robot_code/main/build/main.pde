@@ -3,17 +3,6 @@
 #include <LiquidCrystal.h>
 #include <Servo253.h>
 
-<<<<<<< HEAD
-#define STR_SIZE 10
-#define NUM_CONST 5
-
-/*
-////////////////////////////////////////////////
-ROBOT TEMPLATE FILE
-- Menu Template
-- Constant Declarations
-- Function Declarations
-=======
 // How long our variable names must be. Keep them short!
 #define STR_SIZE 10
 
@@ -42,20 +31,10 @@ int result = 0;      // The result, or sum of the two above functions.
 ROBOT TEMPLATE FILE
 - Menu Template
 
->>>>>>> origin/master
 - DO STUFF BLOCK
 /////////////////////////////////////////////////
 */
 
-<<<<<<< HEAD
-//Initialize Arrays
-int  const_values [NUM_CONST] = {1,2,3,0,12};
-char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
-
-void setup()
-{
- 
-=======
 // Initialize Arrays
 // This gives our constants values, then assigns them names.
 int  const_values [NUM_CONST] = {1,2,3,0,12};
@@ -79,34 +58,17 @@ void setup()
 	}
 
 	LCD.clear();
->>>>>>> origin/master
 }
 
 void loop()
 {
-<<<<<<< HEAD
-	change_constants(const_values,const_names, NUM_CONST);
-
-	
-	init_variables(const_values,const_names, NUM_CONST);
-	
-	
-	//go_forward();
-	
-	
-	
-=======
-	// These dudes are commented out for now; I'm just worried about getting the servos to work.
-
 	// change_constants(const_values,const_names, NUM_CONST);
 
+	
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	//tape_follow; 
-
-	// Artifact detection and collection code.
-	
+	tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
 	motor.speed(3, speed);
@@ -118,9 +80,9 @@ void loop()
 	LCD.setCursor(11,0); LCD.print(speed);
 	delay(50);
 
-	artifact_collect();
+	// artifact_collect();
 
+	delay(50);
 	LCD.clear();
 	LCD.home();
->>>>>>> origin/master
 }

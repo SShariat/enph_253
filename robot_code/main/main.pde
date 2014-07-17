@@ -38,13 +38,6 @@ ROBOT TEMPLATE FILE
 // Initialize Arrays
 // This gives our constants values, then assigns them names.
 int  const_values [NUM_CONST] = {1,2,3,0,12};
-<<<<<<< HEAD
-char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
-
-void setup()
-{
- // Nothing to see here, move along.
-=======
 char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
 
 void setup()
@@ -65,34 +58,17 @@ void setup()
 	}
 
 	LCD.clear();
->>>>>>> origin/master
 }
 
 void loop()
 {
-<<<<<<< HEAD
-	change_constants(const_values,const_names, NUM_CONST);
-
-	
-	init_variables(const_values,const_names, NUM_CONST);
-	
-	
-	//go_forward(); Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function
-				// and call it something else.
-
-	//artifact_collect(); Code which will detect and collect an artifact.	
-=======
-	// These dudes are commented out for now; I'm just worried about getting the servos to work.
-
 	// change_constants(const_values,const_names, NUM_CONST);
 
+	
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	//tape_follow; 
-
-	// Artifact detection and collection code.
-	
+	tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
 	motor.speed(3, speed);
@@ -104,9 +80,9 @@ void loop()
 	LCD.setCursor(11,0); LCD.print(speed);
 	delay(50);
 
-	artifact_collect();
+	// artifact_collect();
 
+	delay(50);
 	LCD.clear();
 	LCD.home();
->>>>>>> origin/master
 }
