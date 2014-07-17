@@ -3,7 +3,7 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	LCD.clear(); LCD.home();
 	LCD.setCursor(0,0); LCD.print("Change Constants");
 	LCD.setCursor(0,1); LCD.print("Press Start");
-	while (!(startbutton()));
+	while(!(startbutton()));
 	
 	while(!(stopbutton())){
 	
@@ -16,7 +16,7 @@ void change_constants(int values[], char names[][STR_SIZE], int array_size){
 	LCD.setCursor(0,0); LCD.print("Name: "); LCD.print(names[index]);
 	LCD.setCursor(0,1); LCD.print("Value: ");LCD.print(values[index]);
 	
-
+	//This is the Editing Block. While you are holding the Start Button you are editing the current constant that you are at.
 	while(startbutton()){
 		int new_value = knob(6);
 		values[index] = new_value;		
