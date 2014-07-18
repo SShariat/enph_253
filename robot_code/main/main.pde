@@ -3,12 +3,13 @@
 #include <LiquidCrystal.h>
 #include <Servo253.h>
 
+//Level Definitions
+#define CHOICE0 1
+#define CHOICE1 2
+#define CHOICE2 3
 
-// Defining the Menu Choices
-#define TAPEFOLLOW 0
-#define IRFOLLOW 1
-#define ARTIFACT 2
 
+// Menu Template
 
 void setup()
 {
@@ -17,38 +18,41 @@ void setup()
 
 void loop(){
 
-	//TODO: read user input
-	menu_choice = read_user_input
+		switch(menu_choice()){
 
-	//swtich case
-
-	swtich(menu_choice){
-
-		case TAPEFOLLOW:
-
-			//TODO tape_follow();
+		case CHOICE0:
+			LCD.setCursor(0,0); LCD.print("Choice 1");
 		break;
 
-		case IRFOLLOW:
+		case CHOICE1:
+			// if back button is not pressed
 			//TODO tape_follow();
+			LCD.setCursor(0,0); LCD.print("Choice 2");
 		break;
 
-		CASE ARTIFACt:
+		case CHOICE2:
+			// if back button is not pressed
 			//TODO tape_follow();
+			LCD.setCursor(0,0); LCD.print("Choice 3");
 		break;
+
+		clear();
 	}
 
-		//case 1
-
-		//case 2
-
-		//case 3
-
-		//case 4
-
-
-
-
-
-
 }
+
+//Helper Functions
+
+//Knob 6 Value is converted to menu selection.
+//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
+int menu_choice(int number_of_choices){
+	int choice = (((knob(6) - 0) * (number_of_choices - 1)) / (1024 - 0)) + 1
+	return choice;
+}
+
+
+//Clear Screen
+void clear(){
+	LCD.clear(); LCD.home();
+}
+
