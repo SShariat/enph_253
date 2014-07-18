@@ -4,9 +4,10 @@
 #include <Servo253.h>
 
 //Level Definitions
-#define CHOICE0 1
-#define CHOICE1 2
-#define CHOICE2 3
+#define NUMCHOICES 3
+#define CHOICE1 1
+#define CHOICE2 2
+#define CHOICE3 3
 
 
 // Menu Template
@@ -18,26 +19,29 @@ void setup()
 
 void loop(){
 
-		switch(menu_choice()){
-
-		case CHOICE0:
-			LCD.setCursor(0,0); LCD.print("Choice 1");
-		break;
+	clear();
+	//print knob(6) value
+	LCD.setCursor(0,1); LCD.print(knob(6));
+	switch(menu_choice(NUMCHOICES)){
 
 		case CHOICE1:
-			// if back button is not pressed
-			//TODO tape_follow();
-			LCD.setCursor(0,0); LCD.print("Choice 2");
+			LCD.setCursor(0,0); LCD.print("Choice 1");
 		break;
 
 		case CHOICE2:
 			// if back button is not pressed
 			//TODO tape_follow();
+			LCD.setCursor(0,0); LCD.print("Choice 2");
+		break;
+
+		case CHOICE3:
+			// if back button is not pressed
+			//TODO tape_follow();
 			LCD.setCursor(0,0); LCD.print("Choice 3");
 		break;
 
-		clear();
 	}
+	delay(200);
 
 }
 
@@ -46,7 +50,7 @@ void loop(){
 //Knob 6 Value is converted to menu selection.
 //NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
 int menu_choice(int number_of_choices){
-	int choice = (((knob(6) - 0) * (number_of_choices - 1)) / (1024 - 0)) + 1
+	int choice = (1.1*(knob(6) * (3 - 1)) / 1024) + 1;
 	return choice;
 }
 
