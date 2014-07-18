@@ -16,10 +16,10 @@
 void setup();
 void loop();
 void artifact_collect();
-void change_constants(int values[], char names[][STR_SIZE], int array_size);
 void init_variables(int values[], char names[][STR_SIZE], int array_size);
 void tape_follow();
-int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
+void three_tape_follow();
+int threshold = 100; // The value at which the program will determine whether the sensors are looking at the ground.
 int speed = 450;     // The default speed at which the motors will run.
 
 int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
@@ -45,8 +45,8 @@ ROBOT TEMPLATE FILE
 
 // Initialize Arrays
 // This gives our constants values, then assigns them names.
-int  const_values [NUM_CONST] = {1,2,3,0,12};
-char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
+// int  const_values [NUM_CONST] = {1,2,3,0,12};
+// char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
 
 void setup()
 {
@@ -60,9 +60,15 @@ void setup()
 	while(!(startbutton())){
 		LCD.clear();
 		LCD.home();
-		LCD.setCursor(0,0); LCD.print("Howdy!");
-		LCD.setCursor(0,1); LCD.print("Press Start!");
+		LCD.setCursor(0,0); LCD.print("Press Start.");
+		LCD.setCursor(0,1); LCD.print("Don't press Stop");
 		delay(50);
+		if ( stopbutton() ) {
+			while(!(startbutton())){
+				LCD.setCursor(0,0); LCD.print("buttsbuttsbuttsbutts");
+				LCD.setCursor(0,1); LCD.print("buttsbuttsbuttsbutts");
+			}		
+		}
 	}
 
 	LCD.clear();
@@ -76,23 +82,31 @@ void loop()
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	tape_follow(); 
+	// tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
-	motor.speed(3, speed);
-	motor.speed(2, speed);
 
-	speed = knob(6);
+	speed = 2*(analogRead(6) - 511);
+
+    if (speed > 1023) {
+    	speed = 1023;
+    } else if ( speed < -1023) {
+    	speed = -1023;
+    }
+
+
+	motor.speed(3, speed);
+	motor.speed(2, -speed);
+
+	// speed = knob(6);
+
+	LCD.clear(); LCD.home();
 
 	LCD.setCursor(0,0); LCD.print("Rolling at"); 
 	LCD.setCursor(11,0); LCD.print(speed);
 	delay(50);
 
 	// artifact_collect();
-
-	delay(50);
-	LCD.clear();
-	LCD.home();
 }
 // The artifact collection code. This detects an artifact impact, picks it up, swings the arm over the bucket, drops it off, then returns to its default state.
 
@@ -178,37 +192,6 @@ void artifact_collect(){
 		}
 	//}
 }
-void change_constants(int values[], char names[][STR_SIZE], int array_size){
-	
-	LCD.clear(); LCD.home();
-	LCD.setCursor(0,0); LCD.print("Change Constants");
-	LCD.setCursor(0,1); LCD.print("Press Start");
-	while(!(startbutton()));
-	
-	while(!(stopbutton())){
-	
-	//Take knob value as Index
-	//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-	
-	//Print the Name and Associated Value of the Constant Name to the Screen
-	int index =  ((knob(6) * (NUM_CONST-1) ) / 1000 )  ;
-	LCD.clear(); LCD.home();
-	LCD.setCursor(0,0); LCD.print("Name: "); LCD.print(names[index]);
-	LCD.setCursor(0,1); LCD.print("Value: ");LCD.print(values[index]);
-	
-	//This is the Editing Block. While you are holding the Start Button you are editing the current constant that you are at.
-	while(startbutton()){
-		int new_value = knob(6);
-		values[index] = new_value;		
-		LCD.clear(); LCD.home();
-		LCD.setCursor(0,0); LCD.print("Name: "); LCD.print(names[index]);
-		LCD.setCursor(0,1); LCD.print("Value: ");LCD.print(values[index]);
-		delay(200);
-	}
-		
-	delay(200);
-	}
-}
 /*
 int  const_values [NUM_CONST] = {1,2,3,0,12};
 char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
@@ -292,7 +275,7 @@ void tape_follow(){
 		result = 700;
 	}
 
-	motor.speed(3, speed - result);
+	motor.speed(3, speed + result);
 	motor.speed(2, speed + result);  
 
 	if( i==50) {
@@ -312,4 +295,95 @@ void tape_follow(){
 	thisState = state;
 
 };
+void three_tape_follow() {
+	
+	int l = analogRead(0); // We're initializing the left, centre, and right analog sensors.
+	int c = analogRead(1);
+	int r = analogRead(2);
+
+	int K_p = analogRead(6);
+	int K_d = analogRead(7);
+
+	// The following is Zach's lovely stop function.
+	if( stopbutton() ) {
+			delay(50); // Pause to make sure the stopbutton wasn't pressed by motor noise.
+
+		if( stopbutton() ) {
+			motor.speed(3, 0);
+			motor.speed(2, 0); 
+
+			while( !startbutton() ) {
+				int K_p = analogRead(6);
+				int K_d = analogRead(7);
+
+				LCD.clear();
+				LCD.home();
+				LCD.print("PAUSED");    
+				LCD.setCursor(0,1);
+				LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+				delay(50);
+			}  
+		}
+	}
+
+
+	if(l > threshold && r > threshold && c > threshold) { // This is when the robot is in the middle of the course.
+		state = 0;
+	} 
+	else if(l < threshold && c > threshold && r > threshold) { // This is when the left sensor is off the tape.
+		state = -1;
+	}
+	else if(l < threshold && c < threshold && r > threshold && state < 0) { // Both the left and centre sensors are off now.
+		state = -3;
+	} 
+	else if(1 < threshold && r < threshold && state < 0) { // All three sensors are off, the robot is to the left of the tape.
+		state = -5;
+	}
+	else if(l > threshold && c > threshold && r < threshold) { // The rightmost sensor is off the tape.
+		state = 1;
+	}
+	else if(l > threshold && c < threshold && r < threshold && state >= 0) { // Both the right and centre sensors have strayed.
+		state = 3;
+	}
+	else if(l < threshold && c < threshold && r < threshold && state >= 0) { // The robot is now wandering to the right of the tape.
+		state = 5;
+	}
+
+
+	if(state != thisState) {
+		lastState = thisState;
+		lastTime = thisTime;
+		thisTime = 1;
+	}
+
+	pro = K_p * state;
+	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+
+	result = speed + pro + der;
+
+	if(result > 700 - speed){
+		result = 700;
+	}
+
+	motor.speed(3, speed - result);
+	motor.speed(2, speed + result);  
+
+	if( i==50) {
+		LCD.clear();
+		LCD.home(); 
+
+		LCD.print("L "); LCD.print(l); LCD.print(" C "); LCD.print(c); LCD.print(" R "); LCD.print(r);
+		LCD.setCursor(0,1);
+		LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+		i = 0;
+	}
+
+	i++;
+	thisTime++; // This time baby, I'll be, forevvvvvahhhhhhh
+
+	thisState = state;	
+
+}
 

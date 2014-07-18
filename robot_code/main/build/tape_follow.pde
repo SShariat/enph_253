@@ -60,7 +60,7 @@ void tape_follow(){
 		result = 700;
 	}
 
-	motor.speed(3, speed - result);
+	motor.speed(3, speed + result);
 	motor.speed(2, speed + result);  
 
 	if( i==50) {

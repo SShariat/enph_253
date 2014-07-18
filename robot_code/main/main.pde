@@ -11,7 +11,7 @@
 
 
 // This is the PD control variables' initialization section. These don't change (except for speed and threshold, I'll deal with them later).
-int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
+int threshold = 100; // The value at which the program will determine whether the sensors are looking at the ground.
 int speed = 450;     // The default speed at which the motors will run.
 
 int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
@@ -37,8 +37,8 @@ ROBOT TEMPLATE FILE
 
 // Initialize Arrays
 // This gives our constants values, then assigns them names.
-int  const_values [NUM_CONST] = {1,2,3,0,12};
-char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
+// int  const_values [NUM_CONST] = {1,2,3,0,12};
+// char const_names  [NUM_CONST][STR_SIZE] =  {"threshold", "speed", "const3", "const4", "const5"}; // I've added actual constants, as well as making the others seem a little more...professional.
 
 void setup()
 {
@@ -52,9 +52,15 @@ void setup()
 	while(!(startbutton())){
 		LCD.clear();
 		LCD.home();
-		LCD.setCursor(0,0); LCD.print("Howdy!");
-		LCD.setCursor(0,1); LCD.print("Press Start!");
+		LCD.setCursor(0,0); LCD.print("Press Start.");
+		LCD.setCursor(0,1); LCD.print("Don't press Stop");
 		delay(50);
+		if ( stopbutton() ) {
+			while(!(startbutton())){
+				LCD.setCursor(0,0); LCD.print("buttsbuttsbuttsbutts");
+				LCD.setCursor(0,1); LCD.print("buttsbuttsbuttsbutts");
+			}		
+		}
 	}
 
 	LCD.clear();
@@ -68,21 +74,29 @@ void loop()
 	// init_variables(const_values,const_names, NUM_CONST);
 	
 	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	three_tape_follow(); 
+	// tape_follow(); 
 
 	// Temporary 'go forward' code, does not follow tape at all.
-	// motor.speed(3, speed);
-	// motor.speed(2, speed);
+
+	speed = 2*(analogRead(6) - 511);
+
+    if (speed > 1023) {
+    	speed = 1023;
+    } else if ( speed < -1023) {
+    	speed = -1023;
+    }
+
+
+	motor.speed(3, speed);
+	motor.speed(2, -speed);
 
 	// speed = knob(6);
 
-	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	// LCD.setCursor(11,0); LCD.print(speed);
-	// delay(50);
+	LCD.clear(); LCD.home();
+
+	LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	LCD.setCursor(11,0); LCD.print(speed);
+	delay(50);
 
 	// artifact_collect();
-
-	delay(50);
-	LCD.clear();
-	LCD.home();
 }
