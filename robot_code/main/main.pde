@@ -80,7 +80,7 @@ int menu_choice(){
 	//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
 	int choice = (1.1*(knob(6) * (NUMCHOICES - 1)) / 1024) + 1;
 	if(choice>NUMCHOICES){
-		choice = NUMCHOICES
+		choice = NUMCHOICES;
 	}
 	return choice;
 }

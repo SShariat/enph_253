@@ -4,9 +4,8 @@
 #define NUMCHOICES 3
 
 //Available Options
-#define VARS 1
-#define DEMO 2
-#define SENSOR 3
+#define DEMO 1
+#define SENSOR 2
 
 
 void tape_follow(){
@@ -18,17 +17,11 @@ void tape_follow(){
 
 		switch(menu_choice()){
 
-			case VARS:
-			LCD.setCursor(0,1); LCD.print("Variables");
-			if(startbutton()){
-			//Insert Variable Changing Method
-		}
-			break;
-
 			case DEMO:
 			LCD.setCursor(0,1); LCD.print("Demo");
 			if(startbutton()){
-			//Insert Demo Function
+			//Applies PID Controller
+				tape_follow_demo();
 		}
 			break;
 
