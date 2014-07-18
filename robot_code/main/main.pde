@@ -13,12 +13,15 @@
 #define RUNALL 4
 
 
-//TAPE FOLLOW TREe
+//TAPE FOLLOW TREE
 #define TAPE 3
 //TAPE CHILDREN
 #define TAPE_VARS 1
 #define TAPE_DEMO 2
 #define TAPE_SENSOR 3
+
+//TAPE FOLLOW VARIABLES
+
 
 
 
@@ -28,7 +31,7 @@ void setup()
 }
 
 //User State Initialization
-// Root Loop
+// ROOT LOOP
 void loop(){
 
 	//Print Selection Statement and Clears the Screen
@@ -88,22 +91,22 @@ void tape_follow(){
 		switch(menu_choice(TAPE)){
 
 			case TAPE_VARS:
-			LCD.setCursor(0,1); LCD.print("Demo");
+			LCD.setCursor(0,1); LCD.print("VARS");
 			if(confirm()){
-				while(!deselect()){
-				LCD.setCursor(0,0); LCD.print("DEMOING");
+			//Insert Variable Functions
 				}
-			}
+		}
 			break;
 
 			case TAPE_DEMO:
-			LCD.setCursor(0,1); LCD.print("Sensor");
+			LCD.setCursor(0,1); LCD.print("DEMO");
 			if(confirm()){
 			//Insert Sensor Function
 		}
 			break;
 
 			case TAPE_SENSOR:
+			LCD.setCursor(0,1); LCD.print("SENSOR");
 			if(confirm()){
 			//Insert Sensor Function
 		}
@@ -113,12 +116,29 @@ void tape_follow(){
 	}
 }
 
+//TODO: MUST ADD FUNCTIONS
+//TAPE FUNCTIONS
+void tape_follow_vars(){}
+
+void tape_follow_demo(){}
+
+void tape_follow_sensor(){}
+
+
+
+//IR FUNCTIONS
+
+
+//ARITFACT COLLECTION FUNCTIONS
+
+
+
+
 ////////////////////
-/*Helper Functions*/
+//Helper Functions//
 ////////////////////
 
 //Knob 6 Value is converted to menu selection.
-//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
 int menu_choice(int num_choices){
 	//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
 	int choice = (1.1*(knob(6) * (num_choices - 1)) / 1024) + 1;
@@ -134,7 +154,7 @@ void clear(){
 	LCD.home();
 }
 
-
+//Confirm Selection with a Delay
 bool confirm(){
 	if(startbutton()){
 		delay(500);
@@ -145,6 +165,7 @@ bool confirm(){
 	}
 }
 
+//Deselect Selection with a Delay
 bool deselect(){
 	if(stopbutton()){
 		delay(500);
@@ -154,5 +175,3 @@ bool deselect(){
 		return false;
 	}
 }
-
-
