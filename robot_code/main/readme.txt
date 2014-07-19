@@ -1,25 +1,45 @@
 
-Menu Tree
+ROOT TREE
 1. Tape Following
-	a. DEMO
-	b. Parameters
-	c. Sensor Check
+a. Variables
+b. Demp
+c. Sensor Check
 
 2. IR Following
-	a. DEMO
-	b. Parameters
-	c. Sensor Check
+a. Variables
+b. Demp
+c. Sensor Check
 
 3. Artifact Collection
-	a. DEMO
-	b. Parameters
-	c. Sensor Check
+a. Variables
+b. Demp
+c. Sensor Check
+
+4. Run All
+
+TEMPLATE FOR ADDING NEW FUNCTIONS
 
 
+#define NUM_OF_CONSTANTS
+#define case_1 1
 
-//Helper Functions
+void function(){
 
-menu_choice()
-	chooses the menu selection by reading off of the knob.
+	while(!deselect()){
+		clear();
+		LCD.setCursor(0,0); LCD.print("First Text: ");
 
-clear()
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case case_1:
+		LCD.setCursor(0,1);LCD.print("Option Name");
+
+		if(confirm()){
+			case_function()
+		}
+		break;
+		
+		}
+	}
+}
