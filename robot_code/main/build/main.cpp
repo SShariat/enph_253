@@ -23,6 +23,7 @@ int menu_choice(int num_choices);
 void clear();
 bool confirm();
 bool deselect();
+void incomplete();
 int current, new_value = 0;
 
 int test_1 = 0;
@@ -60,30 +61,21 @@ void loop(){
 		case IR_FOLLOW:
 		LCD.setCursor(0,1);LCD.print("IR-Follow");
 		if(confirm()){
-			while(!stopbutton()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-			}
+			incomplete();
 		}
 		break;
 
 		case ARTIFACT_COLLECTION:
 		LCD.setCursor(0,1);LCD.print("Artifact");
 		if(confirm()){
-			while(!stopbutton()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-			}
+			incomplete();
 		}
 		break;
 
 		case RUN_ALL:
 		LCD.setCursor(0,1);LCD.print("RUN-ALL");
 		if(confirm()){
-			while(!stopbutton()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-			}
+			incomplete();
 		}
 		break;
 
@@ -110,7 +102,7 @@ void tape_follow(){
 		switch(menu_choice(OPTIONS)){
 
 			case TAPE_VARS:
-			LCD.setCursor(0,1); LCD.print("Edit Vars:");
+			LCD.setCursor(0,1); LCD.print("Edit Vars");
 			if(confirm()){
 				clear();
 				tape_follow_vars();
@@ -119,20 +111,16 @@ void tape_follow(){
 			break;
 
 			case TAPE_DEMO:
-			LCD.setCursor(0,1); LCD.print("Run Demo:");
+			LCD.setCursor(0,1); LCD.print("Run Demo");
 			if(confirm()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-				delay(200);
+				incomplete();
 			}
 			break;
 
 			case TAPE_SENSOR:
-			LCD.setCursor(0,1); LCD.print("Check Sensors:");
+			LCD.setCursor(0,1); LCD.print("Check Sensors");
 			if(confirm()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-				delay(200);
+				incomplete();
 			}
 			break;
 		}
@@ -297,6 +285,15 @@ bool deselect(){
 	}
 	else{
 		return false;
+	}
+}
+
+
+void incomplete(){
+	while(!deselect()){
+				clear();
+				LCD.setCursor(0,0); LCD.print("In Progress");
+				delay(200);
 	}
 }
 
