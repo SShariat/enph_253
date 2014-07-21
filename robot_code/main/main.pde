@@ -20,13 +20,16 @@
 //Editor Variables for Parameter Manipulation
 int current, new_value = 0;
 
+int test_1;
+int test_2;
+
 void setup(){
 	// Initializing the motor inputs.
 	portMode(0, INPUT);
 	portMode(1, INPUT);
 
-	int test_1 = EEPROM.read(1);
-	int test_2 = EEPROM.read(2);
+	test_1 = EEPROM.read(1);
+	test_2 = EEPROM.read(2);
 }
 
 // ROOT LOOP
