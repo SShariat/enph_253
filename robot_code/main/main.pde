@@ -154,7 +154,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 			test_1 = new_value;
-			EEPROM.write(1,new_value); 
+			digitalWrite(1,new_value); 
 			}
 		break;
 
@@ -170,7 +170,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 			test_2 = new_value;
-			EEPROM.write(2,new_value); 
+			digitalWrite(2,new_value); 
 			}
 		break;
 
@@ -324,6 +324,6 @@ void display_var(int var){
 //Displays editing mode
 void display_new_var(char name[]){
 	clear();
-	LCD.setCursor(0,0); LCD.print("VAR1");
-	LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
+	LCD.setCursor(0,0); LCD.print(name);
+	LCD.setCursor(0,1); LCD.print("C:"); LCD.print(current); LCD.print(" N:"); LCD.print(new_value);
 }
