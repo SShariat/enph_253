@@ -18,24 +18,6 @@
 
 
 //Editor Variables for Parameter Manipulation
-#include "WProgram.h"
-#include <HardwareSerial.h>
-void setup();
-void loop();
-void tape_follow();
-void tape_follow_vars();
-void tape_follow_demo();
-void tape_follow_sensor();
-void motor_test();
-int menu_choice(int num_choices);
-void clear();
-bool confirm();
-bool deselect();
-void incomplete();
-void display_var(int var);
-void display_new_var(char name[]);
-void print_root(char name[]);
-void print_child(char name[]);
 int current, new_value = 0;
 int speed_1, speed_2;
 
@@ -438,4 +420,3 @@ void print_child(char name[]){
 
 	LCD.setCursor(0,1); LCD.print(name);
 }
-

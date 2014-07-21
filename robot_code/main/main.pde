@@ -22,6 +22,26 @@ int current, new_value = 0;
 int speed_1, speed_2;
 
 
+//Tape Following Variables
+int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
+
+int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
+int lastState = 0;   // The previous state of the robot.
+int thisState = 0;   // The state which the robot is currently running in (i.e. a plateau)
+int lastTime = 0;    // The time the robot spent in the last state.
+int thisTime = 0;    // The time the robot has spent in this state.
+int i = 0;           // i for iterations, because I'm old-school like that.
+
+int pro = 0;         // Taking a leaf out of Andre's book, this stands for the proportional function.
+int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
+int result = 0;      
+
+
+int K_p;
+int K_d;
+int tape_speed;     // The default speed at which the motors will run.
+
+
 //Parameters that will be Edited During Testing
 int test_1;
 int test_2;
@@ -32,8 +52,9 @@ void setup(){
 	portMode(1, INPUT);
 
 	//Variables that will be Edited
-	test_1 = EEPROM.read(1)*4;
-	test_2 = EEPROM.read(2)*4;
+	K_p = EEPROM.read(1)*4;
+	K_d = EEPROM.read(2)*4;
+	tape_speed =  EEPROM.read(3)*4;
 }
 
 // ROOT LOOP
@@ -111,7 +132,7 @@ void tape_follow(){
 			case TAPE_DEMO:
 			print_child("Run Demo");
 			if(confirm()){
-				incomplete();
+				tape_follow_demo();
 			}
 			break;
 
@@ -134,47 +155,65 @@ void tape_follow(){
 // 3. Select Value using knob 7 and press stop to save that value
 void tape_follow_vars(){
 
-	#define NUM_OF_CONSTANTS 2
+	#define NUM_OF_CONSTANTS 3
 
-	#define VAR1 1
-	#define VAR2 2
+	#define KP 1
+	#define KD 2
+	#define SPEED 3
 
 	while(!deselect()){
+	
+	
 		clear();
 		print_root("Variable: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case VAR1:
+		case KP:
 		//Changing Variable 1
-			current = test_1;
-			LCD.print("VAR1");
-			display_var(test_1);
+			current = K_p;
+			LCD.print("K_p");
+			display_var(K_p);
 			if(confirm()){
 				while(!deselect()){
 					new_value = knob(7);
-					display_new_var("VAR1");
+					display_new_var("K_p");
 				delay(200);
 				}
-				test_1 = new_value;
+				K_p = new_value;
 				EEPROM.write(1,new_value/4); 
 			}
 		break;
 
-		case VAR2:
+		case KD:
 		//Changing Variable 2
-			current = test_2;
-			//LCD.setCursor(0,1);LCD.print("MOTOR");
-			LCD.print("VAR2");
-			display_var(test_2);
+			current = K_d;
+			LCD.print("K_d");
+			display_var(K_d);
 			if(confirm()){
 				while(!deselect()){
-					new_value = -knob(7);
-					display_new_var("VAR2");
+					new_value = knob(7);
+					display_new_var("K_d");
 				delay(200);
 				}
-				test_2 = new_value;
+				K_d = new_value;
 				EEPROM.write(2,new_value/4); 
+			}
+		break;
+		
+		case SPEED:
+		//Changing Variable 3
+			current = tape_speed;
+			LCD.print("SPEED");
+			display_var(tape_speed);
+			if(confirm()){
+				while(!deselect()){
+					new_value = knob(7);
+					display_new_var("SPEED");
+				delay(200);
+				}
+				tape_speed = new_value;
+				EEPROM.write(3,new_value/4); 
 			}
 		break;
 
@@ -184,7 +223,12 @@ void tape_follow_vars(){
 	}
 }
 
-/*
+
+
+
+
+
+
 //tape_follow_demo
 //Runs the PID Tape Following Program
 //Parameters:
@@ -222,15 +266,15 @@ void tape_follow_demo(){
 		pro = K_p * state;
 		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-		result = speed + pro + der;
+		result = tape_speed + pro + der;
 
-		if(result > 700 - speed){
+		if(result > 700 - tape_speed){
 			result = 700;
 		}
 
 		//Writes Output to Motor
-		motor.speed(3, speed - result);
-		motor.speed(2, speed + result);  
+		motor.speed(3, tape_speed - result);
+		motor.speed(2, tape_speed + result);  
 
 		if( i==50) {
 			LCD.clear();
@@ -248,7 +292,15 @@ void tape_follow_demo(){
 		thisState = state;
 	}
 }
-*/
+
+
+
+
+
+
+
+
+
 
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
