@@ -22,7 +22,7 @@ int current, new_value = 0;
 int speed_1, speed_2;
 
 
-//Tape Following Variables
+//Tape Following Parameters (Does not Require Editing)
 int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
 
 int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
@@ -36,20 +36,17 @@ int pro = 0;         // Taking a leaf out of Andre's book, this stands for the p
 int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
 int result = 0;      
 
-
+//Variables To be Edited Via TINAH
 int K_p;
 int K_d;
 int tape_speed;     // The default speed at which the motors will run.
-
-
-//Parameters that will be Edited During Testing
-int test_1;
-int test_2;
 
 void setup(){
 	// Initializing the motor inputs.
 	portMode(0, INPUT);
 	portMode(1, INPUT);
+
+	//TODO initialize servomotors.
 
 	//Variables that will be Edited
 	K_p = EEPROM.read(1)*4;
@@ -223,12 +220,6 @@ void tape_follow_vars(){
 	}
 }
 
-
-
-
-
-
-
 //tape_follow_demo
 //Runs the PID Tape Following Program
 //Parameters:
@@ -236,47 +227,53 @@ void tape_follow_vars(){
 //	-kp
 //	-kd
 // 	-motorspeed
-void tape_follow_demo(){
+void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; just 'tape_follow()' would work fine.
 	
 	while(!deselect()){
 
 		//Reading QRD Sensors
-		int l = analogRead(0);
-		int r = analogRead(1);
+		int l = analogRead(0); // Left QRD
+		int r = analogRead(1); // Right QRD (but you knew that already, you're smart)
 
-		if(l > threshold && r > threshold) {
+		if(l > threshold && r > threshold) { // Both QRDs are on the tape
 			state = 0;
-		} else if(l < threshold && r > threshold) {
+		} else if(l < threshold && r > threshold) { // The left QRD has moved off the tape.
 			state = -1;
-		} else if(l > threshold && r < threshold) {
+		} else if(l > threshold && r < threshold) { // The right QRD is now off the tape.
 			state = 1;
-		} else if(1 < threshold && r < threshold && state < 0) {
+		} else if(1 < threshold && r < threshold && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
 			state = -5;
-		} else if(1 < threshold && r < threshold && state >= 0) {
+		} else if(1 < threshold && r < threshold && state >= 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
 		}
 
 
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
 		if(state != thisState) {
 			lastState = thisState;
 			lastTime = thisTime;
 			thisTime = 1;
 		}
 
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
 		pro = K_p * state;
 		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
+		// They're then added together with the robot's speed to produce our output.
 		result = tape_speed + pro + der;
 
+		// This 700 is only here because that was the maximum speed Charles could go without damage. We should be able to remove it.
 		if(result > 700 - tape_speed){
 			result = 700;
 		}
 
-		//Writes Output to Motor
+		// This writes our output to the motors
 		motor.speed(3, tape_speed - result);
 		motor.speed(2, tape_speed + result);  
 
-		if( i==50) {
+
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations.
+		if( i == 50) {
 			LCD.clear();
 			LCD.home(); 
 
@@ -292,15 +289,6 @@ void tape_follow_demo(){
 		thisState = state;
 	}
 }
-
-
-
-
-
-
-
-
-
 
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
