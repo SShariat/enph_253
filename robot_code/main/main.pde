@@ -152,7 +152,8 @@ void tape_follow_vars(){
 					display_new_var("VAR1");
 				delay(200);
 				}
-			EEPROM.write(VAR1,new_value); 
+			test_1 = new_value;
+			EEPROM.write(1,new_value); 
 			}
 		break;
 
@@ -167,7 +168,8 @@ void tape_follow_vars(){
 					display_new_var("VAR2");
 				delay(200);
 				}
-			EEPROM.write(VAR2,new_value); 
+			test_2 = new_value;
+			EEPROM.write(2,new_value); 
 			}
 		break;
 
