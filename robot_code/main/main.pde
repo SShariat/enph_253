@@ -264,7 +264,7 @@ void tape_follow_sensor(){
 
 
 //Motor Functions
-void motor(){
+void motor_test(){
 	while(!deselect()){
 
 	}
