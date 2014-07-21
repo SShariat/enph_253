@@ -154,7 +154,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 			test_1 = new_value;
-			digitalWrite(1,new_value); 
+			EEPROM.write(1,new_value); 
 			}
 		break;
 
@@ -170,7 +170,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 			test_2 = new_value;
-			digitalWrite(2,new_value); 
+			EEPROM.write(2,new_value); 
 			}
 		break;
 
