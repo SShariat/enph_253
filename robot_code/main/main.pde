@@ -7,48 +7,55 @@
 
 //ROOT TREE
 
-#define ROOT 5
+#define ROOT 5 // I assume one can change 5 to larger numbers if they wish for a larger tree?
 
 //ROOT CHILDREN
-#define TAPE_FOLLOW 1
-#define IR_FOLLOW 2
-#define ARTIFACT_COLLECTION 3
-#define MOTOR 4
-#define RUN_ALL 5
+#define TAPE_FOLLOW 1          // Follows tape utilizing PD control, see below.
+#define IR_FOLLOW 2            // Follows an IR beacon, not implemented yet.
+#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm. Code is currently MIA.
+#define MOTOR 4                // Not sure what this is, must ask Sam.
+#define RUN_ALL 5              // Runs everything above at once.
 
 
-//Editor Variables for Parameter Manipulation
+//Editor Variables for Parameter Manipulation (wait, what?)
 int current, new_value = 0;
 int speed_1, speed_2;
 
 
-//Tape Following Parameters (Does not Require Editing)
-int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
+// Initializing tape following parameters
+int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground. 100-300 seem like decent values. Note, we may want to make this a TINAH-editable value for competition day, as the surface may be different than in tests.
 
-int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
-int lastState = 0;   // The previous state of the robot.
-int thisState = 0;   // The state which the robot is currently running in (i.e. a plateau)
-int lastTime = 0;    // The time the robot spent in the last state.
-int thisTime = 0;    // The time the robot has spent in this state.
-int i = 0;           // i for iterations, because I'm old-school like that.
+int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
+int lastState = 0;  // The previous state of the robot.
+int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
+int lastTime  = 0;  // The time the robot spent in the last state.
+int thisTime  = 0;  // The time the robot has spent in this state.
+int i 		  = 0;  // i for iterations, because I'm old-school like that.
 
-int pro = 0;         // Taking a leaf out of Andre's book, this stands for the proportional function.
-int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
-int result = 0;      
+int pro       = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
+int der       = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
+int result    = 0;  // The result of our pro and der, this goes to the motors.    
 
-//Variables To be Edited Via TINAH
-int K_p;
-int K_d;
+// TINAH-editable tape following variables
+int K_p;            // Proportional konstant
+int K_d;            // Derivative konstant
 int tape_speed;     // The default speed at which the motors will run.
 
+
+
+  //---------\\
+ // Functions \\
+//------------ \\
+
 void setup(){
-	// Initializing the motor inputs.
+
+	// Initializes the motor inputs.
 	portMode(0, INPUT);
 	portMode(1, INPUT);
 
-	//TODO initialize servomotors.
+	// TODO initialize servomotors.
 
-	//Variables that will be Edited
+	// Setting up the variables that will be edited
 	K_p = EEPROM.read(1)*4;
 	K_d = EEPROM.read(2)*4;
 	tape_speed =  EEPROM.read(3)*4;
