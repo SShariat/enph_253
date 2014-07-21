@@ -61,7 +61,7 @@ void loop(){
 		break;
 
 		case ARTIFACT_COLLECTION:
-		print_child("Artifact");
+		print_child("Art. Collect");
 		if(confirm()){
 			incomplete();
 		}
@@ -168,7 +168,7 @@ void tape_follow_vars(){
 			display_var(test_2);
 			if(confirm()){
 				while(!deselect()){
-					new_value = knob(7);
+					new_value = -knob(7);
 					display_new_var("VAR2");
 				delay(200);
 				}
