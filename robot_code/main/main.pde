@@ -148,7 +148,7 @@ void tape_follow_vars(){
 		case VAR1:
 		//Changing Variable 1
 			current = test_1;
-			print_child("VAR1");
+			LCD.print("VAR1");
 			display_var(test_1);
 			if(confirm()){
 				while(!deselect()){
@@ -164,7 +164,8 @@ void tape_follow_vars(){
 		case VAR2:
 		//Changing Variable 2
 			current = test_2;
-			print_child("VAR2");
+			//LCD.setCursor(0,1);LCD.print("MOTOR");
+			LCD.print("VAR2");
 			display_var(test_2);
 			if(confirm()){
 				while(!deselect()){
