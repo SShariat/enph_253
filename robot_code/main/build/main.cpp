@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include <HardwareSerial.h>
 #include <phys253.h>
 #include <LiquidCrystal.h>
@@ -6,37 +5,16 @@
 
 // How long our variable names must be. Keep them short!
 #define STR_SIZE 10
-=======
-//Libraries
-	#include <HardwareSerial.h>
-	#include <phys253.h>
-	#include <LiquidCrystal.h>
-	#include <Servo253.h>
-	#include <EEPROM.h>
 
-//ROOT TREE
-
-	#define ROOT 5
->>>>>>> origin/new_menu-system
-
-//ROOT CHILDREN
-	#define TAPE_FOLLOW 1
-	#define IR_FOLLOW 2
-	#define ARTIFACT_COLLECTION 3
-	#define MOTOR 4
-	#define RUN_ALL 5
+// The number of variables we can define. Needs to be updated should any new ones be added.
+#define NUM_CONST 5
 
 
-<<<<<<< HEAD
 // This is the PD control variables' initialization section. These don't change (except for speed and threshold, I'll deal with them later).
-=======
-//Editor Variables for Parameter Manipulation
->>>>>>> origin/new_menu-system
 #include "WProgram.h"
 #include <HardwareSerial.h>
 void setup();
 void loop();
-<<<<<<< HEAD
 void artifact_collect();
 void init_variables(int values[], char names[][STR_SIZE], int array_size);
 void tape_follow();
@@ -123,326 +101,180 @@ void loop()
 	// speed = knob(6);
 
 	LCD.clear(); LCD.home();
-=======
-void tape_follow();
-void tape_follow_vars();
-void tape_follow_sensor();
-int menu_choice(int num_choices);
-void clear();
-bool confirm();
-bool deselect();
-void incomplete();
-void display_var(int var);
-void display_new_var(char name[]);
-int current, new_value = 0;
 
+	LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	LCD.setCursor(11,0); LCD.print(speed);
+	delay(50);
 
-//Tape Following Variables
-	int test_1 = 0;
-	int test_2 = 0;
-	int k_p = 0;
-	int k_d = 0;
-	int motor_speed = 0;
-
-
-// Parameters List
-
-void setup(){
-	portMode(0, INPUT) ; // Initializing the motor inputs.
-	portMode(1, INPUT) ;
-}
-
-// ROOT LOOP
-void loop(){
-
-	clear();
-	//Print Selection Statement and Clears the Screen
-	LCD.setCursor(0,0); LCD.print("Select: ");
-
-	switch(menu_choice(ROOT)){
-
-		case TAPE_FOLLOW:
-		LCD.setCursor(0,1);LCD.print("Tape-Follow");
-		//Tis Implements the Different Tape Following Options
-		if(confirm()){
-			tape_follow();
-		}
-		break;
-
-		case IR_FOLLOW:
-		LCD.setCursor(0,1);LCD.print("IR-Follow");
-		if(confirm()){
-			incomplete();
-		}
-		break;
-
-		case ARTIFACT_COLLECTION:
-		LCD.setCursor(0,1);LCD.print("ARTIFACT");
-		if(confirm()){
-			incomplete();
-		}
-		break;
->>>>>>> origin/new_menu-system
-
-		case MOTOR:
-		LCD.setCursor(0,1);LCD.print("MOTOR");
-		if(confirm()){
-			incomplete();
-		}
-		break;
-
-<<<<<<< HEAD
 	// artifact_collect();
-=======
-		case RUN_ALL:
-		LCD.setCursor(0,1);LCD.print("RUN-ALL");
-		if(confirm()){
-			incomplete();
-		}
-		break;
-
-	}
-	delay(200);
->>>>>>> origin/new_menu-system
 }
+// The artifact collection code. This detects an artifact impact, picks it up, swings the arm over the bucket, drops it off, then returns to its default state.
 
-//TAPE Follow Tree Loop
-void tape_follow(){
-	//TAPE FOLLOW TREE
-	#define OPTIONS 3
-	//TAPE CHILDREN
-	#define TAPE_VARS 1
-	#define TAPE_DEMO 2
-	#define TAPE_SENSOR 3
+// Now, the expected setup will be that the robotic arm has some way of detecting the increase in weight an artifact will add to the arm. This then will prompt it to lift the object, rotate the base, rotate the servo on the end of the arm, then return all servos to their default position. Pretty simple code, actually.
 
-	while(!deselect()){
+void artifact_collect(){
 
-		clear();
-		LCD.setCursor(0,0); LCD.print("Tape-Follow");
+	// This is very much a Work In Progress, the timings and the angles need to be adjusted. Fortunately, they shouldn't become part of the constants function, as we can simply measure the angles on the robot itself, and use dead reckoning for the times.
 
-		switch(menu_choice(OPTIONS)){
+	bool servo = false;
 
-			case TAPE_VARS:
-			LCD.setCursor(0,1); LCD.print("Edit Vars.");
-			if(confirm()){
-				clear();
-				tape_follow_vars();
-				delay(200);
-			}
-			break;
+	//while( !( stopbutton() ) ) {
 
-			case TAPE_DEMO:
-			LCD.setCursor(0,1); LCD.print("Run Demo");
-			if(confirm()){
-				tape_follow_demo();
-			}
-			break;
-
-			case TAPE_SENSOR:
-			LCD.setCursor(0,1); LCD.print("Check Sensors");
-			if(confirm()){
-				tape_follow_sensor();
-			}
-			break;
-		}
-		delay(200);
-	}
-}
-
-//TAPE FOLLOWING MODULES
-
-// Tape Following Variable Editor
-// 1. Select Variable
-// 2. Press start to go into edit mode
-// 3. Select Value using knob 7 and press stop to save that value
-void tape_follow_vars(){
-
-	#define NUM_OF_CONSTANTS 2
-
-	#define VAR1 1
-	#define VAR2 2
-
-	while(!deselect()){
-		clear();
-		LCD.setCursor(0,0); LCD.print("Variable: ");
-
-
-		switch(menu_choice(NUM_OF_CONSTANTS)){
+		// double angle = 0;
 		
-		case VAR1:
-		//Changing Variable 1
-			current = test_1;
-			LCD.print("VAR1");
-			display_var(test_1);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("VAR1");
-				delay(200);
-				}
-			test_1 = new_value; 
-			}
-		break;
+		// angle = 180.0*analogRead(7)/1023;
 
-		case VAR2:
-		//Changing Variable 2
-			current = test_2;
-			LCD.print("VAR2");
-			display_var(test_2);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("VAR2");
-				delay(200);
-				}
-			test_2 = new_value; 
-			}
-		break;
+		// RCServo2.write(angle);
 
+	 //    LCD.clear();
+	 //    LCD.home();
+	 //    LCD.setCursor(0,0); LCD.print("Servomotor Cntrl");
+	 //    LCD.setCursor(0,1); LCD.print(angle);
+		// delay(50);
 
-		}
-		delay(200);
-	}
-}
+		if(digitalRead(10) == 1) {
 
-/*
-//tape_follow_demo
-//Runs the PID Tape Following Program
-//Parameters:
-//	-threshold
-//	-kp
-//	-kd
-// 	-motorspeed
-void tape_follow_demo(){
-	
-	while(!deselect()){
+			LCD.setCursor(0,1); LCD.print("Object Detected!");
+			delay(50);
 
-		//Reading QRD Sensors
-		int l = analogRead(0);
-		int r = analogRead(1);
+			servo = true;
 
-		if(l > threshold && r > threshold) {
-			state = 0;
-		} else if(l < threshold && r > threshold) {
-			state = -1;
-		} else if(l > threshold && r < threshold) {
-			state = 1;
-		} else if(1 < threshold && r < threshold && state < 0) {
-			state = -5;
-		} else if(1 < threshold && r < threshold && state >= 0) {
-			state = 5;
+		} else {
+
+			LCD.setCursor(0,1); LCD.print("Scanning...");
+			delay(50);		
 		}
 
+		if(servo == true){
 
-		if(state != thisState) {
-			lastState = thisState;
-			lastTime = thisTime;
-			thisTime = 1;
+			// RCServo1.write(120); //Vertical arm up
+			// delay(1000);
+
+		  for(int pos = 160; pos > 100; pos -= 1)  // goes from 0 degrees to 180 degrees 
+		  {                                  // in steps of 1 degree 
+		    RCServo1.write(pos);              // tell servo to go to position in variable 'pos' 
+		    delay(15);                       // waits 15ms for the servo to reach the position 
+		  } 
+
+
+
+			// RCServo2.write(180);
+			// delay(1000);
+
+
+		  for(int pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
+		  {                                  // in steps of 1 degree 
+		    RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
+		    delay(15);                       // waits 15ms for the servo to reach the position 
+		  } 
+
+
+			RCServo0.write(180); //drop off the artifact
+			delay(1000);
+
+			RCServo0.write(0); // return artifact dropper to default
+			delay(500);
+
+			RCServo2.write(0);
+			delay(500);
+
+			// for(int pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees 
+			//   {                                
+			//     RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
+			//     delay(5);                       // waits 15ms for the servo to reach the position 
+			//   }
+
+			RCServo1.write(160);  //return to normal height
+			delay(500);
+
+
+			servo = false;
 		}
-
-		pro = K_p * state;
-		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
-
-		result = speed + pro + der;
-
-		if(result > 700 - speed){
-			result = 700;
-		}
-
-		//Writes Output to Motor
-		motor.speed(3, speed - result);
-		motor.speed(2, speed + result);  
-
-		if( i==50) {
-			LCD.clear();
-			LCD.home(); 
-
-			LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-			LCD.setCursor(0,1);
-			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-			i = 0;
-		}
-<<<<<<< HEAD
 	//}
 }
 /*
 int  const_values [NUM_CONST] = {1,2,3,0,12};
 char const_names  [NUM_CONST][STR_SIZE] =  {"foo", "bar", "bletch", "foofoo", "lol"};
-=======
-
-		i++;
-		thisTime++;
-		thisState = state;
-	}
-}
->>>>>>> origin/new_menu-system
 */
 
-//Runs QRD Sensor Module
-void tape_follow_sensor(){
-	while(!deselect()){
-		//Read From QRD Sensors
-		int l = analogRead(0);
-		int r = analogRead(1);
 
-		//Print To Screen QRD Sensors
-		clear();
-		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
-		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
-		delay(200);
-	}
+void init_variables(int values[], char names[][STR_SIZE], int array_size){
+	
+	LCD.clear(); LCD.home();
+	LCD.setCursor(0,0); LCD.print("Init-Constants");
+	LCD.setCursor(0,1); LCD.print("Press Start");
+	while (!(startbutton()));
+
+//	initialization template, for now you have to make sure the names match up so that it is not confusing when you code	
+//	int ___ = value[]; 
+	int foo 	= values[0];
+	int bar 	= values[1];
+	int bletch 	= values[2];
+	int foofoo 	= values[3];
+	int lol 	= values[4];
 }
-<<<<<<< HEAD
 // This is the tape following code. It is the same as Charles', with changed constants to make up for the different weight/turning radius.
-=======
->>>>>>> origin/new_menu-system
 
+void tape_follow(){
 
+	int l = analogRead(0); // We're initializing the left and right analog sensors.
+	int r = analogRead(1);
 
-//////////////////////////
-//	 Helper FUNCTIONS 	//
-//////////////////////////
+	int K_p = analogRead(6);
+	int K_d = analogRead(7);
 
-//Knob 6 Value is converted to menu selection.
-int menu_choice(int num_choices){
-	//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-	int choice = (1.1*(knob(6) * (num_choices - 1)) / 1024) + 1;
-	if(choice>num_choices){
-		choice = num_choices;
+	// The following is Zach's lovely stop function.
+	if( stopbutton() ) {
+			delay(50); // Pause to make sure the stopbutton wasn't pressed by motor noise. (dunno how that could happen, but okay)
+
+		if( stopbutton() ) {
+			motor.speed(3, 0);
+			motor.speed(2, 0); 
+
+			while( !startbutton() ) {
+				int K_p = analogRead(6);
+				int K_d = analogRead(7);
+
+				LCD.clear();
+				LCD.home();
+				LCD.print("PAUSED");    
+				LCD.setCursor(0,1);
+				LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+				delay(50);
+			}  
+		}
 	}
-	return choice;
-}
 
-//Clears the LCD Screen on TINAH
-void clear(){
-	LCD.clear(); 
-	LCD.home();
-}
 
-//Confirm Selection with a Delay
-bool confirm(){
-	if(startbutton()){
-		delay(300);
-		return true;
+	if(l > threshold && r > threshold) {
+		state = 0;
+	} else if(l < threshold && r > threshold) {
+		state = -1;
+	} else if(l > threshold && r < threshold) {
+		state = 1;
+	} else if(1 < threshold && r < threshold && state < 0) {
+		state = -5;
+	} else if(1 < threshold && r < threshold && state >= 0) {
+		state = 5;
 	}
-	else{
-		return false;
-	}
-}
 
-//Deselect Selection with a Delay
-bool deselect(){
-	if(stopbutton()){
-		delay(300);
-		return true;
-	}
-	else{
-		return false;
-	}
-}
 
-<<<<<<< HEAD
+	if(state != thisState) {
+		lastState = thisState;
+		lastTime = thisTime;
+		thisTime = 1;
+	}
+
+	pro = K_p * state;
+	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+
+	result = speed + pro + der;
+
+	if(result > 700 - speed){
+		result = 700;
+	}
+
 	motor.speed(3, speed + result);
 	motor.speed(2, speed + result);  
 
@@ -455,22 +287,13 @@ bool deselect(){
 		LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
 
 		i = 0;
-=======
-//Where ever this function is, it displays the IN PROGRESS Text on TINAH
-void incomplete(){
-	while(!deselect()){
-				clear();
-				LCD.setCursor(0,0); LCD.print("In Progress");
-				delay(200);
->>>>>>> origin/new_menu-system
 	}
-}
 
+	i++;
+	thisTime++; // This time baby, I'll be, forevvvvvahhhhhhh
 
-//Prints the Value of a Variable when scrolling through list of Possibilities
-void display_var(int var){
+	thisState = state;
 
-<<<<<<< HEAD
 };
 void three_tape_follow() {
 	
@@ -562,15 +385,5 @@ void three_tape_follow() {
 
 	thisState = state;	
 
-=======
-	LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(var);
-}
-
-//Displays editing mode
-void display_new_var(char name[]){
-	clear();
-	LCD.setCursor(0,0); LCD.print("VAR1");
-	LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
->>>>>>> origin/new_menu-system
 }
 
