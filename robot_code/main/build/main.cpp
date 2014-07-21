@@ -1,20 +1,20 @@
 //Libraries
-#include <HardwareSerial.h>
-#include <phys253.h>
-#include <LiquidCrystal.h>
-#include <Servo253.h>
-#include <EEPROM.h>
+	#include <HardwareSerial.h>
+	#include <phys253.h>
+	#include <LiquidCrystal.h>
+	#include <Servo253.h>
+	#include <EEPROM.h>
 
 //ROOT TREE
 
-#define ROOT 5
+	#define ROOT 5
 
 //ROOT CHILDREN
-#define TAPE_FOLLOW 1
-#define IR_FOLLOW 2
-#define ARTIFACT_COLLECTION 3
-#define MOTOR 4
-#define RUN_ALL 5
+	#define TAPE_FOLLOW 1
+	#define IR_FOLLOW 2
+	#define ARTIFACT_COLLECTION 3
+	#define MOTOR 4
+	#define RUN_ALL 5
 
 
 //Editor Variables for Parameter Manipulation
@@ -24,9 +24,7 @@ void setup();
 void loop();
 void tape_follow();
 void tape_follow_vars();
-void tape_follow_demo();
 void tape_follow_sensor();
-void motor_test();
 int menu_choice(int num_choices);
 void clear();
 bool confirm();
@@ -34,45 +32,22 @@ bool deselect();
 void incomplete();
 void display_var(int var);
 void display_new_var(char name[]);
-void print_root(char name[]);
-void print_child(char name[]);
 int current, new_value = 0;
-int speed_1, speed_2;
 
 
 //Tape Following Variables
-int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground.
-
-int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
-int lastState = 0;   // The previous state of the robot.
-int thisState = 0;   // The state which the robot is currently running in (i.e. a plateau)
-int lastTime = 0;    // The time the robot spent in the last state.
-int thisTime = 0;    // The time the robot has spent in this state.
-int i = 0;           // i for iterations, because I'm old-school like that.
-
-int pro = 0;         // Taking a leaf out of Andre's book, this stands for the proportional function.
-int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
-int result = 0;      
+	int test_1 = 0;
+	int test_2 = 0;
+	int k_p = 0;
+	int k_d = 0;
+	int motor_speed = 0;
 
 
-int K_p;
-int K_d;
-int tape_speed;     // The default speed at which the motors will run.
-
-
-//Parameters that will be Edited During Testing
-int test_1;
-int test_2;
+// Parameters List
 
 void setup(){
-	// Initializing the motor inputs.
-	portMode(0, INPUT);
-	portMode(1, INPUT);
-
-	//Variables that will be Edited
-	K_p = EEPROM.read(1)*4;
-	K_d = EEPROM.read(2)*4;
-	tape_speed =  EEPROM.read(3)*4;
+	portMode(0, INPUT) ; // Initializing the motor inputs.
+	portMode(1, INPUT) ;
 }
 
 // ROOT LOOP
@@ -80,41 +55,41 @@ void loop(){
 
 	clear();
 	//Print Selection Statement and Clears the Screen
-	print_root("Select: ");
+	LCD.setCursor(0,0); LCD.print("Select: ");
 
 	switch(menu_choice(ROOT)){
 
 		case TAPE_FOLLOW:
-		print_child("Tape-Follow");
-		//This Implements the Different Tape Following Options
+		LCD.setCursor(0,1);LCD.print("Tape-Follow");
+		//Tis Implements the Different Tape Following Options
 		if(confirm()){
 			tape_follow();
 		}
 		break;
 
 		case IR_FOLLOW:
-		print_child("IR-Follow");
+		LCD.setCursor(0,1);LCD.print("IR-Follow");
 		if(confirm()){
 			incomplete();
 		}
 		break;
 
 		case ARTIFACT_COLLECTION:
-		print_child("Art. Collect");
+		LCD.setCursor(0,1);LCD.print("ARTIFACT");
 		if(confirm()){
 			incomplete();
 		}
 		break;
 
 		case MOTOR:
-		print_child("Motor");
+		LCD.setCursor(0,1);LCD.print("MOTOR");
 		if(confirm()){
-			motor_test();
+			incomplete();
 		}
 		break;
 
 		case RUN_ALL:
-		print_child("Run-All");
+		LCD.setCursor(0,1);LCD.print("RUN-ALL");
 		if(confirm()){
 			incomplete();
 		}
@@ -136,26 +111,28 @@ void tape_follow(){
 	while(!deselect()){
 
 		clear();
-		print_root("Tape-Follow");
+		LCD.setCursor(0,0); LCD.print("Tape-Follow");
 
 		switch(menu_choice(OPTIONS)){
 
 			case TAPE_VARS:
-			print_child("Edit Vars.");
+			LCD.setCursor(0,1); LCD.print("Edit Vars.");
 			if(confirm()){
+				clear();
 				tape_follow_vars();
+				delay(200);
 			}
 			break;
 
 			case TAPE_DEMO:
-			print_child("Run Demo");
+			LCD.setCursor(0,1); LCD.print("Run Demo");
 			if(confirm()){
 				tape_follow_demo();
 			}
 			break;
 
 			case TAPE_SENSOR:
-			print_child("Check Sensors");
+			LCD.setCursor(0,1); LCD.print("Check Sensors");
 			if(confirm()){
 				tape_follow_sensor();
 			}
@@ -173,65 +150,45 @@ void tape_follow(){
 // 3. Select Value using knob 7 and press stop to save that value
 void tape_follow_vars(){
 
-	#define NUM_OF_CONSTANTS 3
+	#define NUM_OF_CONSTANTS 2
 
-	#define KP 1
-	#define KD 2
-	#define SPEED 3
+	#define VAR1 1
+	#define VAR2 2
 
 	while(!deselect()){
-	
-	
 		clear();
-		print_root("Variable: ");
+		LCD.setCursor(0,0); LCD.print("Variable: ");
+
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case KP:
+		case VAR1:
 		//Changing Variable 1
-			current = K_p;
-			LCD.print("K_p");
-			display_var(K_p);
+			current = test_1;
+			LCD.print("VAR1");
+			display_var(test_1);
 			if(confirm()){
 				while(!deselect()){
 					new_value = knob(7);
-					display_new_var("K_p");
+					display_new_var("VAR1");
 				delay(200);
 				}
-				K_p = new_value;
-				EEPROM.write(1,new_value/4); 
+			test_1 = new_value; 
 			}
 		break;
 
-		case KD:
+		case VAR2:
 		//Changing Variable 2
-			current = K_d;
-			LCD.print("K_d");
-			display_var(K_d);
+			current = test_2;
+			LCD.print("VAR2");
+			display_var(test_2);
 			if(confirm()){
 				while(!deselect()){
 					new_value = knob(7);
-					display_new_var("K_d");
+					display_new_var("VAR2");
 				delay(200);
 				}
-				K_d = new_value;
-				EEPROM.write(2,new_value/4); 
-			}
-		break;
-		
-		case SPEED:
-		//Changing Variable 3
-			current = tape_speed;
-			LCD.print("SPEED");
-			display_var(tape_speed);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("SPEED");
-				delay(200);
-				}
-				tape_speed = new_value;
-				EEPROM.write(3,new_value/4); 
+			test_2 = new_value; 
 			}
 		break;
 
@@ -241,12 +198,7 @@ void tape_follow_vars(){
 	}
 }
 
-
-
-
-
-
-
+/*
 //tape_follow_demo
 //Runs the PID Tape Following Program
 //Parameters:
@@ -284,15 +236,15 @@ void tape_follow_demo(){
 		pro = K_p * state;
 		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-		result = tape_speed + pro + der;
+		result = speed + pro + der;
 
-		if(result > 700 - tape_speed){
+		if(result > 700 - speed){
 			result = 700;
 		}
 
 		//Writes Output to Motor
-		motor.speed(3, tape_speed - result);
-		motor.speed(2, tape_speed + result);  
+		motor.speed(3, speed - result);
+		motor.speed(2, speed + result);  
 
 		if( i==50) {
 			LCD.clear();
@@ -310,15 +262,7 @@ void tape_follow_demo(){
 		thisState = state;
 	}
 }
-
-
-
-
-
-
-
-
-
+*/
 
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
@@ -335,34 +279,6 @@ void tape_follow_sensor(){
 	}
 }
 
-//Motor Functions
-void motor_test(){
-	while(!deselect()){
-		speed_1 = 2*(analogRead(6) - 511);
-		speed_2 = 2*(analogRead(7) - 511);
-
-		if (speed_1 >1023) {
-			speed_1 = 1023;
-		} else if ( speed_1 < -1023) {
-			speed_1 = -1023;
-		}
-
-		if (speed_2 >1023) {
-			speed_2 = 1023;
-		} else if ( speed_2 < -1023) {
-			speed_2 = -1023;
-		}
-
-		motor.speed(3,speed_1);
-		motor.speed(2,speed_2);
-
-		clear();
-		LCD.setCursor(0,0); LCD.print("M1: "); LCD.print(speed_1);
-		LCD.setCursor(0,1); LCD.print("M2: "); LCD.print(speed_2);
-
-		delay(50);
-	}
-}
 
 
 //////////////////////////
@@ -416,6 +332,7 @@ void incomplete(){
 	}
 }
 
+
 //Prints the Value of a Variable when scrolling through list of Possibilities
 void display_var(int var){
 
@@ -425,17 +342,7 @@ void display_var(int var){
 //Displays editing mode
 void display_new_var(char name[]){
 	clear();
-	LCD.setCursor(0,0); LCD.print(name);
-	LCD.setCursor(0,1); LCD.print("C:"); LCD.print(current); LCD.print(" N:"); LCD.print(new_value);
-}
-
-void print_root(char name[]){
-	
-	LCD.setCursor(0,0); LCD.print(name);
-}
-
-void print_child(char name[]){
-
-	LCD.setCursor(0,1); LCD.print(name);
+	LCD.setCursor(0,0); LCD.print("VAR1");
+	LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
 }
 
