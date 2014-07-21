@@ -28,8 +28,8 @@ void setup(){
 	portMode(0, INPUT);
 	portMode(1, INPUT);
 
-	test_1 = EEPROM.read(1);
-	test_2 = EEPROM.read(2);
+	test_1 = EEPROM.read(1)*4;
+	test_2 = EEPROM.read(2)*4;
 }
 
 // ROOT LOOP
@@ -153,8 +153,8 @@ void tape_follow_vars(){
 					display_new_var("VAR1");
 				delay(200);
 				}
-			test_1 = new_value;
-			EEPROM.write(1,new_value); 
+				test_1 = new_value;
+				EEPROM.write(1,new_value/4); 
 			}
 		break;
 
@@ -169,8 +169,8 @@ void tape_follow_vars(){
 					display_new_var("VAR2");
 				delay(200);
 				}
-			test_2 = new_value;
-			EEPROM.write(2,new_value); 
+				test_2 = new_value;
+				EEPROM.write(2,new_value/4); 
 			}
 		break;
 
