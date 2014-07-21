@@ -1,38 +1,33 @@
 //Libraries
-	#include <HardwareSerial.h>
-	#include <phys253.h>
-	#include <LiquidCrystal.h>
-	#include <Servo253.h>
-	#include <EEPROM.h>
+#include <HardwareSerial.h>
+#include <phys253.h>
+#include <LiquidCrystal.h>
+#include <Servo253.h>
+#include <EEPROM.h>
 
 //ROOT TREE
 
-	#define ROOT 5
+#define ROOT 5
 
 //ROOT CHILDREN
-	#define TAPE_FOLLOW 1
-	#define IR_FOLLOW 2
-	#define ARTIFACT_COLLECTION 3
-	#define MOTOR 4
-	#define RUN_ALL 5
+#define TAPE_FOLLOW 1
+#define IR_FOLLOW 2
+#define ARTIFACT_COLLECTION 3
+#define MOTOR 4
+#define RUN_ALL 5
 
 
 //Editor Variables for Parameter Manipulation
 int current, new_value = 0;
 
-
 //Tape Following Variables
-	int test_1 = 0;
-	int test_2 = 0;
-	int k_p = 0;
-	int k_d = 0;
-	int motor_speed = 0;
+int test_1 = EEPROM.read(1);
+int test_2 = EEPROM.read(2);
 
-
-// Parameters List
 
 void setup(){
-	portMode(0, INPUT) ; // Initializing the motor inputs.
+	// Initializing the motor inputs.
+	portMode(0, INPUT) ;
 	portMode(1, INPUT) ;
 }
 
@@ -104,9 +99,7 @@ void tape_follow(){
 			case TAPE_VARS:
 			LCD.setCursor(0,1); LCD.print("Edit Vars.");
 			if(confirm()){
-				clear();
 				tape_follow_vars();
-				delay(200);
 			}
 			break;
 
@@ -159,7 +152,7 @@ void tape_follow_vars(){
 					display_new_var("VAR1");
 				delay(200);
 				}
-			test_1 = new_value; 
+			EEPROM.write(VAR1,new_value); 
 			}
 		break;
 
@@ -174,7 +167,7 @@ void tape_follow_vars(){
 					display_new_var("VAR2");
 				delay(200);
 				}
-			test_2 = new_value; 
+			EEPROM.write(VAR2,new_value); 
 			}
 		break;
 
