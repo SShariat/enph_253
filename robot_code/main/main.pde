@@ -113,7 +113,7 @@ void tape_follow(){
 			case TAPE_DEMO:
 			LCD.setCursor(0,1); LCD.print("Run Demo");
 			if(confirm()){
-				tape_follow_demo();
+				incomplete();
 			}
 			break;
 
