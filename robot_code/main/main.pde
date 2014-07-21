@@ -1,34 +1,39 @@
-#include <HardwareSerial.h>
-#include <phys253.h>
-#include <LiquidCrystal.h>
-#include <Servo253.h>
-#include <EEPROM.h>
+//Libraries
+	#include <HardwareSerial.h>
+	#include <phys253.h>
+	#include <LiquidCrystal.h>
+	#include <Servo253.h>
+	#include <EEPROM.h>
 
 //ROOT TREE
-#define ROOT 5
-//ROOT CHILDREN
-#define TAPE_FOLLOW 1
-#define IR_FOLLOW 2
-#define ARTIFACT_COLLECTION 3
-#define MOTOR 4
-#define RUN_ALL 5
 
+	#define ROOT 5
+
+//ROOT CHILDREN
+	#define TAPE_FOLLOW 1
+	#define IR_FOLLOW 2
+	#define ARTIFACT_COLLECTION 3
+	#define MOTOR 4
+	#define RUN_ALL 5
+
+
+//Editor Variables for Parameter Manipulation
 int current, new_value = 0;
 
 
 //Tape Following Variables
-
-int test_1 = 0;
-int k_p = 0;
-int k_d = 0;
-int motor_speed = 0;
+	int test_1 = 0;
+	int test_2 = 0;
+	int k_p = 0;
+	int k_d = 0;
+	int motor_speed = 0;
 
 
 // Parameters List
 
-void setup()
-{
-
+void setup(){
+	portMode(0, INPUT) ; // Initializing the motor inputs.
+	portMode(1, INPUT) ;
 }
 
 // ROOT LOOP
@@ -80,7 +85,6 @@ void loop(){
 	delay(200);
 }
 
-
 //TAPE Follow Tree Loop
 void tape_follow(){
 	//TAPE FOLLOW TREE
@@ -127,19 +131,15 @@ void tape_follow(){
 //TAPE FOLLOWING MODULES
 
 // Tape Following Variable Editor
-// Select Variable
-// Press start to go into edit mode
-//	Select Value using knob 7 and press stop to save that value
+// 1. Select Variable
+// 2. Press start to go into edit mode
+// 3. Select Value using knob 7 and press stop to save that value
 void tape_follow_vars(){
 
-	#define NUM_OF_CONSTANTS 4
+	#define NUM_OF_CONSTANTS 2
 
-	#define KP 1
-	#define KD 2
-	#define VAR_3 3
-	#define VAR_4 4
-
-	int current = 0;
+	#define VAR1 1
+	#define VAR2 2
 
 	while(!deselect()){
 		clear();
@@ -148,81 +148,43 @@ void tape_follow_vars(){
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case KP:
+		case VAR1:
 		//Changing Variable 1
 			current = test_1;
-			LCD.print("K_p");
-			LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(test_1);
+			LCD.print("VAR1");
+			display_var(test_1);
 			if(confirm()){
-			while(!deselect()){
-				new_value = knob(7);
-				clear();
-				LCD.setCursor(0,0); LCD.print("VAR1");
-				LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
+				while(!deselect()){
+					new_value = knob(7);
+					display_new_var("VAR1");
 				delay(200);
-			}
+				}
 			test_1 = new_value; 
 			}
 		break;
 
-		case VAR_2:
+		case VAR2:
 		//Changing Variable 2
-			current = test_1;
-			LCD.print("VAR1");
-			LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(test_1);
+			current = test_2;
+			LCD.print("VAR2");
+			display_var(test_2);
 			if(confirm()){
-			while(!deselect()){
-				new_value = knob(7);
-				clear();
-				LCD.setCursor(0,0); LCD.print("VAR1");
-				LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
+				while(!deselect()){
+					new_value = knob(7);
+					display_new_var("VAR2");
 				delay(200);
-			}
-			test_1 = new_value; 
+				}
+			test_2 = new_value; 
 			}
 		break;
 
-		case VAR_3:
-		//Changing Variable 3
-			current = test_1;
-			LCD.print("VAR1");
-			LCD.setCursor(0,1); LCD.print("Curr: "); LCD.print(test_1);
-			if(confirm()){
-			while(!deselect()){
-				new_value = knob(7);
-				clear();
-				LCD.setCursor(0,0); LCD.print("VAR1");
-				LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
-				delay(200);
-			}
-			test_1 = new_value; 
-			}
-		break;
 
-		case VAR_4:
-		//Changing Variable 4
-			current = test_1;
-			LCD.print("VAR1");
-			LCD.setCursor(0,1); LCD.print("Curr: "); LCD.print(test_1);
-			if(confirm()){
-			while(!deselect()){
-				new_value = knob(7);
-				clear();
-				LCD.setCursor(0,0); LCD.print("VAR1");
-				LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
-				delay(200);
-			}
-			test_1 = new_value; 
-			}
-		break;
-		
 		}
 		delay(200);
-
 	}
 }
 
-
+/*
 //tape_follow_demo
 //Runs the PID Tape Following Program
 //Parameters:
@@ -286,7 +248,7 @@ void tape_follow_demo(){
 		thisState = state;
 	}
 }
-
+*/
 
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
@@ -354,4 +316,18 @@ void incomplete(){
 				LCD.setCursor(0,0); LCD.print("In Progress");
 				delay(200);
 	}
+}
+
+
+//Prints the Value of a Variable when scrolling through list of Possibilities
+void display_var(int var){
+
+	LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(var);
+}
+
+//Displays editing mode
+void display_new_var(char name[]){
+	clear();
+	LCD.setCursor(0,0); LCD.print("VAR1");
+	LCD.setCursor(0,1); LCD.print("Cur:"); LCD.print(current); LCD.print(" New:"); LCD.print(new_value);
 }
