@@ -17,11 +17,12 @@ c. Sensor Check
 
 4. Run All
 
+
+
 TEMPLATE FOR ADDING NEW FUNCTIONS
 
-
-#define NUM_OF_CONSTANTS
-#define case_1 1
+#define NUM_OF_CHILDREN
+#define child_1
 
 void function(){
 
@@ -32,7 +33,7 @@ void function(){
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case case_1:
+		case child_1:
 		LCD.setCursor(0,1);LCD.print("Option Name");
 
 		if(confirm()){
