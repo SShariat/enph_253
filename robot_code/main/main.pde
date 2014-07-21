@@ -28,8 +28,9 @@ void setup(){
 	portMode(0, INPUT);
 	portMode(1, INPUT);
 
-	test_1 = EEPROM.read(1)*4;
-	test_2 = EEPROM.read(2)*4;
+	//Variables that will be Edited
+	test_1 = EEPROM.read(1)*5;
+	test_2 = EEPROM.read(2)*5;
 }
 
 // ROOT LOOP
@@ -37,41 +38,41 @@ void loop(){
 
 	clear();
 	//Print Selection Statement and Clears the Screen
-	LCD.setCursor(0,0); LCD.print("Select: ");
+	print_root("Select: ");
 
 	switch(menu_choice(ROOT)){
 
 		case TAPE_FOLLOW:
-		LCD.setCursor(0,1);LCD.print("Tape-Follow");
-		//Tis Implements the Different Tape Following Options
+		print_child("Tape-Follow");
+		//This Implements the Different Tape Following Options
 		if(confirm()){
 			tape_follow();
 		}
 		break;
 
 		case IR_FOLLOW:
-		LCD.setCursor(0,1);LCD.print("IR-Follow");
+		print_child("IR-Follow");
 		if(confirm()){
 			incomplete();
 		}
 		break;
 
 		case ARTIFACT_COLLECTION:
-		LCD.setCursor(0,1);LCD.print("ARTIFACT");
+		print_child("Artifact");
 		if(confirm()){
 			incomplete();
 		}
 		break;
 
 		case MOTOR:
-		LCD.setCursor(0,1);LCD.print("MOTOR");
+		print_child("Motor");
 		if(confirm()){
 			incomplete();
 		}
 		break;
 
 		case RUN_ALL:
-		LCD.setCursor(0,1);LCD.print("RUN-ALL");
+		print_child("Run-All");
 		if(confirm()){
 			incomplete();
 		}
@@ -93,26 +94,26 @@ void tape_follow(){
 	while(!deselect()){
 
 		clear();
-		LCD.setCursor(0,0); LCD.print("Tape-Follow");
+		print_root("Tape-Follow");
 
 		switch(menu_choice(OPTIONS)){
 
 			case TAPE_VARS:
-			LCD.setCursor(0,1); LCD.print("Edit Vars.");
+			print_child("Edit Vars.");
 			if(confirm()){
 				tape_follow_vars();
 			}
 			break;
 
 			case TAPE_DEMO:
-			LCD.setCursor(0,1); LCD.print("Run Demo");
+			print_child("Run Demo");
 			if(confirm()){
 				incomplete();
 			}
 			break;
 
 			case TAPE_SENSOR:
-			LCD.setCursor(0,1); LCD.print("Check Sensors");
+			print_child("Check Sensors");
 			if(confirm()){
 				tape_follow_sensor();
 			}
@@ -154,7 +155,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 				test_1 = new_value;
-				EEPROM.write(1,new_value/4); 
+				EEPROM.write(1,new_value/5); 
 			}
 		break;
 
@@ -170,7 +171,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 				test_2 = new_value;
-				EEPROM.write(2,new_value/4); 
+				EEPROM.write(2,new_value/5); 
 			}
 		break;
 
@@ -262,6 +263,14 @@ void tape_follow_sensor(){
 }
 
 
+//Motor Functions
+void motor(){
+	while(!deselect()){
+
+	}
+}
+
+
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
@@ -314,7 +323,6 @@ void incomplete(){
 	}
 }
 
-
 //Prints the Value of a Variable when scrolling through list of Possibilities
 void display_var(int var){
 
@@ -326,4 +334,14 @@ void display_new_var(char name[]){
 	clear();
 	LCD.setCursor(0,0); LCD.print(name);
 	LCD.setCursor(0,1); LCD.print("C:"); LCD.print(current); LCD.print(" N:"); LCD.print(new_value);
+}
+
+void print_root(char name[]){
+	
+	LCD.setCursor(0,0); LCD.print(name);
+}
+
+void print_child(char name[]){
+
+	LCD.setCursor(0,1); LCD.print(name);
 }
