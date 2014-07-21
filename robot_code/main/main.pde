@@ -19,7 +19,10 @@
 
 //Editor Variables for Parameter Manipulation
 int current, new_value = 0;
+int speed_1, speed_2;
 
+
+//Parameters that will be Edited During Testing
 int test_1;
 int test_2;
 
@@ -29,8 +32,8 @@ void setup(){
 	portMode(1, INPUT);
 
 	//Variables that will be Edited
-	test_1 = EEPROM.read(1)*5;
-	test_2 = EEPROM.read(2)*5;
+	test_1 = EEPROM.read(1)*4;
+	test_2 = EEPROM.read(2)*4;
 }
 
 // ROOT LOOP
@@ -67,7 +70,7 @@ void loop(){
 		case MOTOR:
 		print_child("Motor");
 		if(confirm()){
-			incomplete();
+			motor_test();
 		}
 		break;
 
@@ -138,15 +141,14 @@ void tape_follow_vars(){
 
 	while(!deselect()){
 		clear();
-		LCD.setCursor(0,0); LCD.print("Variable: ");
-
+		print_root("Variable: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
 		case VAR1:
 		//Changing Variable 1
 			current = test_1;
-			LCD.print("VAR1");
+			print_child("VAR1");
 			display_var(test_1);
 			if(confirm()){
 				while(!deselect()){
@@ -155,14 +157,14 @@ void tape_follow_vars(){
 				delay(200);
 				}
 				test_1 = new_value;
-				EEPROM.write(1,new_value/5); 
+				EEPROM.write(1,new_value/4); 
 			}
 		break;
 
 		case VAR2:
 		//Changing Variable 2
 			current = test_2;
-			LCD.print("VAR2");
+			print_child("VAR2");
 			display_var(test_2);
 			if(confirm()){
 				while(!deselect()){
@@ -171,7 +173,7 @@ void tape_follow_vars(){
 				delay(200);
 				}
 				test_2 = new_value;
-				EEPROM.write(2,new_value/5); 
+				EEPROM.write(2,new_value/4); 
 			}
 		break;
 
@@ -262,14 +264,34 @@ void tape_follow_sensor(){
 	}
 }
 
-
 //Motor Functions
 void motor_test(){
 	while(!deselect()){
+		speed_1 = 2*(analogRead(6) - 511);
+		speed_2 = 2*(analogRead(7) - 511);
 
+		if (speed_1 >1023) {
+			speed_1 = 1023;
+		} else if ( speed_1 < -1023) {
+			speed_1 = -1023;
+		}
+
+		if (speed_2 >1023) {
+			speed_2 = 1023;
+		} else if ( speed_2 < -1023) {
+			speed_2 = -1023;
+		}
+
+		motor.speed(3,speed_1);
+		motor.speed(2,speed_2);
+
+		clear();
+		LCD.setCursor(0,0); LCD.print("M1: "); LCD.print(speed_1);
+		LCD.setCursor(0,1); LCD.print("M2: "); LCD.print(speed_2);
+
+		delay(50);
 	}
 }
-
 
 
 //////////////////////////
