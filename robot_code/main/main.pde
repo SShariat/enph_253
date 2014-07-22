@@ -25,8 +25,6 @@ int speed_1, speed_2;
 
 
 // Initializing tape following parameters
-int threshold = 200; // The value at which the program will determine whether the sensors are looking at the ground. 100-300 seem like decent values. Note, we may want to make this a TINAH-editable value for competition day, as the surface may be different than in tests.
-
 int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
 int lastState = 0;  // The previous state of the robot.
 int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
@@ -42,7 +40,7 @@ int result    = 0;  // The result of our pro and der, this goes to the motors.
 int K_p;            // Proportional constant
 int K_d;            // Derivative constant
 int tape_speed;     // The default speed at which the motors will run.
-
+int tape_thresh;	//// The value at which the program will determine whether the sensors are looking at the ground. 100-300 seem like decent values. Note, we may want to make this a TINAH-editable value for competition day, as the surface may be different than in tests.
 
 
   //---------\\
@@ -61,6 +59,7 @@ void setup(){
 	K_p = EEPROM.read(1)*4;
 	K_d = EEPROM.read(2)*4;
 	tape_speed =  EEPROM.read(3)*4;
+	tape_thresh = EEPROM.read(4)*4;
 }
 
 // ROOT LOOP
@@ -83,7 +82,7 @@ void loop(){
 		case IR_FOLLOW:
 		print_child("IR-Follow");
 		if(confirm()){
-			incomplete();
+			ir_follow();
 		}
 		break;
 
@@ -161,11 +160,12 @@ void tape_follow(){
 // 3. Select Value using knob 7 and press stop to save that value
 void tape_follow_vars(){
 
-	#define NUM_OF_CONSTANTS 3
+	#define NUM_OF_CONSTANTS 4
 
 	#define KP 1
 	#define KD 2
 	#define SPEED 3
+	#define THRESH 4
 
 	while(!deselect()){
 	
@@ -184,10 +184,13 @@ void tape_follow_vars(){
 				while(!deselect()){
 					new_value = knob(7);
 					display_new_var("K_p");
-				delay(200);
+					if(confirm()){
+						current = new_value;
+						K_p = new_value;
+						EEPROM.write(1,new_value/4);
+					}
+					delay(200);
 				}
-				K_p = new_value;
-				EEPROM.write(1,new_value/4); 
 			}
 		break;
 
@@ -200,10 +203,13 @@ void tape_follow_vars(){
 				while(!deselect()){
 					new_value = knob(7);
 					display_new_var("K_d");
-				delay(200);
+					if(confirm()){
+						current = new_value;
+						K_d = new_value;
+						EEPROM.write(2,new_value/4); 
+					}
+					delay(200);	
 				}
-				K_d = new_value;
-				EEPROM.write(2,new_value/4); 
 			}
 		break;
 		
@@ -216,10 +222,32 @@ void tape_follow_vars(){
 				while(!deselect()){
 					new_value = knob(7);
 					display_new_var("Speed");
-				delay(200);
+					if(confirm()){
+						current = new_value;
+						tape_speed = new_value;
+						EEPROM.write(3,new_value/4); 
+					}
+					delay(200);
 				}
-				tape_speed = new_value;
-				EEPROM.write(3,new_value/4); 
+			}
+		break;
+
+		case THRESH:
+		//Changing Variable 4
+			current = tape_thresh;
+			LCD.print("Thresh");
+			display_var(tape_thresh);
+			if(confirm()){
+				while(!deselect()){
+					new_value = knob(7);
+					display_new_var("Thresh");
+					if(confirm()){
+						current = new_value;
+						tape_thresh = new_value;
+						EEPROM.write(4,new_value/4); 
+					}
+					delay(200);
+				}
 			}
 		break;
 
@@ -244,15 +272,15 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 		int l = analogRead(0); // Left QRD
 		int r = analogRead(1); // Right QRD (but you knew that already, you're smart)
 
-		if(l > threshold && r > threshold) { // Both QRDs are on the tape
+		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
 			state = 0;
-		} else if(l < threshold && r > threshold) { // The left QRD has moved off the tape.
+		} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
 			state = -1;
-		} else if(l > threshold && r < threshold) { // The right QRD is now off the tape.
+		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
 			state = 1;
-		} else if(1 < threshold && r < threshold && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+		} else if(1 < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
 			state = -5;
-		} else if(1 < threshold && r < threshold && state >= 0) { // Both QRDs are off, the robot is tilted to the right.
+		} else if(1 < tape_thresh && r < tape_thresh && state >= 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
 		}
 
@@ -346,6 +374,66 @@ void motor_test(){
 }
 
 
+//IR Functions
+
+//IR Tree
+void ir_follow(){
+	#define OPTIONS 3
+	//TAPE CHILDREN
+	#define IR_FOLLOW_VARS 1
+	#define IR_FOLLOW_DEMO 2
+	#define IR_FOLLOW_SENSOR 3
+
+	while(!deselect()){
+
+		clear();
+		print_root("Tape-Follow");
+
+		switch(menu_choice(OPTIONS)){
+
+			case IR_FOLLOW_VARS:
+			print_child("Edit Vars.");
+			if(confirm()){
+				ir_follow_vars();
+			}
+			break;
+
+			case IR_FOLLOW_DEMO:
+			print_child("Run Demo");
+			if(confirm()){
+				ir_follow_demo();
+			}
+			break;
+
+			case IR_FOLLOW_SENSOR:
+			print_child("Check Sensors");
+			if(confirm()){
+				ir_follow_sensor();
+			}
+			break;
+		}
+		delay(200);
+	}
+}
+
+void ir_follow_vars(){
+	while(!deselect()){
+
+	}
+}
+
+void ir_follow_demo(){
+	while(!deselect()){
+
+	}
+}
+
+void ir_follow_sensor(){
+	while(!deselect()){
+
+	}
+}
+
 //////////////////////////
 //	 Helper FUNCTIONS 	//
 //////////////////////////
@@ -399,7 +487,6 @@ void incomplete(){
 
 //Prints the Value of a Variable when scrolling through list of Possibilities
 void display_var(int var){
-
 	LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(var);
 }
 
@@ -419,3 +506,6 @@ void print_child(char name[]){
 
 	LCD.setCursor(0,1); LCD.print(name);
 }
+
+
+void edit_variable(){}
