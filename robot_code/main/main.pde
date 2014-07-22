@@ -208,12 +208,12 @@ void tape_follow_vars(){
 		case SPEED:
 		//Changing Variable 3
 			current = tape_speed;
-			LCD.print("SPEED");
+			LCD.print("Speed");
 			display_var(tape_speed);
 			if(confirm()){
 				while(!deselect()){
 					new_value = knob(7);
-					display_new_var("SPEED");
+					display_new_var("Speed");
 				delay(200);
 				}
 				tape_speed = new_value;
@@ -349,7 +349,7 @@ void motor_test(){
 //Knob 6 Value is converted to menu selection.
 int menu_choice(int num_choices){
 	//NewValue = (((OldValue - OldMin) * (NewMax - NewMin)) / (OldMax - OldMin)) + NewMin
-	int choice = (1.1*(knob(6) * (num_choices - 1)) / 1024) + 1;
+	int choice = (1.1*(knob(7) * (num_choices - 1)) / 1024) + 1;
 	if(choice>num_choices){
 		choice = num_choices;
 	}
