@@ -7,18 +7,20 @@
 
 //ROOT TREE
 
-#define ROOT 5 // I assume one can change 5 to larger numbers if they wish for a larger tree?
+#define ROOT 5
 
 //ROOT CHILDREN
-#define TAPE_FOLLOW 1          // Follows tape utilizing PD control, see below.
-#define IR_FOLLOW 2            // Follows an IR beacon, not implemented yet.
-#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm. Code is currently MIA.
-#define MOTOR 4                // Not sure what this is, must ask Sam.
+#define TAPE_FOLLOW 1          // Follows tape utilizing PD control.
+#define IR_FOLLOW 2            // Follows an IR beacon.
+#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
+#define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
 #define RUN_ALL 5              // Runs everything above at once.
 
 
-//Editor Variables for Parameter Manipulation (wait, what?)
+//Editor Variables for Parameter Manipulation
 int current, new_value = 0;
+
+//Motor Test Variables (These are the peeds of 2 Motors)
 int speed_1, speed_2;
 
 
@@ -37,8 +39,8 @@ int der       = 0;  // As one might expect, this is the derivative function (no 
 int result    = 0;  // The result of our pro and der, this goes to the motors.    
 
 // TINAH-editable tape following variables
-int K_p;            // Proportional konstant
-int K_d;            // Derivative konstant
+int K_p;            // Proportional constant
+int K_d;            // Derivative constant
 int tape_speed;     // The default speed at which the motors will run.
 
 
@@ -339,6 +341,8 @@ void motor_test(){
 
 		delay(50);
 	}
+	//Added Motor Stop Function
+	motor.stop_all();
 }
 
 
