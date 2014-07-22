@@ -337,6 +337,7 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 		thisTime++;
 		thisState = state;
 	}
+	motor.stop_all();
 }
 
 //Runs QRD Sensor Module
@@ -442,7 +443,15 @@ void ir_follow_demo(){
 
 void ir_follow_sensor(){
 	while(!deselect()){
-
+		left_high= analogRead(0)*5/1024;
+		left_low = analogRead(1)*5/1024;
+		right_high = analogRead(2)*5/1024;
+		right_low = analogRead(3)*5/1024;
+		
+		clear();
+		LCD.setCursor(0,0);LCD.print("L "); LCD.print("LO:"); LCD.print(left_low); LCD.print("HI:"); LCD.print(left_high);
+		LCD.setCursor(0,1);LCD.print("R "); LCD.print("LO:"); LCD.print(right_low); LCD.print("HI:"); LCD.print(right_high);
+		delay(200);
 	}
 }
 
