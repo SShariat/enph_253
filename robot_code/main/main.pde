@@ -292,7 +292,7 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 			state = -5;
 		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
-		} else if(l < tape_thresh && r < tape_thresh && state = 0) { // Both QRDs are now off the tape, but the code 
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the code 
 			state = 0;
 		}
 

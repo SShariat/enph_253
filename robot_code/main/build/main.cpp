@@ -105,7 +105,7 @@ void loop(){
 		case IR_FOLLOW:
 		print_child("IR-Follow");
 		if(confirm()){
-			incomplete();
+			ir_follow();
 		}
 		break;
 
@@ -200,15 +200,16 @@ void tape_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			current = EEPROM.read(1)*4;
+			current = K_p;
 			LCD.print("K_p");
-			display_var(EEPROM.read(1)*4);
+			display_var(K_p);
 			if(confirm()){
 				while(!deselect()){
 					new_value = knob(7);
 					display_new_var("K_p");
 					if(confirm()){
 						current = new_value;
+						K_p = new_value;
 						EEPROM.write(1,new_value/4);
 					}
 					delay(200);
@@ -280,7 +281,17 @@ void tape_follow_vars(){
 }
 
 //tape_follow_demo
-//Runs the PID Tape Following Program
+
+   //-----------------------\\
+  //---TAPE FOLLOWING CODE---\\
+ //---------------------------\\
+
+// *explosions* *electric guitar noises*
+
+// Ladies and gentlemen, prepare your butts for a magnificent, fabulous, absolutely stunning piece of code. First written back in the Dark Ages of the robot course, designed for Charles the Robot, this code performed exceptionally well, following tape exactly all the way up the course. And now, without further ado, I present to you the:
+
+
+// PD Tape Following Program
 //Parameters:
 //	-threshold
 //	-kp
@@ -300,10 +311,12 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 			state = -1;
 		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
 			state = 1;
-		} else if(1 < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
 			state = -5;
-		} else if(1 < tape_thresh && r < tape_thresh && state >= 0) { // Both QRDs are off, the robot is tilted to the right.
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the code 
+			state = 0;
 		}
 
 
@@ -396,11 +409,45 @@ void motor_test(){
 }
 
 
-//IR Function
+//IR Functions
 
+//IR Tree
 void ir_follow(){
+	#define OPTIONS 3
+	//TAPE CHILDREN
+	#define IR_FOLLOW_VARS 1
+	#define IR_FOLLOW_DEMO 2
+	#define IR_FOLLOW_SENSOR 3
+
 	while(!deselect()){
 
+		clear();
+		print_root("Tape-Follow");
+
+		switch(menu_choice(OPTIONS)){
+
+			case IR_FOLLOW_VARS:
+			print_child("Edit Vars.");
+			if(confirm()){
+				ir_follow_vars();
+			}
+			break;
+
+			case IR_FOLLOW_DEMO:
+			print_child("Run Demo");
+			if(confirm()){
+				ir_follow_demo();
+			}
+			break;
+
+			case IR_FOLLOW_SENSOR:
+			print_child("Check Sensors");
+			if(confirm()){
+				ir_follow_sensor();
+			}
+			break;
+		}
+		delay(200);
 	}
 }
 
@@ -475,7 +522,6 @@ void incomplete(){
 
 //Prints the Value of a Variable when scrolling through list of Possibilities
 void display_var(int var){
-
 	LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(var);
 }
 
@@ -497,7 +543,5 @@ void print_child(char name[]){
 }
 
 
-void edit_variable(){
-
-}
+void edit_variable(){}
 
