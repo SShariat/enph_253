@@ -258,7 +258,17 @@ void tape_follow_vars(){
 }
 
 //tape_follow_demo
-//Runs the PID Tape Following Program
+
+   //-----------------------\\
+  //---TAPE FOLLOWING CODE---\\
+ //---------------------------\\
+
+// *explosions* *electric guitar noises*
+
+// Ladies and gentlemen, prepare your butts for a magnificent, fabulous, absolutely stunning piece of code. First written back in the Dark Ages of the robot course, designed for Charles the Robot, this code performed exceptionally well, following tape exactly all the way up the course. And now, without further ado, I present to you the:
+
+
+// PD Tape Following Program
 //Parameters:
 //	-threshold
 //	-kp
@@ -278,10 +288,12 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 			state = -1;
 		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
 			state = 1;
-		} else if(1 < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
 			state = -5;
-		} else if(1 < tape_thresh && r < tape_thresh && state >= 0) { // Both QRDs are off, the robot is tilted to the right.
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state = 0) { // Both QRDs are now off the tape, but the code 
+			state = 0;
 		}
 
 
