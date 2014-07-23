@@ -20,7 +20,7 @@
 //Editor Variables for Parameter Manipulation
 int current, new_value = 0;
 
-//Motor Test Variables (These are the peeds of 2 Motors)
+//Motor Test Variables (These are the speeds of 2 Motors)
 int speed_1, speed_2;
 
 
@@ -46,6 +46,13 @@ int tape_thresh;	//// The value at which the program will determine whether the 
   //---------\\
  // Functions \\
 //------------ \\
+
+
+// IR Detection Variables
+int left_high;
+int left_low;
+int right_high;
+int right_low;
 
 void setup(){
 
@@ -309,15 +316,15 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
 		// They're then added together with the robot's speed to produce our output.
-		result = tape_speed + pro + der;
+		result = pro + der;
 
-		// This 700 is only here because that was the maximum speed Charles could go without damage. We should be able to remove it.
-		if(result > 700 - tape_speed){
-			result = 700;
-		}
+		// This 700 is only here because that was the maximum speed Charles could go without damage. I've removed it for now.
+		// if(result > 700 - tape_speed){
+		// 	result = 700;
+		// }
 
 		// This writes our output to the motors
-		motor.speed(3, tape_speed - result);
+		motor.speed(3, (1) * (tape_speed - result) );
 		motor.speed(2, tape_speed + result);  
 
 
@@ -337,6 +344,7 @@ void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; ju
 		thisTime++;
 		thisState = state;
 	}
+	motor.stop_all();
 }
 
 //Runs QRD Sensor Module
@@ -442,7 +450,15 @@ void ir_follow_demo(){
 
 void ir_follow_sensor(){
 	while(!deselect()){
-
+		left_high= analogRead(0)*5/1024;
+		left_low = analogRead(1)*5/1024;
+		right_high = analogRead(2)*5/1024;
+		right_low = analogRead(3)*5/1024;
+		
+		clear();
+		LCD.setCursor(0,0);LCD.print("L "); LCD.print("LO:"); LCD.print(left_low); LCD.print("HI:"); LCD.print(left_high);
+		LCD.setCursor(0,1);LCD.print("R "); LCD.print("LO:"); LCD.print(right_low); LCD.print("HI:"); LCD.print(right_high);
+		delay(200);
 	}
 }
 
