@@ -1,0 +1,10 @@
+Hey Sam!
+
+I have added the rest of the comments to the artifact_collect.pde code; feel free to copy it and add it to our real main function.
+
+Also, I had an idea for how we may do the transition between tape following and IR. Basically, after we collect the final artifact, we can turn on the IR detection and travel towards the IR source (we then can turn up the speed on the motors so that we can get onto the rocks). Then, when the robot has detected its picked up the Idol, we turn around, now following the other IR beacon. We may run into difficulties when we come off the rocks and see the idol, but perhaps if we set the robot to turn back on the QRDs when the IR amplitude reaches a certain value? You know more about the circuit than me. Given the power our motors have, the blocks and the boulder shouldn't be much of an issue, so we should be easily able to return to the start.
+
+How are we going to tackle both artifact collection and tape following? Unless we come up with something really clever, the robot will remain in its previous state (be it turning left, right, etc) as soon as it finds an artifact. It would be rather trivial to set both motors to travel ahead at a (possibly reduced) set speed, then return to tape following as soon as the idol has been collected. Or perhaps we should just stop as soon as we detect an idol, then resume when its been collected?
+
+
+That's about all things I had to say, hope you have a lovely night!

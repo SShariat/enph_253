@@ -25,9 +25,11 @@ int pro = 0;         // Taking a leaf out of Andre's book, this stands for the p
 int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
 int result = 0;      // The result, or sum of the two above functions.
 
+int artifacts = 0;
+
 
 /*
-//////////////////////////////////////////////// I dunno what all this stuff it, I'll leave it alone.
+//////////////////////////////////////////////// I dunno what all this stuff is, I'll leave it alone.
 ROBOT TEMPLATE FILE
 - Menu Template
 
@@ -47,7 +49,8 @@ void setup()
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
 
-	RCServo1.write(0); // initializing the vertical arm's position.
+	// initializing the vertical arm's position. It contains the same variable I created for the collection code itself.
+	RCServo1.write(height); 
 
 	while(!(startbutton())){
 		LCD.clear();
