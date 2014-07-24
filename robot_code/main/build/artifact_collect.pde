@@ -12,16 +12,16 @@ void artifact_collect(){
 	bool servo = false;
 
 	// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
-	// LCD.clear(); LCD.home();
-	// LCD.setCursor(0,0); LCD.print( analogRead(3) );
-	// delay(50);
+	LCD.clear(); LCD.home();
+	LCD.setCursor(0,0); LCD.print( analogRead(3) );
+	delay(50);
 
 
 	// Artifact detection 'if' statement.
 	if(analogRead(3) < 80) { 
 	                          
-		// LCD.setCursor(0,1); LCD.print("Object Detected!");
-		// delay(50);
+		LCD.setCursor(0,1); LCD.print("Object Detected!");
+		delay(50);
 
 		
 		servo = true; 
@@ -29,8 +29,8 @@ void artifact_collect(){
 	} else {
 
 		// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
-		// LCD.setCursor(0,1); LCD.print("Scanning..."); 
-		// delay(50);		
+		LCD.setCursor(0,1); LCD.print("Scanning..."); 
+		delay(50);		
 	}
 
 

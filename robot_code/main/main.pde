@@ -26,7 +26,7 @@ int der = 0;         // As one might expect, this is the derivative function (no
 int result = 0;      // The result, or sum of the two above functions.
 
 int artifacts = 0;
-int height = 10; // angle above ground
+int height = 16; // angle above ground
 
 
 /*
@@ -72,7 +72,12 @@ void setup()
 
 void loop()
 {
-	tape_follow(); 
+	// tape_follow(); 
+
+	int speed = analogRead(6);
+
+	motor.speed(3, speed);
+	motor.speed(2, speed);  
 
 	artifact_collect();
 }
