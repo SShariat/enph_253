@@ -47,7 +47,7 @@ void setup()
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
 
-	RCServo1.write(160);
+	RCServo1.write(0); // initializing the vertical arm's position.
 
 	while(!(startbutton())){
 		LCD.clear();
@@ -78,25 +78,25 @@ void loop()
 
 	// Temporary 'go forward' code, does not follow tape at all.
 
-	speed = 2*(analogRead(6) - 511);
+	// speed = 2*(analogRead(6) - 511);
 
-    if (speed > 1023) {
-    	speed = 1023;
-    } else if ( speed < -1023) {
-    	speed = -1023;
-    }
+    // if (speed > 1023) {
+    // 	speed = 1023;
+    // } else if ( speed < -1023) {
+    // 	speed = -1023;
+    // }
 
 
-	motor.speed(3, speed);
-	motor.speed(2, -speed);
+	// motor.speed(3, speed);
+	// motor.speed(2, -speed);
 
 	// speed = knob(6);
 
-	LCD.clear(); LCD.home();
+	// LCD.clear(); LCD.home();
 
-	LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	LCD.setCursor(11,0); LCD.print(speed);
-	delay(50);
+	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	// LCD.setCursor(11,0); LCD.print(speed);
+	// delay(50);
 
-	// artifact_collect();
+	artifact_collect();
 }

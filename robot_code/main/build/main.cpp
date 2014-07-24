@@ -55,7 +55,7 @@ void setup()
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
 
-	RCServo1.write(160);
+	RCServo1.write(0); // initializing the vertical arm's position.
 
 	while(!(startbutton())){
 		LCD.clear();
@@ -86,27 +86,27 @@ void loop()
 
 	// Temporary 'go forward' code, does not follow tape at all.
 
-	speed = 2*(analogRead(6) - 511);
+	// speed = 2*(analogRead(6) - 511);
 
-    if (speed > 1023) {
-    	speed = 1023;
-    } else if ( speed < -1023) {
-    	speed = -1023;
-    }
+    // if (speed > 1023) {
+    // 	speed = 1023;
+    // } else if ( speed < -1023) {
+    // 	speed = -1023;
+    // }
 
 
-	motor.speed(3, speed);
-	motor.speed(2, -speed);
+	// motor.speed(3, speed);
+	// motor.speed(2, -speed);
 
 	// speed = knob(6);
 
-	LCD.clear(); LCD.home();
+	// LCD.clear(); LCD.home();
 
-	LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	LCD.setCursor(11,0); LCD.print(speed);
-	delay(50);
+	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
+	// LCD.setCursor(11,0); LCD.print(speed);
+	// delay(50);
 
-	// artifact_collect();
+	artifact_collect();
 }
 // The artifact collection code. This detects an artifact impact, picks it up, swings the arm over the bucket, drops it off, then returns to its default state.
 
@@ -117,12 +117,13 @@ void artifact_collect(){
 	// This is very much a Work In Progress, the timings and the angles need to be adjusted. Fortunately, they shouldn't become part of the constants function, as we can simply measure the angles on the robot itself, and use dead reckoning for the times.
 
 	bool servo = false;
+	int height = 10; // The initial height of the arm; remember that this is an angle, and divide it by two to get the actual deflection.
 
 	//while( !( stopbutton() ) ) {
 
 		// double angle = 0;
 		
-		// angle = 180.0*analogRead(7)/1023;
+		// angle = 180.0*analogRead(7)/1023;  //Dunno what all this is
 
 		// RCServo2.write(angle);
 
@@ -131,9 +132,12 @@ void artifact_collect(){
 	 //    LCD.setCursor(0,0); LCD.print("Servomotor Cntrl");
 	 //    LCD.setCursor(0,1); LCD.print(angle);
 		// delay(50);
+	LCD.clear(); LCD.home();
+	LCD.setCursor(0,0); LCD.print( analogRead(0) );
+	delay(50);
 
-		if(digitalRead(10) == 1) {
-
+		if(analogRead(0) < 100) {
+			LCD.clear();
 			LCD.setCursor(0,1); LCD.print("Object Detected!");
 			delay(50);
 
@@ -150,7 +154,7 @@ void artifact_collect(){
 			// RCServo1.write(120); //Vertical arm up
 			// delay(1000);
 
-		  for(int pos = 160; pos > 100; pos -= 1)  // goes from 0 degrees to 180 degrees 
+		  for(int pos = height; pos < 100; pos += 1)  // goes from 0 degrees to 180 degrees 
 		  {                                  // in steps of 1 degree 
 		    RCServo1.write(pos);              // tell servo to go to position in variable 'pos' 
 		    delay(15);                       // waits 15ms for the servo to reach the position 
@@ -162,10 +166,12 @@ void artifact_collect(){
 			// delay(1000);
 
 
+		  // Horizontal arm
+
 		  for(int pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
 		  {                                  // in steps of 1 degree 
 		    RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
-		    delay(15);                       // waits 15ms for the servo to reach the position 
+		    delay(10);                       // waits 15ms for the servo to reach the position 
 		  } 
 
 
@@ -184,7 +190,7 @@ void artifact_collect(){
 			//     delay(5);                       // waits 15ms for the servo to reach the position 
 			//   }
 
-			RCServo1.write(160);  //return to normal height
+			RCServo1.write(height);  //return to normal height
 			delay(500);
 
 
