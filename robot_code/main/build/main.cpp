@@ -467,16 +467,26 @@ void ir_follow_vars(){
 
 void ir_follow_demo(){
 	while(!deselect()){
+		/*
+			if Left == Right
+				Motor L = Motor R
+			if Left > Right
+				Motor L > Motor R
+			if Right > Left
+				Motor R > Motor L
+			if R = L = 0
+				set Motor to Equal
+		*/
 
 	}
 }
 
 void ir_follow_sensor(){
 	while(!deselect()){
-		left_high= analogRead(0)*5/1024;
-		left_low = analogRead(1)*5/1024;
-		right_high = analogRead(2)*5/1024;
-		right_low = analogRead(3)*5/1024;
+		left_high= (float)(analogRead(0)*5.0/1024.0);
+		left_low = (float)(analogRead(1)*5.0/1024.0);
+		right_high = (float)(analogRead(2)*5.0/1024.0);
+		right_low = (float)(analogRead(3)*5.0/1024.0);
 		
 		clear();
 		LCD.setCursor(0,0);LCD.print("L "); LCD.print("LO:"); LCD.print(left_low); LCD.print("HI:"); LCD.print(left_high);
@@ -484,6 +494,9 @@ void ir_follow_sensor(){
 		delay(200);
 	}
 }
+
+
+//Run All F
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
