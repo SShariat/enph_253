@@ -38,9 +38,9 @@ void tape_follow(){
 		state = -1;
 	} else if(l > threshold && r < threshold) {
 		state = 1;
-	} else if(1 < threshold && r < threshold && state < 0) {
+	} else if(l < threshold && r < threshold && state < 0) {
 		state = -5;
-	} else if(1 < threshold && r < threshold && state >= 0) {
+	} else if(l < threshold && r < threshold && state >= 0) {
 		state = 5;
 	}
 
