@@ -44,3 +44,9 @@ void function(){
 		}
 	}
 }
+
+//TAPE FOLLOWING EDITTING STEPS
+	// Tape Following Variable Editor
+	// 1. Select Variable
+	// 2. Press start to go into edit mode
+	// 3. Select Value using knob 7 and press stop to save that value

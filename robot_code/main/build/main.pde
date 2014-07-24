@@ -18,55 +18,13 @@
 
 
 //Editor Variables for Parameter Manipulation
-int current, new_value = 0;
-
-//Motor Test Variables (These are the speeds of 2 Motors)
-int speed_1, speed_2;
-
-
-// Initializing tape following parameters
-int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
-int lastState = 0;  // The previous state of the robot.
-int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
-int lastTime  = 0;  // The time the robot spent in the last state.
-int thisTime  = 0;  // The time the robot has spent in this state.
-int i 		  = 0;  // i for iterations, because I'm old-school like that.
-
-int pro       = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
-int der       = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
-int result    = 0;  // The result of our pro and der, this goes to the motors.    
-
-// TINAH-editable tape following variables
-int K_p;            // Proportional constant
-int K_d;            // Derivative constant
-int tape_speed;     // The default speed at which the motors will run.
-int tape_thresh;	//// The value at which the program will determine whether the sensors are looking at the ground. 100-300 seem like decent values. Note, we may want to make this a TINAH-editable value for competition day, as the surface may be different than in tests.
-
-
-  //---------\\
- // Functions \\
-//------------ \\
-
-
-// IR Detection Variables
-int left_high;
-int left_low;
-int right_high;
-int right_low;
+int current, new_value;
 
 void setup(){
 
 	// Initializes the motor inputs.
 	portMode(0, INPUT);
 	portMode(1, INPUT);
-
-	// TODO initialize servomotors.
-
-	// Setting up the variables that will be edited
-	K_p = EEPROM.read(1)*4;
-	K_d = EEPROM.read(2)*4;
-	tape_speed =  EEPROM.read(3)*4;
-	tape_thresh = EEPROM.read(4)*4;
 }
 
 // ROOT LOOP
@@ -120,6 +78,7 @@ void loop(){
 
 //TAPE Follow Tree Loop
 void tape_follow(){
+	
 	//TAPE FOLLOW TREE
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -159,12 +118,7 @@ void tape_follow(){
 	}
 }
 
-//TAPE FOLLOWING MODULES
-
-// Tape Following Variable Editor
-// 1. Select Variable
-// 2. Press start to go into edit mode
-// 3. Select Value using knob 7 and press stop to save that value
+//Tape-Following Variable Editor
 void tape_follow_vars(){
 
 	#define NUM_OF_CONSTANTS 4
@@ -176,7 +130,6 @@ void tape_follow_vars(){
 
 	while(!deselect()){
 	
-	
 		clear();
 		print_root("Variable: ");
 
@@ -184,78 +137,22 @@ void tape_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			current = K_p;
-			LCD.print("K_p");
-			display_var(K_p);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("K_p");
-					if(confirm()){
-						current = new_value;
-						K_p = new_value;
-						EEPROM.write(1,new_value/4);
-					}
-					delay(200);
-				}
-			}
+			edit_variable(1, "K_p");
 		break;
 
 		case KD:
 		//Changing Variable 2
-			current = K_d;
-			LCD.print("K_d");
-			display_var(K_d);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("K_d");
-					if(confirm()){
-						current = new_value;
-						K_d = new_value;
-						EEPROM.write(2,new_value/4); 
-					}
-					delay(200);	
-				}
-			}
+			edit_variable(2, "K_d");
 		break;
 		
 		case SPEED:
 		//Changing Variable 3
-			current = tape_speed;
-			LCD.print("Speed");
-			display_var(tape_speed);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("Speed");
-					if(confirm()){
-						current = new_value;
-						tape_speed = new_value;
-						EEPROM.write(3,new_value/4); 
-					}
-					delay(200);
-				}
-			}
+			edit_variable(3, "Speed");
 		break;
 
 		case THRESH:
 		//Changing Variable 4
-			current = tape_thresh;
-			LCD.print("Thresh");
-			display_var(tape_thresh);
-			if(confirm()){
-				while(!deselect()){
-					new_value = knob(7);
-					display_new_var("Thresh");
-					if(confirm()){
-						current = new_value;
-						tape_thresh = new_value;
-						EEPROM.write(4,new_value/4); 
-					}
-					delay(200);
-				}
-			}
+			edit_variable(4, "Thresh");
 		break;
 
 
@@ -264,25 +161,27 @@ void tape_follow_vars(){
 	}
 }
 
-//tape_follow_demo
+//Runs PID Demonstration
+void tape_follow_demo(){
 
-   //-----------------------\\
-  //---TAPE FOLLOWING CODE---\\
- //---------------------------\\
+	// Initializing tape following parameters
+	int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
+	int lastState = 0;  // The previous state of the robot.
+	int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
+	int lastTime  = 0;  // The time the robot spent in the last state.
+	int thisTime  = 0;  // The time the robot has spent in this state.
+	int i 		  = 0;  // i for iterations, because I'm old-school like that.
 
-// *explosions* *electric guitar noises*
+	int pro       = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
+	int der       = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
+	int result    = 0;  // The result of our pro and der, this goes to the motors.    
 
-// Ladies and gentlemen, prepare your butts for a magnificent, fabulous, absolutely stunning piece of code. First written back in the Dark Ages of the robot course, designed for Charles the Robot, this code performed exceptionally well, following tape exactly all the way up the course. And now, without further ado, I present to you the:
+	// Setting up the variables that will be edited
+	int K_p 		= EEPROM.read(1)*4;
+	int K_d 		= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+	int tape_thresh = EEPROM.read(4)*4;
 
-
-// PD Tape Following Program
-//Parameters:
-//	-threshold
-//	-kp
-//	-kd
-// 	-motorspeed
-void tape_follow_demo(){ // 'Demo' doesn't really make sense in this context; just 'tape_follow()' would work fine.
-	
 	while(!deselect()){
 
 		//Reading QRD Sensors
@@ -364,6 +263,10 @@ void tape_follow_sensor(){
 
 //Motor Functions
 void motor_test(){
+	
+	//Motor Test Variables (These are the speeds of 2 Motors)
+	int speed_1, speed_2;
+	
 	while(!deselect()){
 		speed_1 = 2*(analogRead(6) - 511);
 		speed_2 = 2*(analogRead(7) - 511);
@@ -393,10 +296,9 @@ void motor_test(){
 	motor.stop_all();
 }
 
+//IR Following Functions
 
-//IR Functions
-
-//IR Tree
+//IR Following PID
 void ir_follow(){
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -436,12 +338,14 @@ void ir_follow(){
 	}
 }
 
+//IR Following Variable Editor
 void ir_follow_vars(){
 	while(!deselect()){
 
 	}
 }
 
+//IR Following Demonstration
 void ir_follow_demo(){
 	while(!deselect()){
 		/*
@@ -458,12 +362,20 @@ void ir_follow_demo(){
 	}
 }
 
+//IR Following Without Motors Running
 void ir_follow_sensor(){
+	
+	// IR Detection Variables
+	int left_high;
+	int left_low;
+	int right_high;
+	int right_low;
+	
 	while(!deselect()){
-		left_high= (float)(analogRead(0)*5.0/1024.0);
-		left_low = (float)(analogRead(1)*5.0/1024.0);
-		right_high = (float)(analogRead(2)*5.0/1024.0);
-		right_low = (float)(analogRead(3)*5.0/1024.0);
+		left_high= (float)(analogRead(0));
+		left_low = (float)(analogRead(1));
+		right_high = (float)(analogRead(2));
+		right_low = (float)(analogRead(3));
 		
 		clear();
 		LCD.setCursor(0,0);LCD.print("L "); LCD.print("LO:"); LCD.print(left_low); LCD.print("HI:"); LCD.print(left_high);
@@ -473,7 +385,6 @@ void ir_follow_sensor(){
 }
 
 
-//Run All F
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
@@ -548,5 +459,19 @@ void print_child(char name[]){
 	LCD.setCursor(0,1); LCD.print(name);
 }
 
-
-void edit_variable(){}
+void edit_variable(int addr, char name[] ){
+	current = EEPROM.read(addr)*4;
+	LCD.print(name);
+	display_var(EEPROM.read(addr)*4);
+	if(confirm()){
+		while(!deselect()){
+			new_value = knob(7);
+			display_new_var(name);
+			if(confirm()){
+				EEPROM.write(addr,new_value/4);
+				current = new_value;
+			}
+			delay(200);
+		}
+	}
+}
