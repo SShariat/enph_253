@@ -32,51 +32,61 @@ void tape_follow(){
 	}
 
 
-	if(l > threshold && r > threshold) {
-		state = 0;
-	} else if(l < threshold && r > threshold) {
-		state = -1;
-	} else if(l > threshold && r < threshold) {
-		state = 1;
-	} else if(1 < threshold && r < threshold && state < 0) {
-		state = -5;
-	} else if(1 < threshold && r < threshold && state >= 0) {
-		state = 5;
-	}
 
 
-	if(state != thisState) {
-		lastState = thisState;
-		lastTime = thisTime;
-		thisTime = 1;
-	}
+		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
+			state = 0;
+		} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
+			state = -1;
+		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
+			state = 1;
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+			state = -5;
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
+			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the code 
+			state = 0;
+		}
 
-	pro = K_p * state;
-	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-	result = speed + pro + der;
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
+		if(state != thisState) {
+			lastState = thisState;
+			lastTime = thisTime;
+			thisTime = 1;
+		}
 
-	if(result > 700 - speed){
-		result = 700;
-	}
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
+		pro = K_p * state;
+		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-	motor.speed(3, speed + result);
-	motor.speed(2, speed + result);  
+		// They're then added together with the robot's speed to produce our output.
+		result = pro + der;
 
-	if( i==50) {
-		LCD.clear();
-		LCD.home(); 
+		// This 700 is only here because that was the maximum speed Charles could go without damage. I've removed it for now.
+		// if(result > 700 - tape_speed){
+		// 	result = 700;
+		// }
 
-		LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-		LCD.setCursor(0,1);
-		LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+		// This writes our output to the motors
+		motor.speed(3, (1) * (tape_speed - result) );
+		motor.speed(2, tape_speed + result);  
 
-		i = 0;
-	}
 
-	i++;
-	thisTime++; // This time baby, I'll be, forevvvvvahhhhhhh
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations.
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
 
-	thisState = state;
+			LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			i = 0;
+		}
+
+		i++;
+		thisTime++;
+		thisState = state;
 
 };

@@ -18,9 +18,8 @@ void loop();
 void artifact_collect();
 void init_variables(int values[], char names[][STR_SIZE], int array_size);
 void tape_follow();
-void three_tape_follow();
-int threshold = 100; // The value at which the program will determine whether the sensors are looking at the ground.
-int speed = 450;     // The default speed at which the motors will run.
+int tape_thresh = 100; // The value at which the program will determine whether the sensors are looking at the ground.
+int tape_speed = 450;     // The default speed at which the motors will run.
 
 int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
 int lastState = 0;   // The previous state of the robot.
@@ -33,9 +32,12 @@ int pro = 0;         // Taking a leaf out of Andre's book, this stands for the p
 int der = 0;         // As one might expect, this is the derivative function (no integrals on my watch!)
 int result = 0;      // The result, or sum of the two above functions.
 
+int artifacts = 0;
+int height = 10; // angle above ground
+
 
 /*
-//////////////////////////////////////////////// I dunno what all this stuff it, I'll leave it alone.
+//////////////////////////////////////////////// I dunno what all this stuff is, I'll leave it alone.
 ROBOT TEMPLATE FILE
 - Menu Template
 
@@ -55,7 +57,8 @@ void setup()
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
 
-	RCServo1.write(0); // initializing the vertical arm's position.
+	// initializing the vertical arm's position. It contains the same variable I created for the collection code itself.
+	RCServo1.write(height); 
 
 	while(!(startbutton())){
 		LCD.clear();
@@ -76,35 +79,7 @@ void setup()
 
 void loop()
 {
-	// change_constants(const_values,const_names, NUM_CONST);
-
-	
-	// init_variables(const_values,const_names, NUM_CONST);
-	
-	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	// tape_follow(); 
-
-	// Temporary 'go forward' code, does not follow tape at all.
-
-	// speed = 2*(analogRead(6) - 511);
-
-    // if (speed > 1023) {
-    // 	speed = 1023;
-    // } else if ( speed < -1023) {
-    // 	speed = -1023;
-    // }
-
-
-	// motor.speed(3, speed);
-	// motor.speed(2, -speed);
-
-	// speed = knob(6);
-
-	// LCD.clear(); LCD.home();
-
-	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	// LCD.setCursor(11,0); LCD.print(speed);
-	// delay(50);
+	tape_follow(); 
 
 	artifact_collect();
 }
@@ -112,91 +87,86 @@ void loop()
 
 // Now, the expected setup will be that the robotic arm has some way of detecting the increase in weight an artifact will add to the arm. This then will prompt it to lift the object, rotate the base, rotate the servo on the end of the arm, then return all servos to their default position. Pretty simple code, actually.
 
+// The current method of detecting an artifact is a QRD attached to the side of the artifact dropper. This has the advantage of being both lighter and more reliable than a physical switch. We use the QRD's crappy range for our own advantage! :D
+
+// Anyhoo, the sensor usually reports values ranging from ~120 to 200-something, then drops to about 40ish when an artifact is collected. As such, I've made the threshold 100. We may want to reduce this at some point in the future, and feel free to make it a variable if you'd like, but it's not crucial for time trials.
+
 void artifact_collect(){
 
-	// This is very much a Work In Progress, the timings and the angles need to be adjusted. Fortunately, they shouldn't become part of the constants function, as we can simply measure the angles on the robot itself, and use dead reckoning for the times.
-
+	// This variable ensures that once we detect something, we are committed to the pickup sequence.
 	bool servo = false;
-	int height = 10; // The initial height of the arm; remember that this is an angle, and divide it by two to get the actual deflection.
 
-	//while( !( stopbutton() ) ) {
+	// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
+	// LCD.clear(); LCD.home();
+	// LCD.setCursor(0,0); LCD.print( analogRead(3) );
+	// delay(50);
 
-		// double angle = 0;
-		
-		// angle = 180.0*analogRead(7)/1023;  //Dunno what all this is
 
-		// RCServo2.write(angle);
-
-	 //    LCD.clear();
-	 //    LCD.home();
-	 //    LCD.setCursor(0,0); LCD.print("Servomotor Cntrl");
-	 //    LCD.setCursor(0,1); LCD.print(angle);
+	// Artifact detection 'if' statement.
+	if(analogRead(3) < 80) { 
+	                          
+		// LCD.setCursor(0,1); LCD.print("Object Detected!");
 		// delay(50);
-	LCD.clear(); LCD.home();
-	LCD.setCursor(0,0); LCD.print( analogRead(0) );
-	delay(50);
 
-		if(analogRead(0) < 100) {
-			LCD.clear();
-			LCD.setCursor(0,1); LCD.print("Object Detected!");
-			delay(50);
+		
+		servo = true; 
 
-			servo = true;
+	} else {
 
-		} else {
-
-			LCD.setCursor(0,1); LCD.print("Scanning...");
-			delay(50);		
-		}
-
-		if(servo == true){
-
-			// RCServo1.write(120); //Vertical arm up
-			// delay(1000);
-
-		  for(int pos = height; pos < 100; pos += 1)  // goes from 0 degrees to 180 degrees 
-		  {                                  // in steps of 1 degree 
-		    RCServo1.write(pos);              // tell servo to go to position in variable 'pos' 
-		    delay(15);                       // waits 15ms for the servo to reach the position 
-		  } 
+		// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
+		// LCD.setCursor(0,1); LCD.print("Scanning..."); 
+		// delay(50);		
+	}
 
 
 
-			// RCServo2.write(180);
-			// delay(1000);
+	// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
+
+	if(servo == true){
+
+		motor.stop_all();
+
+		// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
+		// This will traverse slowly, so that the idol doesn't get knocked off.
+		for(int pos = height; pos < 100; pos += 1) {
+
+			RCServo1.write(pos);
+			delay(15);
+
+		} 
 
 
-		  // Horizontal arm
+		// Horizontal arm, brings the idol into position over the bucket.
+		// Again, it travels slowly.
+		for(int pos = 0; pos < 150; pos += 1) {
 
-		  for(int pos = 0; pos < 180; pos += 1)  // goes from 0 degrees to 180 degrees 
-		  {                                  // in steps of 1 degree 
-		    RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
-		    delay(10);                       // waits 15ms for the servo to reach the position 
-		  } 
+			RCServo2.write(pos); 
+			delay(10);
 
-
-			RCServo0.write(180); //drop off the artifact
-			delay(1000);
-
-			RCServo0.write(0); // return artifact dropper to default
-			delay(500);
-
-			RCServo2.write(0);
-			delay(500);
-
-			// for(int pos = 180; pos>=1; pos-=1)     // goes from 180 degrees to 0 degrees 
-			//   {                                
-			//     RCServo2.write(pos);              // tell servo to go to position in variable 'pos' 
-			//     delay(5);                       // waits 15ms for the servo to reach the position 
-			//   }
-
-			RCServo1.write(height);  //return to normal height
-			delay(500);
+		} 
 
 
-			servo = false;
-		}
-	//}
+		// Now, we drop off the artifact.
+		// Unlike the last two, this is executed quickly.
+		RCServo0.write(180); delay(500);
+
+		// Then we return the end to its initial position.
+		RCServo0.write(0); delay(500);
+
+		// Next, the arm moves horizontally back to its starting position.
+		// This is quick, since we don't have an artifact on the end.
+		RCServo2.write(0); delay(500);
+
+		// Finally, the arm is lowered to its proper height.
+		// This is quickly done as well.
+		RCServo1.write(height);  //return to normal height
+		delay(500);
+
+		// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. This number will help us keep track of where we are on the course.
+		servo = false;
+		artifacts++;
+	}
+//}
 }
 /*
 int  const_values [NUM_CONST] = {1,2,3,0,12};
@@ -253,143 +223,62 @@ void tape_follow(){
 	}
 
 
-	if(l > threshold && r > threshold) {
-		state = 0;
-	} else if(l < threshold && r > threshold) {
-		state = -1;
-	} else if(l > threshold && r < threshold) {
-		state = 1;
-	} else if(1 < threshold && r < threshold && state < 0) {
-		state = -5;
-	} else if(1 < threshold && r < threshold && state >= 0) {
-		state = 5;
-	}
 
 
-	if(state != thisState) {
-		lastState = thisState;
-		lastTime = thisTime;
-		thisTime = 1;
-	}
+		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
+			state = 0;
+		} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
+			state = -1;
+		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
+			state = 1;
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+			state = -5;
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
+			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the code 
+			state = 0;
+		}
 
-	pro = K_p * state;
-	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-	result = speed + pro + der;
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
+		if(state != thisState) {
+			lastState = thisState;
+			lastTime = thisTime;
+			thisTime = 1;
+		}
 
-	if(result > 700 - speed){
-		result = 700;
-	}
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
+		pro = K_p * state;
+		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-	motor.speed(3, speed + result);
-	motor.speed(2, speed + result);  
+		// They're then added together with the robot's speed to produce our output.
+		result = pro + der;
 
-	if( i==50) {
-		LCD.clear();
-		LCD.home(); 
+		// This 700 is only here because that was the maximum speed Charles could go without damage. I've removed it for now.
+		// if(result > 700 - tape_speed){
+		// 	result = 700;
+		// }
 
-		LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-		LCD.setCursor(0,1);
-		LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+		// This writes our output to the motors
+		motor.speed(3, (1) * (tape_speed - result) );
+		motor.speed(2, tape_speed + result);  
 
-		i = 0;
-	}
 
-	i++;
-	thisTime++; // This time baby, I'll be, forevvvvvahhhhhhh
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations.
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
 
-	thisState = state;
+			LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			i = 0;
+		}
+
+		i++;
+		thisTime++;
+		thisState = state;
 
 };
-void three_tape_follow() {
-	
-	int l = analogRead(0); // We're initializing the left, centre, and right analog sensors.
-	int c = analogRead(1);
-	int r = analogRead(2);
-
-	int K_p = analogRead(6);
-	int K_d = analogRead(7);
-
-	// The following is Zach's lovely stop function.
-	if( stopbutton() ) {
-			delay(50); // Pause to make sure the stopbutton wasn't pressed by motor noise.
-
-		if( stopbutton() ) {
-			motor.speed(3, 0);
-			motor.speed(2, 0); 
-
-			while( !startbutton() ) {
-				int K_p = analogRead(6);
-				int K_d = analogRead(7);
-
-				LCD.clear();
-				LCD.home();
-				LCD.print("PAUSED");    
-				LCD.setCursor(0,1);
-				LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-				delay(50);
-			}  
-		}
-	}
-
-
-	if(l > threshold && r > threshold && c > threshold) { // This is when the robot is in the middle of the course.
-		state = 0;
-	} 
-	else if(l < threshold && c > threshold && r > threshold) { // This is when the left sensor is off the tape.
-		state = -1;
-	}
-	else if(l < threshold && c < threshold && r > threshold && state < 0) { // Both the left and centre sensors are off now.
-		state = -3;
-	} 
-	else if(1 < threshold && r < threshold && state < 0) { // All three sensors are off, the robot is to the left of the tape.
-		state = -5;
-	}
-	else if(l > threshold && c > threshold && r < threshold) { // The rightmost sensor is off the tape.
-		state = 1;
-	}
-	else if(l > threshold && c < threshold && r < threshold && state >= 0) { // Both the right and centre sensors have strayed.
-		state = 3;
-	}
-	else if(l < threshold && c < threshold && r < threshold && state >= 0) { // The robot is now wandering to the right of the tape.
-		state = 5;
-	}
-
-
-	if(state != thisState) {
-		lastState = thisState;
-		lastTime = thisTime;
-		thisTime = 1;
-	}
-
-	pro = K_p * state;
-	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
-
-	result = speed + pro + der;
-
-	if(result > 700 - speed){
-		result = 700;
-	}
-
-	motor.speed(3, speed - result);
-	motor.speed(2, speed + result);  
-
-	if( i==50) {
-		LCD.clear();
-		LCD.home(); 
-
-		LCD.print("L "); LCD.print(l); LCD.print(" C "); LCD.print(c); LCD.print(" R "); LCD.print(r);
-		LCD.setCursor(0,1);
-		LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-		i = 0;
-	}
-
-	i++;
-	thisTime++; // This time baby, I'll be, forevvvvvahhhhhhh
-
-	thisState = state;	
-
-}
 

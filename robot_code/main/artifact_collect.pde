@@ -11,21 +11,17 @@ void artifact_collect(){
 	// This variable ensures that once we detect something, we are committed to the pickup sequence.
 	bool servo = false;
 
-	// The initial height of the arm; remember that this is an angle on the servo, we must divide it by two to get the actual deflection.
-	int height = 10; 
-
-
 	// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
-	LCD.clear(); LCD.home();
-	LCD.setCursor(0,0); LCD.print( analogRead(3) );
-	delay(50);
+	// LCD.clear(); LCD.home();
+	// LCD.setCursor(0,0); LCD.print( analogRead(3) );
+	// delay(50);
 
 
 	// Artifact detection 'if' statement.
 	if(analogRead(3) < 80) { 
 	                          
-		LCD.setCursor(0,1); LCD.print("Object Detected!");
-		delay(50);
+		// LCD.setCursor(0,1); LCD.print("Object Detected!");
+		// delay(50);
 
 		
 		servo = true; 
@@ -33,8 +29,8 @@ void artifact_collect(){
 	} else {
 
 		// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
-		LCD.setCursor(0,1); LCD.print("Scanning..."); 
-		delay(50);		
+		// LCD.setCursor(0,1); LCD.print("Scanning..."); 
+		// delay(50);		
 	}
 
 
@@ -42,6 +38,8 @@ void artifact_collect(){
 	// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
 
 	if(servo == true){
+
+		motor.stop_all();
 
 		// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
 		// This will traverse slowly, so that the idol doesn't get knocked off.

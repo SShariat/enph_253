@@ -11,8 +11,8 @@
 
 
 // This is the PD control variables' initialization section. These don't change (except for speed and threshold, I'll deal with them later).
-int threshold = 100; // The value at which the program will determine whether the sensors are looking at the ground.
-int speed = 450;     // The default speed at which the motors will run.
+int tape_thresh = 100; // The value at which the program will determine whether the sensors are looking at the ground.
+int tape_speed = 450;     // The default speed at which the motors will run.
 
 int state = 0;       // The state of the robot (straight, left, right, or hard left/right)
 int lastState = 0;   // The previous state of the robot.
@@ -26,6 +26,7 @@ int der = 0;         // As one might expect, this is the derivative function (no
 int result = 0;      // The result, or sum of the two above functions.
 
 int artifacts = 0;
+int height = 10; // angle above ground
 
 
 /*
@@ -71,35 +72,7 @@ void setup()
 
 void loop()
 {
-	// change_constants(const_values,const_names, NUM_CONST);
-
-	
-	// init_variables(const_values,const_names, NUM_CONST);
-	
-	// Code controlling the moving forward of the robot. May want to simply integrate the PD control into this function and call it something else
-	// tape_follow(); 
-
-	// Temporary 'go forward' code, does not follow tape at all.
-
-	// speed = 2*(analogRead(6) - 511);
-
-    // if (speed > 1023) {
-    // 	speed = 1023;
-    // } else if ( speed < -1023) {
-    // 	speed = -1023;
-    // }
-
-
-	// motor.speed(3, speed);
-	// motor.speed(2, -speed);
-
-	// speed = knob(6);
-
-	// LCD.clear(); LCD.home();
-
-	// LCD.setCursor(0,0); LCD.print("Rolling at"); 
-	// LCD.setCursor(11,0); LCD.print(speed);
-	// delay(50);
+	tape_follow(); 
 
 	artifact_collect();
 }
