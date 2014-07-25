@@ -36,6 +36,11 @@ void setup(){
 	// Initializes the motor inputs.
 	portMode(0, INPUT);
 	portMode(1, INPUT);
+
+	// Servomotor initialization.
+	RCServo0.attach(RCServo0Output);
+	RCServo1.attach(RCServo1Output);
+	RCServo2.attach(RCServo2Output);
 	
 }
 
@@ -80,7 +85,7 @@ void loop(){
 		case RUN_ALL:
 		print_child("Run-All");
 		if(confirm()){
-			incomplete();
+			run_all();
 		}
 		break;
 
@@ -520,7 +525,28 @@ void artifact_collection_demo(){
 }
 
 void run_all(){
+	
+	//TAPE FOLLOW TREE
+	#define OPTIONS 1
+	//TAPE CHILDREN
+	#define FOLLOW_COLLECT 1
 
+	while(!deselect()){
+
+		clear();
+		print_root("Tape-Follow");
+
+		switch(menu_choice(OPTIONS)){
+
+			case FOLLOW_COLLECT:
+			print_child("Fol.+Coll.");
+			if(confirm()){
+				run_all_tape_collect();
+			}
+			break;
+		}
+		delay(200);
+	}
 }
 
 void run_all_tape_collect(){
@@ -664,6 +690,7 @@ void run_all_tape_collect(){
 		}
 		motor.stop_all();
 	}
+}
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
