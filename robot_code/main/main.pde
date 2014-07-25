@@ -741,7 +741,7 @@ void analog_pid(){
 			current_error = 300;
 		}
 
-		pro = K_p*error;
+		pro = K_p*current_error;
 		der = (current_error - last_error)*K_d;
 
 		result = pro + der;
