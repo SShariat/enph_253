@@ -393,19 +393,63 @@ void ir_follow_vars(){
 
 //IR Following Demonstration
 void ir_follow_demo(){
+	int low_left, hi_left;
+	int low_right, hi_right;
+
+	int left, right;
+
+	int pro, der, result;
+
+	int current_error; 
+	int last_error = 0;
+
+	int i = 0; 
+
+	int K_p 		= EEPROM.read(1)*4;
+	int K_d 		= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+
 	while(!deselect()){
-		/*
-			if Left == Right
-				Motor L = Motor R
-			if Left > Right
-				Motor L > Motor R
-			if Right > Left
-				Motor R > Motor L
-			if R = L = 0
-				set Motor to Equal
-		*/
-			incomplete();
+
+		if(left_low+left_high){
+
+		}
+
+		left_high = analogRead(0);
+		left_low = analogRead(1);
+		right_high = analogRead(2);
+		right_low = analogRead(3);
+
+
+		current_error = left - right;
+
+		if (current_error > 300 ){
+			current_error = 300;
+		}
+
+		pro = K_p*current_error;
+		der = (current_error - last_error)*K_d;
+
+		result = pro + der;
+
+		motor.speed(3, tape_speed - result );
+		motor.speed(2, tape_speed + result);
+
+		last_error = current_error;
+
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			i = 0;
+		}
+		i++;
 	}
+
 }
 
 //IR Following Without Motors Running
