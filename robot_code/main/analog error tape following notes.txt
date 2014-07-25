@@ -1,0 +1,19 @@
+Multiply by some function,
+ error = l-r
+
+ if error is less than some value, figure out what l+r is, if it is large, then keep error small (in the middle of our Gauss function)
+
+still keep track of what side of the tape we are on
+
+set positive error if on right side, negative if on left, etc
+
+when we get off the peak error, we have to know to change the error
+
+*zach asks question*
+
+error = l-r
+intensity = l+r
+
+find the points where intensity is less than the error peaks, then just keep the error constant past those points.
+
+Those points are where the error starts to drop again, past the centreline and when the two sensors are not reading the tape. At these points, don't trust the error and keep it constant. The error should be pointing us towards the tape at this point, so we just keep it constant and should come back to the tape.

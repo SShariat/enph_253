@@ -98,7 +98,7 @@ void loop(){
 		break;
 
 		case TT_DEMO:
-		print_child("Time Trial Demo")
+		print_child("Time Trial Demo");
 		if(confirm()){
 			time_trial_demo();
 		}
@@ -558,20 +558,18 @@ void artifact_collection_demo(){
 
 void time_trial_demo(){
 
-	while(!deselect()){
+	// Alright, here we go.
 
-		// Alright, here we go.
+	// First, we must drive forward, then as soon as we hit an artifact, we pick it up, turn around, and drive home.
 
-		// First, we must drive forward, then as soon as we hit an artifact, we pick it up, turn around, and drive home.
+	// Loop tape following.
 
-		// Loop tape following.
+	// If we see an artifact, pick it up, then spin the robot around.
 
-		// If we see an artifact, pick it up, then spin the robot around.
-
-		// Then, as soon as we see the tape disappear, stop the robot.
+	// Then, as soon as we see the tape disappear, stop the robot.
 
 
-			// Initialize tape following parameters
+	// Initialize tape following parameters
 	int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
 	int lastState = 0;  // The previous state of the robot.
 	int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
@@ -640,7 +638,7 @@ void time_trial_demo(){
 		result = pro + der;
 
 		// This writes our output to the motors
-		motor.speed(3, (1) * (tape_speed - result) );
+		motor.speed(3, tape_speed - result);
 		motor.speed(2, tape_speed + result);  
 
 
@@ -696,40 +694,6 @@ void time_trial_demo(){
 			// This is quickly done as well.
 			RCServo1.write(height);
 			delay(500);
-
-
-			// Now, we must turn the robot around. Rather than relying on a timing thing (which would not work super well), let's 
-
-		}
-	}
-}
-/*
-
- Multiply by some function,
- error = l-r
-
- if error is less tahn some value, figure out what l+r is, if it is large, then keep error small (in the middle of our Gauss function)
-
-still keep track of what side of the tape we are on
-
-set positive error if on right side, negative if on left, etc
-
-when we get off the peak error, we have to know to change the error
-
-*zach asks question*
-
-error = l-r
-intensity = l+r
-
-find the points where intensity is less than the error peaks, then just keep the error constant past those points.
-
-Those points are where the error starts to drop again, past the centreline and when the two sensors are not reading the tape. At these points, don't trust the error and keep it constant. The error should be pointing us towards the tape at this point, so we just keep it constant and should come back to the tape.
-
-
-
-
-*/
-
 
 		// Then, we iterate the iterations (bwaaaaaaaah), and do some state switching.
 		i++;
