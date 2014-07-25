@@ -14,7 +14,7 @@
 	tape_thresh 4
 
 	ARTIFACT COLLECTION
-	
+
 */
 
 
@@ -309,7 +309,7 @@ void motor_test(){
 
 //IR Following Functions
 
-//IR Following PID
+//IR Following
 void ir_follow(){
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -395,7 +395,20 @@ void ir_follow_sensor(){
 	}
 }
 
+//Artifact Collection 
+void artifact_collection(){
 
+}
+
+//Artifact Collection Variables
+void artifact_collection_vars(){
+
+}
+
+//Artifact Collection Demonstration
+void artifact_collection_demo(){
+	
+}
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
