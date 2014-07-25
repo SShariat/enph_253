@@ -72,12 +72,12 @@ void setup()
 
 void loop()
 {
-	// tape_follow(); 
+	tape_follow(); 
 
-	int speed = analogRead(6);
+	// int speed = analogRead(6);
 
-	motor.speed(3, speed);
-	motor.speed(2, speed);  
+	// motor.speed(3, speed);
+	// motor.speed(2, speed);  
 
 	artifact_collect();
 }

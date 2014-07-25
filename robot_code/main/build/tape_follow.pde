@@ -2,8 +2,8 @@
 
 void tape_follow(){
 
-	int l = analogRead(0); // We're initializing the left and right analog sensors.
-	int r = analogRead(1);
+	int l = analogRead(1); // We're initializing the left and right analog sensors.
+	int r = analogRead(2);
 
 	int K_p = analogRead(6);
 	int K_d = analogRead(7);
