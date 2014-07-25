@@ -603,28 +603,37 @@ void time_trial_demo(){
 		int r = analogRead(1); // Right QRD (but you knew that already, you're smart)
 
 		// Both QRDs are on the tape
-		if(l > tape_thresh && r > tape_thresh) { state = 0;}
+		if(l > tape_thresh && r > tape_thresh){ 
+			state = 0;
+		}
 
 		// The left QRD has moved off the tape
-		else if(l < tape_thresh && r > tape_thresh) { state = -1; } 
+		else if(l < tape_thresh && r > tape_thresh){
+			state = -1;
+		} 
 
 		// The right QRD is now off the tape.
-		else if(l > tape_thresh && r < tape_thresh) { state = 1; }
+		else if(l > tape_thresh && r < tape_thresh){
+			state = 1;
+		}
 
 		// Both QRDs are off the tape, and the robot is tilted to the left.
-		else if(l < tape_thresh && r < tape_thresh && state < 0) { state = -5; }
+		else if(l < tape_thresh && r < tape_thresh && state < 0){
+			state = -5;
+		}
 
 		// Both QRDs are off, the robot is tilted to the right.
-		else if(l < tape_thresh && r < tape_thresh && state > 0) { state = 5; }
-
+		else if(l < tape_thresh && r < tape_thresh && state > 0){
+			state = 5;
+		}
 		// Both QRDs are now off the tape, and in this case it means that the tape has ended. Hence, we stop ( or break, since I'm a heavy-handed coder.)
-		else if(l < tape_thresh && r < tape_thresh && state == 0) { 
+		else if(l < tape_thresh && r < tape_thresh && state == 0){ 
 			break;
 		}
 
 
 		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
-		if(state != thisState) {
+		if(state != thisState){
 			lastState = thisState;
 			lastTime = thisTime;
 			thisTime = 1;
@@ -643,9 +652,11 @@ void time_trial_demo(){
 
 
 		// Every fifty iterations, we check if there's an artifact under our crane and print out some diagnostic text for the tape-following.
-		if( i == 50) {
+		if( i == 50){
 
-			if(analogRead(3) < 80){	servo = true; }
+			if(analogRead(3) < 80){
+				servo = true;
+			}
 
 			LCD.clear(); LCD.home(); 
 
@@ -674,7 +685,7 @@ void time_trial_demo(){
 
 			// Horizontal arm, brings the idol into position over the bucket.
 			// Again, it travels slowly.
-			for(int pos = 0; pos < 150; pos += 1) {
+			for(int pos = 0; pos < 150; pos += 1){
 				RCServo2.write(pos); 
 				delay(10);
 			} 
@@ -694,7 +705,7 @@ void time_trial_demo(){
 			// This is quickly done as well.
 			RCServo1.write(height);
 			delay(500);
-
+		}
 		// Then, we iterate the iterations (bwaaaaaaaah), and do some state switching.
 		i++;
 		thisTime++;
@@ -703,6 +714,7 @@ void time_trial_demo(){
 	}
 
 	motor.stop_all();
+}
 
 void analog_pid(){
 	int left, right;
