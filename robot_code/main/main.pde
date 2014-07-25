@@ -98,7 +98,7 @@ void loop(){
 		break;
 
 		case TT_DEMO:
-		print_child("Time Trial Demo")
+		print_child("Time Trial Demo");
 		if(confirm()){
 			time_trial_demo();
 		}
