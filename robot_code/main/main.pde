@@ -519,30 +519,6 @@ void artifact_collection(){
 
 //Artifact Collection Variables
 void artifact_collection_vars(){
-	
-	#define NUM_OF_CONSTANTS 2
-
-	#define HEIGHT 7
-	#define LENGTH 8
-
-	while(!deselect()){
-	
-		clear();
-		print_root("Variable: ");
-
-		switch(menu_choice(NUM_OF_CONSTANTS)){
-		
-		case HEIGHT:
-		//Changing Variable 1, height above ground level
-			edit_variable(7, "height");
-		break;
-
-		case LENGTH:
-		//Changing Variable 2, distance away from the zero position where we pick up artifacts.
-			edit_variable(2, "length");
-		break;
-
-	}
 
 }
 
@@ -650,17 +626,14 @@ void time_trial_demo(){
 	int result    = 0;  // The result of our pro and der, this goes to the motors.    
 
 	// Setting up the variables that will be edited
-
-	// Tape following parameters
 	int K_p 		= EEPROM.read(1)*4;
 	int K_d 		= EEPROM.read(2)*4;
 	int tape_speed 	= EEPROM.read(3)*4;
 	int tape_thresh = EEPROM.read(4)*4;
 
-	// Artifact collection parameters
-	int height      = EEPROM.read(7)*(0.7); // Height of the arm above the ground
-	int length      = EEPROM.read(8)*(0.7); // Distance of the collector from the main body
-
+	//Artifact collection parameters
+	int artifacts = 0;
+	int height = 16; // angle above ground
 	                 
 	// This variable ensures that once we detect something, we are committed to the pickup sequence.
 	bool servo = false;
@@ -697,7 +670,7 @@ void time_trial_demo(){
 		else if(l < tape_thresh && r < tape_thresh && state > 0){
 			state = 5;
 		}
-		// Both QRDs are now off the tape, and in this case it means that the tape has ended. Hence, we stop (or break, since I'm a heavy-handed coder.)
+		// Both QRDs are now off the tape, and in this case it means that the tape has ended. Hence, we stop ( or break, since I'm a heavy-handed coder.)
 		else if(l < tape_thresh && r < tape_thresh && state == 0){ 
 			break;
 		}
@@ -722,13 +695,12 @@ void time_trial_demo(){
 		motor.speed(2, tape_speed + result);  
 
 
-		if(analogRead(3) < 80){
-			servo = true;
-		}
-
-
 		// Every fifty iterations, we check if there's an artifact under our crane and print out some diagnostic text for the tape-following.
 		if( i == 50){
+
+			if(analogRead(3) < 80){
+				servo = true;
+			}
 
 			LCD.clear(); LCD.home(); 
 
@@ -757,7 +729,7 @@ void time_trial_demo(){
 
 			// Horizontal arm, brings the idol into position over the bucket.
 			// Again, it travels slowly.
-			for(int pos = length; pos < 150; pos += 1){
+			for(int pos = 0; pos < 150; pos += 1){
 				RCServo2.write(pos); 
 				delay(10);
 			} 
@@ -766,23 +738,18 @@ void time_trial_demo(){
 			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
 			RCServo0.write(180); delay(1000);
 
-
-			// * KA - THUNK *
-
-
 			// Then we return the end to its initial position.
 			RCServo0.write(0); delay(500);
 
 			// Next, the arm moves horizontally back to its starting position.
 			// This is quick, since we don't have an artifact on the end.
-			RCServo2.write(height); delay(500);
+			RCServo2.write(0); delay(500);
 
 			// Finally, the arm is lowered to its proper height.
 			// This is quickly done as well.
 			RCServo1.write(height);
 			delay(500);
 		}
-
 		// Then, we iterate the iterations (bwaaaaaaaah), and do some state switching.
 		i++;
 		thisTime++;
