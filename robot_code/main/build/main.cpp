@@ -5,8 +5,20 @@
 #include <Servo253.h>
 #include <EEPROM.h>
 
-//ROOT TREE
+//ADDR Currently Being Used
+/*
+	TAPE FOLLOWING
+	K_p 		1
+	K_d 		2
+	tape_speed 	3
+	tape_thresh 4
 
+	ARTIFACT COLLECTION
+
+*/
+
+
+//ROOT TREE
 #define ROOT 5
 
 //ROOT CHILDREN
@@ -15,7 +27,6 @@
 #define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
 #define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
 #define RUN_ALL 5              // Runs everything above at once.
-
 
 //Editor Variables for Parameter Manipulation
 #include "WProgram.h"
@@ -31,6 +42,9 @@ void ir_follow();
 void ir_follow_vars();
 void ir_follow_demo();
 void ir_follow_sensor();
+void artifact_collection();
+void artifact_collection_vars();
+void artifact_collection_demo();
 int menu_choice(int num_choices);
 void clear();
 bool confirm();
@@ -77,7 +91,7 @@ void loop(){
 		case ARTIFACT_COLLECTION:
 		print_child("Art. Collect");
 		if(confirm()){
-			incomplete();
+			artifact_collection();
 		}
 		break;
 
@@ -321,7 +335,7 @@ void motor_test(){
 
 //IR Following Functions
 
-//IR Following PID
+//IR Following
 void ir_follow(){
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -407,7 +421,113 @@ void ir_follow_sensor(){
 	}
 }
 
+//Artifact Collection 
+void artifact_collection(){
 
+	//TAPE FOLLOW TREE
+	#define OPTIONS 3
+	//TAPE CHILDREN
+	#define ARTIFACT_VARS 1
+	#define ARTIFACT_DEMO 2
+	#define ARTIFACT_SENSOR 3
+
+	while(!deselect()){
+		clear();
+		print_root("Art. Collection");
+
+		switch(menu_choice(OPTIONS)){
+
+			case ARTIFACT_VARS:
+			print_child("Edit Vars.");
+			if(confirm()){
+				artifact_collection_vars();
+			}
+			break;
+
+			case ARTIFACT_DEMO:
+			print_child("Run Demo");
+			if(confirm()){
+				artifact_collection_demo();
+			}
+			break;
+
+			case ARTIFACT_SENSOR:
+			print_child("Check Sensors");
+			if(confirm()){
+				incomplete();
+			}
+			break;
+		}
+		delay(200);
+	}
+}
+
+//Artifact Collection Variables
+void artifact_collection_vars(){
+
+}
+
+//Artifact Collection Demonstration
+void artifact_collection_demo(){
+
+	//Artifact Collection Demo
+	int artifacts = 0;
+	int height = 16; // angle above ground
+	
+	while(!deselect()){
+		// This variable ensures that once we detect something, we are committed to the pickup sequence.
+		bool servo = false;
+
+		// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
+		clear();
+		LCD.setCursor(0,0); LCD.print( analogRead(3) );
+		delay(50);
+
+
+		// Artifact detection 'if' statement.
+		if(analogRead(3) < 80){
+			LCD.setCursor(0,1); LCD.print("Object Detected!");
+			delay(50);
+			servo = true; 
+		} else{
+			// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
+			LCD.setCursor(0,1); LCD.print("Scanning..."); 
+			delay(200);		
+		}
+
+		// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
+		if(servo == true){
+			motor.stop_all();
+			// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
+			// This will traverse slowly, so that the idol doesn't get knocked off.
+			for(int pos = height; pos < 100; pos += 1){
+				RCServo1.write(pos);
+				delay(15);
+			} 
+				// Horizontal arm, brings the idol into position over the bucket.
+				// Again, it travels slowly.
+			for(int pos = 0; pos < 150; pos += 1) {
+				RCServo2.write(pos); 
+				delay(10);
+			} 
+			// Now, we drop off the artifact.
+			// Unlike the last two, this is executed quickly.
+			RCServo0.write(180); delay(1000);
+			// Then we return the end to its initial position.
+			RCServo0.write(0); delay(500);
+			// Next, the arm moves horizontally back to its starting position.
+			// This is quick, since we don't have an artifact on the end.
+			RCServo2.write(0); delay(500);
+			// Finally, the arm is lowered to its proper height.
+			// This is quickly done as well.
+			RCServo1.write(height);  //return to normal height
+			delay(500);
+			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. This number will help us keep track of where we are on the course.
+			servo = false;
+			artifacts++;
+		}
+	}
+}
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//

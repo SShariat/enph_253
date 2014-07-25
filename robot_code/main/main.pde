@@ -407,7 +407,7 @@ void artifact_collection(){
 
 	while(!deselect()){
 		clear();
-		print_root("Tape-Follow");
+		print_root("Art. Collection");
 
 		switch(menu_choice(OPTIONS)){
 
@@ -443,12 +443,17 @@ void artifact_collection_vars(){
 
 //Artifact Collection Demonstration
 void artifact_collection_demo(){
+
+	//Artifact Collection Demo
+	int artifacts = 0;
+	int height = 16; // angle above ground
+	
 	while(!deselect()){
 		// This variable ensures that once we detect something, we are committed to the pickup sequence.
 		bool servo = false;
 
 		// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
-		LCD.clear(); LCD.home();
+		clear();
 		LCD.setCursor(0,0); LCD.print( analogRead(3) );
 		delay(50);
 
@@ -461,7 +466,7 @@ void artifact_collection_demo(){
 		} else{
 			// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
 			LCD.setCursor(0,1); LCD.print("Scanning..."); 
-			delay(50);		
+			delay(200);		
 		}
 
 		// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
