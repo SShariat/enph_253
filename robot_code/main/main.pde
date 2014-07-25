@@ -144,9 +144,9 @@ void tape_follow(){
 			break;
 
 			case TAPE_DEMO_2:
-			print_child("Run Demo 2.0");
+			print_child("Analog PID");
 			if(confirm()){
-				tape_follow_demo_2();
+				analog_pid();
 			}
 			break;
 
@@ -285,12 +285,6 @@ void tape_follow_demo(){
 	}
 
 	motor.stop_all();
-}
-
-void tape_follow_demo_2(){
-	while(!deselect()){
-
-	}
 }
 
 //Runs QRD Sensor Module
@@ -707,8 +701,8 @@ void time_trial_demo(){
 			// Now, we must turn the robot around. Rather than relying on a timing thing (which would not work super well), let's 
 
 		}
-
-
+	}
+}
 /*
 
  Multiply by some function,
@@ -732,6 +726,8 @@ find the points where intensity is less than the error peaks, then just keep the
 Those points are where the error starts to drop again, past the centreline and when the two sensors are not reading the tape. At these points, don't trust the error and keep it constant. The error should be pointing us towards the tape at this point, so we just keep it constant and should come back to the tape.
 
 
+
+
 */
 
 
@@ -743,12 +739,56 @@ Those points are where the error starts to drop again, past the centreline and w
 	}
 
 	motor.stop_all();
+
+void analog_pid(){
+	int left, right;
+
+	int pro, der, result;
+
+	int current_error; 
+	int last_error = 0;
+
+	int i = 0; 
+
+	int K_p 		= EEPROM.read(1)*4;
+	int K_d 		= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+
+	while(!deselect()){
+		//Read from QRDs
+		left = analogRead(0);
+		right = analogRead(1);
+
+		current_error = left - right;
+
+		if (current_error > 300 ){
+			current_error = 300;
+		}
+
+		pro = K_p*error;
+		der = (current_error - last_error)*K_d;
+
+		result = pro + der;
+
+		motor.speed(3, tape_speed - result );
+		motor.speed(2, tape_speed + result);
+
+		last_error = current_error;
+
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			i = 0;
+		}
+		i++;
+	}
+
 }
-
-
-
-
-
 
 // ---------------------------------------------------------------------------------------------------------- \\
 // All functions
