@@ -12,24 +12,27 @@
 	K_d 		2
 	tape_speed 	3
 	tape_thresh 4
-
-	ARTIFACT COLLECTION
-
 */
 
 
 //ROOT TREE
-#define ROOT 5
+#define ROOT 6
 
 //ROOT CHILDREN
 #define TAPE_FOLLOW 1          // Follows tape utilizing PD control.
 #define IR_FOLLOW 2            // Follows an IR beacon.
 #define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
 #define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
-#define RUN_ALL 5              // Runs everything above at once.
+#define RUN_ALL 5   		   // Runs everything above at once.
+#define TT_DEMO 6              // The demonstration function for time trials day.
 
 //Editor Variables for Parameter Manipulation
 int current, new_value;
+
+
+
+// ---------------------------------------------------------------------------------------------------------- \\
+// Setup function
 
 void setup(){
 
@@ -43,6 +46,11 @@ void setup(){
 	RCServo2.attach(RCServo2Output);
 	
 }
+
+
+
+// ---------------------------------------------------------------------------------------------------------- \\
+// Loop function
 
 // ROOT LOOP
 void loop(){
@@ -89,9 +97,19 @@ void loop(){
 		}
 		break;
 
+		case TT_DEMO:
+		print_child("Time Trial Demo")
+		if(confirm()){
+			time_trial_demo();
+		}
+
 	}
 	delay(200);
 }
+
+
+// ---------------------------------------------------------------------------------------------------------- \\
+// Tape following functions
 
 //TAPE Follow Tree Loop
 void tape_follow(){
@@ -190,16 +208,16 @@ void tape_follow_vars(){
 void tape_follow_demo(){
 
 	// Initializing tape following parameters
-	int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
-	int lastState = 0;  // The previous state of the robot.
-	int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
-	int lastTime  = 0;  // The time the robot spent in the last state.
-	int thisTime  = 0;  // The time the robot has spent in this state.
-	int i 		  = 0;  // i for iterations, because I'm old-school like that.
+	int state       = 0;  // The state of the robot (straight, left, right, or hard left/right)
+	int lastState   = 0;  // The previous state of the robot.
+	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+	int lastTime    = 0;  // The time the robot spent in the last state.
+	int thisTime    = 0;  // The time the robot has spent in this state.
+	int i 		    = 0;  // i for iterations, because I'm old-school like that.
 
-	int pro       = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
-	int der       = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
-	int result    = 0;  // The result of our pro and der, this goes to the motors.    
+	int pro         = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
+	int der         = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
+	int result      = 0;  // The result of our pro and der, this goes to the motors.    
 
 	// Setting up the variables that will be edited
 	int K_p 		= EEPROM.read(1)*4;
@@ -223,17 +241,19 @@ void tape_follow_demo(){
 			state = -5;
 		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
 			state = 5;
-		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the code 
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
 			state = 0;
 		}
 
 
-		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure. I think it is to do with the whole 'remembering' thing. Ironic.
 		if(state != thisState) {
 			lastState = thisState;
 			lastTime = thisTime;
 			thisTime = 1;
 		}
+
+		// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
 
 		// This is our P/D part; defining our (pro)portional and (der)ivative control
 		pro = K_p * state;
@@ -242,17 +262,12 @@ void tape_follow_demo(){
 		// They're then added together with the robot's speed to produce our output.
 		result = pro + der;
 
-		// This 700 is only here because that was the maximum speed Charles could go without damage. I've removed it for now.
-		// if(result > 700 - tape_speed){
-		// 	result = 700;
-		// }
-
 		// This writes our output to the motors
-		motor.speed(3, (1) * (tape_speed - result) );
+		motor.speed(3, tape_speed - result );
 		motor.speed(2, tape_speed + result);  
 
 
-		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations.
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
 		if( i == 50) {
 			LCD.clear();
 			LCD.home(); 
@@ -263,11 +278,12 @@ void tape_follow_demo(){
 
 			i = 0;
 		}
-
 		i++;
+
 		thisTime++;
 		thisState = state;
 	}
+
 	motor.stop_all();
 }
 
@@ -292,7 +308,10 @@ void tape_follow_sensor(){
 	}
 }
 
-//Motor Functions
+
+// ---------------------------------------------------------------------------------------------------------- \\
+// Motor control functions
+
 void motor_test(){
 	
 	//Motor Test Variables (These are the speeds of 2 Motors)
@@ -327,9 +346,10 @@ void motor_test(){
 	motor.stop_all();
 }
 
-//IR Following Functions
 
-//IR Following
+// ---------------------------------------------------------------------------------------------------------- \\
+// IR following functions
+
 void ir_follow(){
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -340,7 +360,7 @@ void ir_follow(){
 	while(!deselect()){
 
 		clear();
-		print_root("Tape-Follow");
+		print_root("IR-Follow");
 
 		switch(menu_choice(OPTIONS)){
 
@@ -373,7 +393,7 @@ void ir_follow(){
 //IR Following Variable Editor
 void ir_follow_vars(){
 	while(!deselect()){
-
+		incomplete();
 	}
 }
 
@@ -390,7 +410,7 @@ void ir_follow_demo(){
 			if R = L = 0
 				set Motor to Equal
 		*/
-
+			incomplete();
 	}
 }
 
@@ -416,7 +436,9 @@ void ir_follow_sensor(){
 	}
 }
 
-//Artifact Collection 
+// ---------------------------------------------------------------------------------------------------------- \\
+// Artifact collection functions
+
 void artifact_collection(){
 
 	//TAPE FOLLOW TREE
@@ -465,9 +487,12 @@ void artifact_collection_vars(){
 //Artifact Collection Demonstration
 void artifact_collection_demo(){
 
-	//Artifact Collection Demo
+	// Artifact counter, currently unused.
 	int artifacts = 0;
-	int height = 16; // angle above ground
+
+	// Angle above ground, 16 seems good for now.
+	int height = 16; 
+	                 
 	// This variable ensures that once we detect something, we are committed to the pickup sequence.
 	bool servo = false;
 
@@ -479,7 +504,7 @@ void artifact_collection_demo(){
 		delay(50);
 
 
-		// Artifact detection 'if' statement.
+		// Artifact detection 'if' statement. Please note, if this is run concurrent with any sort of time-dependant function, the printing to the screen MUST be commented out; otherwise the delays and time taken will severely mess with the timing (like for the tape following code)
 		if(analogRead(3) < 80){
 			LCD.setCursor(0,1); LCD.print("Object Detected!");
 			delay(50);
@@ -492,37 +517,241 @@ void artifact_collection_demo(){
 
 		// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
 		if(servo == true){
+
+			// Stops motors, we currently can't move and pick stuff up.
 			motor.stop_all();
+
 			// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
 			// This will traverse slowly, so that the idol doesn't get knocked off.
 			for(int pos = height; pos < 100; pos += 1){
 				RCServo1.write(pos);
 				delay(15);
 			} 
+
 				// Horizontal arm, brings the idol into position over the bucket.
 				// Again, it travels slowly.
 			for(int pos = 0; pos < 150; pos += 1) {
 				RCServo2.write(pos); 
 				delay(10);
 			} 
+
 			// Now, we drop off the artifact.
-			// Unlike the last two, this is executed quickly.
+			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
 			RCServo0.write(180); delay(1000);
+
 			// Then we return the end to its initial position.
 			RCServo0.write(0); delay(500);
+
 			// Next, the arm moves horizontally back to its starting position.
 			// This is quick, since we don't have an artifact on the end.
 			RCServo2.write(0); delay(500);
+
 			// Finally, the arm is lowered to its proper height.
 			// This is quickly done as well.
-			RCServo1.write(height);  //return to normal height
+			RCServo1.write(height);
 			delay(500);
-			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. This number will help us keep track of where we are on the course.
+
+			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. Again, this number will help us keep track of where we are on the course.
 			servo = false;
 			artifacts++;
 		}
 	}
 }
+
+
+// ---------------------------------------------------------------------------------------------------------- \\ 
+// Time Trials functions
+
+void time_trial_demo(){
+
+	while(!deselect()){
+
+		// Alright, here we go.
+
+		// First, we must drive forward, then as soon as we hit an artifact, we pick it up, turn around, and drive home.
+
+		// Loop tape following.
+
+		// If we see an artifact, pick it up, then spin the robot around.
+
+		// Then, as soon as we see the tape disappear, stop the robot.
+
+
+			// Initialize tape following parameters
+	int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
+	int lastState = 0;  // The previous state of the robot.
+	int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
+	int lastTime  = 0;  // The time the robot spent in the last state.
+	int thisTime  = 0;  // The time the robot has spent in this state.
+	int i 		  = 0;  // i for iterations, because I'm old-school like that.
+
+	int pro       = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
+	int der       = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
+	int result    = 0;  // The result of our pro and der, this goes to the motors.    
+
+	// Setting up the variables that will be edited
+	int K_p 		= EEPROM.read(1)*4;
+	int K_d 		= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+	int tape_thresh = EEPROM.read(4)*4;
+
+	//Artifact collection parameters
+	int artifacts = 0;
+	int height = 16; // angle above ground
+	                 
+	// This variable ensures that once we detect something, we are committed to the pickup sequence.
+	bool servo = false;
+
+	//Artifact Collection Section
+
+	while(!deselect()){
+
+		//Reading QRD Sensors
+		int l = analogRead(0); // Left QRD
+		int r = analogRead(1); // Right QRD (but you knew that already, you're smart)
+
+		// Both QRDs are on the tape
+		if(l > tape_thresh && r > tape_thresh) { state = 0;}
+
+		// The left QRD has moved off the tape
+		else if(l < tape_thresh && r > tape_thresh) { state = -1; } 
+
+		// The right QRD is now off the tape.
+		else if(l > tape_thresh && r < tape_thresh) { state = 1; }
+
+		// Both QRDs are off the tape, and the robot is tilted to the left.
+		else if(l < tape_thresh && r < tape_thresh && state < 0) { state = -5; }
+
+		// Both QRDs are off, the robot is tilted to the right.
+		else if(l < tape_thresh && r < tape_thresh && state > 0) { state = 5; }
+
+		// Both QRDs are now off the tape, and in this case it means that the tape has ended. Hence, we stop ( or break, since I'm a heavy-handed coder.)
+		else if(l < tape_thresh && r < tape_thresh && state == 0) { 
+			break;
+		}
+
+
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure.
+		if(state != thisState) {
+			lastState = thisState;
+			lastTime = thisTime;
+			thisTime = 1;
+		}
+
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
+		pro = K_p * state;
+		der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+
+		// They're then added together with the robot's speed to produce our output.
+		result = pro + der;
+
+		// This writes our output to the motors
+		motor.speed(3, (1) * (tape_speed - result) );
+		motor.speed(2, tape_speed + result);  
+
+
+		// Every fifty iterations, we check if there's an artifact under our crane and print out some diagnostic text for the tape-following.
+		if( i == 50) {
+
+			if(analogRead(3) < 80){	servo = true; }
+
+			LCD.clear(); LCD.home(); 
+
+			LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			// Lol, reset the iterations.
+			i = 0;
+		}
+
+
+		// Now, if we did see an artifact*, the crane will have to pick it up. Hence, the following loop.
+		// (*) alleged artifact may be a person's fingers, some part of the competition surface, or just noise in the circuits.
+		if(servo == true){
+
+			// Stops motors, we don't want to move *and* pick stuff up.
+			motor.stop_all();
+
+			// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
+			// This will traverse slowly, so that the idol doesn't get knocked off.
+			for(int pos = height; pos < 100; pos += 1){
+				RCServo1.write(pos);
+				delay(15);
+			} 
+
+			// Horizontal arm, brings the idol into position over the bucket.
+			// Again, it travels slowly.
+			for(int pos = 0; pos < 150; pos += 1) {
+				RCServo2.write(pos); 
+				delay(10);
+			} 
+
+			// Now, we drop off the artifact.
+			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
+			RCServo0.write(180); delay(1000);
+
+			// Then we return the end to its initial position.
+			RCServo0.write(0); delay(500);
+
+			// Next, the arm moves horizontally back to its starting position.
+			// This is quick, since we don't have an artifact on the end.
+			RCServo2.write(0); delay(500);
+
+			// Finally, the arm is lowered to its proper height.
+			// This is quickly done as well.
+			RCServo1.write(height);
+			delay(500);
+
+
+			// Now, we must turn the robot around. Rather than relying on a timing thing (which would not work super well), let's 
+
+		}
+
+
+/*
+
+ Multiply by some function,
+ error = l-r
+
+ if error is less tahn some value, figure out what l+r is, if it is large, then keep error small (in the middle of our Gauss function)
+
+still keep track of what side of the tape we are on
+
+set positive error if on right side, negative if on left, etc
+
+when we get off the peak error, we have to know to change the error
+
+*zach asks question*
+
+error = l-r
+intensity = l+r
+
+find the points where intensity is less than the error peaks, then just keep the error constant past those points.
+
+Those points are where the error starts to drop again, past the centreline and when the two sensors are not reading the tape. At these points, don't trust the error and keep it constant. The error should be pointing us towards the tape at this point, so we just keep it constant and should come back to the tape.
+
+
+*/
+
+
+		// Then, we iterate the iterations (bwaaaaaaaah), and do some state switching.
+		i++;
+		thisTime++;
+		thisState = state;
+
+	}
+
+	motor.stop_all();
+}
+
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------- \\
+// All functions
 
 void run_all(){
 	
@@ -549,10 +778,12 @@ void run_all(){
 	}
 }
 
+
+// This melon farmer is a combination tape follow and artifact collection system.
+
 void run_all_tape_collect(){
 
-
-	// Initializing tape following parameters
+	// Initialize tape following parameters
 	int state     = 0;  // The state of the robot (straight, left, right, or hard left/right)
 	int lastState = 0;  // The previous state of the robot.
 	int thisState = 0;  // The state which the robot is currently running in (i.e. a plateau)
@@ -570,12 +801,14 @@ void run_all_tape_collect(){
 	int tape_speed 	= EEPROM.read(3)*4;
 	int tape_thresh = EEPROM.read(4)*4;
 
-	//Artifact Collection Parameters
+	//Artifact collection parameters
 	int artifacts = 0;
 	int height = 16; // angle above ground
-	//Artifact Collection Section
+	                 
 	// This variable ensures that once we detect something, we are committed to the pickup sequence.
 	bool servo = false;
+
+	//Artifact Collection Section
 
 	while(!deselect()){
 
@@ -612,18 +845,16 @@ void run_all_tape_collect(){
 		// They're then added together with the robot's speed to produce our output.
 		result = pro + der;
 
-		// This 700 is only here because that was the maximum speed Charles could go without damage. I've removed it for now.
-		// if(result > 700 - tape_speed){
-		// 	result = 700;
-		// }
-
 		// This writes our output to the motors
 		motor.speed(3, (1) * (tape_speed - result) );
 		motor.speed(2, tape_speed + result);  
 
 
-		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations.
+		// Every fifty iterations, we check if there's an artifact under our crane and print out some diagnostic text for the tape-following.
 		if( i == 50) {
+
+			if(analogRead(3) < 80){	servo = true; }
+
 			LCD.clear();
 			LCD.home(); 
 
@@ -634,63 +865,58 @@ void run_all_tape_collect(){
 			i = 0;
 		}
 
-		i++;
-		thisTime++;
-		thisState = state;
-
-		//Artifact Collection
-		// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
-		clear();
-		LCD.setCursor(0,0); LCD.print( analogRead(3) );
-		delay(50);
-
-
-		// Artifact detection 'if' statement.
-		if(analogRead(3) < 80){
-			LCD.setCursor(0,1); LCD.print("Object Detected!");
-			delay(50);
-			servo = true; 
-		} else{
-			// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
-			LCD.setCursor(0,1); LCD.print("Scanning..."); 
-			delay(200);		
-		}
-
-		// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
+		// Now, if we did see an artifact*, the crane will have to pick it up. Hence, the following loop.
+		// (*) alleged artifact may be a person's fingers, some part of the competition surface, or just noise in the circuits.
+		
 		if(servo == true){
+
+			// Stops motors, we don't want to move *and* pick stuff up.
 			motor.stop_all();
+
 			// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
 			// This will traverse slowly, so that the idol doesn't get knocked off.
 			for(int pos = height; pos < 100; pos += 1){
 				RCServo1.write(pos);
 				delay(15);
 			} 
+
 				// Horizontal arm, brings the idol into position over the bucket.
 				// Again, it travels slowly.
 			for(int pos = 0; pos < 150; pos += 1) {
 				RCServo2.write(pos); 
 				delay(10);
 			} 
+
 			// Now, we drop off the artifact.
-			// Unlike the last two, this is executed quickly.
+			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
 			RCServo0.write(180); delay(1000);
+
 			// Then we return the end to its initial position.
 			RCServo0.write(0); delay(500);
+
 			// Next, the arm moves horizontally back to its starting position.
 			// This is quick, since we don't have an artifact on the end.
 			RCServo2.write(0); delay(500);
+
 			// Finally, the arm is lowered to its proper height.
 			// This is quickly done as well.
-			RCServo1.write(height);  //return to normal height
+			RCServo1.write(height);
 			delay(500);
-			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. This number will help us keep track of where we are on the course.
-			servo = false;
-			artifacts++;
 
 		}
-		motor.stop_all();
+
+
+		// Then, we iterate the iterations, and do some state switching.
+		i++;
+		thisTime++;
+		thisState = state;
+
 	}
+
+		motor.stop_all();
+
 }
+
 
 //////////////////////////
 //	 Helper FUNCTIONS 	//
@@ -745,6 +971,7 @@ void incomplete(){
 
 //Prints the Value of a Variable when scrolling through list of Possibilities
 void display_var(int var){
+
 	LCD.setCursor(0,1); LCD.print("Value: "); LCD.print(var);
 }
 
