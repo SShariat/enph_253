@@ -11,8 +11,18 @@
 	K_p 		1
 	K_d 		2
 	tape_speed 	3
-	tape_thresh 4*/
+	tape_thresh 4
 
+	IR FOLLOWING
+	K_p			5
+	K_d			6
+	ir_speed 	7
+
+	ARTIFACT COLLECTION
+
+	RUN ALL
+
+	*/
 
 //ROOT TREE
 	#define ROOT 6
@@ -276,7 +286,6 @@ void tape_follow_demo(){
 		thisTime++;
 		thisState = state;
 	}
-
 	motor.stop_all();
 }
 
@@ -328,6 +337,7 @@ void analog_pid(){
 		}
 		i++;
 	}
+	motor.stop_all();
 }
 
 //Runs QRD Sensor Module
@@ -392,15 +402,45 @@ void ir_follow(){
 
 //IR Following Variable Editor
 void ir_follow_vars(){
+	
+	#define NUM_OF_CONSTANTS 3
+
+	#define KP 1
+	#define KD 2
+	#define SPEED 3
+
 	while(!deselect()){
-		incomplete();
+	
+		clear();
+		print_root("Variable: ");
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case KP:
+		//Changing Variable 1
+			edit_variable(5, "K_p");
+		break;
+
+		case KD:
+		//Changing Variable 2
+			edit_variable(6, "K_d");
+		break;
+		
+		case SPEED:
+		//Changing Variable 3
+			edit_variable(7, "Speed");
+		break;
+		}
+		delay(200);
 	}
 }
 
 //IR Following Demonstration
 void ir_follow_demo(){
-	int low_left, hi_left;
-	int low_right, hi_right;
+	int left_low, left_high;
+	int right_low, right_high;
+
+	int left, right;
 
 	int pro, der, result;
 
@@ -409,21 +449,28 @@ void ir_follow_demo(){
 
 	int i = 0; 
 
-	int K_p 		= EEPROM.read(1)*4;
-	int K_d 		= EEPROM.read(2)*4;
-	int tape_speed 	= EEPROM.read(3)*4;
+	int K_p 		= EEPROM.read(5)*4;
+	int K_d 		= EEPROM.read(6)*4;
+	int tape_speed 	= EEPROM.read(7)*4;
 
 	while(!deselect()){
 
-		if(left_low+left_high){
+		left_high 	= analogRead(0);
+		left_low 	= analogRead(1);
+		right_high 	= analogRead(2);
+		right_low 	= analogRead(3);
 
+		//Gain Switching
+		/*If Low Gain is Railing
+			Switch to High Gain*/
+		if((left_low+right_low)>2000){
+			left = left_low;
+			right = right_low;
 		}
-
-		left_high = analogRead(0);
-		left_low = analogRead(1);
-		right_high = analogRead(2);
-		right_low = analogRead(3);
-
+		else{
+			left = left_high;
+			right = right_high;
+		}
 
 		current_error = left - right;
 
@@ -453,6 +500,7 @@ void ir_follow_demo(){
 		}
 		i++;
 	}
+	motor.stop_all();
 }
 
 //IR Following Without Motors Running
@@ -473,6 +521,7 @@ void ir_follow_sensor(){
 		clear();
 		LCD.setCursor(0,0);LCD.print("L "); LCD.print("LO:"); LCD.print(left_low); LCD.print("HI:"); LCD.print(left_high);
 		LCD.setCursor(0,1);LCD.print("R "); LCD.print("LO:"); LCD.print(right_low); LCD.print("HI:"); LCD.print(right_high);
+		
 		delay(200);
 	}
 }
@@ -528,8 +577,8 @@ void artifact_collection_vars(){
 //Artifact Collection Demonstration
 void artifact_collection_demo(){
 
-	// Artifact counter, currently unused.
-	int artifacts = 0;
+	// // Artifact counter, currently unused.
+	// int artifacts = 0;
 
 	// Angle above ground, 16 seems good for now.
 	int height = 16; 
@@ -594,7 +643,7 @@ void artifact_collection_demo(){
 
 			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. Again, this number will help us keep track of where we are on the course.
 			servo = false;
-			artifacts++;
+			// artifacts++;
 		}
 	}
 }
