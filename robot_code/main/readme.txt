@@ -1,52 +1,133 @@
 
 ROOT TREE
-1. Tape Following
-a. Variables
-b. Demp
-c. Sensor Check
+1. Tape Follow
+	a. Variables
+	b. Demo
+	c. Sensor Check
 
-2. IR Following
-a. Variables
-b. Demp
-c. Sensor Check
+2. IR Follow
+	a. Variables
+	b. Demo
+	c. Sensor Check
 
 3. Artifact Collection
-a. Variables
-b. Demp
-c. Sensor Check
+	a. Variables(IC)
+	b. Demo
 
-4. Run All
+4. MOTOR
+	a. Motor Test
+
+5. Run All
+	a.
+
+6. Time Trial Demo
 
 
 
-TEMPLATE FOR ADDING NEW FUNCTIONS
-
-#define NUM_OF_CHILDREN
-#define child_1
-
-void function(){
+//Tree Template
+void tree_example(){
+	
+	//NUM OF CHILD
+	#define OPTIONS 4
+	
+	//TAPE CHILDREN
+	#define CHILD_1 1
+	#define CHILD_2 2
+	#define CHILD_3 3
+	#define CHILD_4 4
 
 	while(!deselect()){
+
 		clear();
-		LCD.setCursor(0,0); LCD.print("First Text: ");
+		print_root("ROOT_NAME");
 
+		switch(menu_choice(OPTIONS)){
 
-		switch(menu_choice(NUM_OF_CONSTANTS)){
-		
-		case child_1:
-		LCD.setCursor(0,1);LCD.print("Option Name");
+			case CHILD_1:
+			print_child("CHILD_1_NAME");
+			if(confirm()){
+				function_1();
+			}
+			break;
 
-		if(confirm()){
-			case_function()
+			case CHILD_2:
+			print_child("CHILD_2_NAME");
+			if(confirm()){
+				function_2();
+			}
+			break;
+
+			case CHILD_3:
+			print_child("CHILD_3_NAME");
+			if(confirm()){
+				function_3();
+			}
+			break;
+
+			case CHILD_4:
+			print_child("CHILD_4_NAME");
+			if(confirm()){
+				function_3();
+			}
+			break;
 		}
-		break;
-		
-		}
+		delay(200);
 	}
 }
 
-//TAPE FOLLOWING EDITTING STEPS
-	// Tape Following Variable Editor
-	// 1. Select Variable
-	// 2. Press start to go into edit mode
-	// 3. Select Value using knob 7 and press stop to save that value
+//Editting Variables Template
+//NOTE: When wanting to add new variables, they MUST be given Unique Addresses. The list of Already Used Addresses can be found at the top of the main.pde.
+void example_vars(){
+	
+	//Number of Variables
+	#define NUM_OF_CONSTANTS 4
+
+	#define VAR_1 1
+	#define VAR_2 2
+	#define VAR_3 3
+	#define VAR_4 4
+
+	while(!deselect()){
+	
+		clear();
+		print_root("Variable: ");
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case KP:
+		//Changing Variable 1
+			edit_variable(addr_1, "VAR_1_NAME");
+		break;
+
+		case KD:
+		//Changing Variable 2
+			edit_variable(addr_2, "VAR_2_NAME");
+		break;
+		
+		case SPEED:
+		//Changing Variable 3
+			edit_variable(addr_3, "VAR_3_NAME");
+		break;
+
+		case THRESH:
+		//Changing Variable 4
+			edit_variable(addr_4, "VAR_4_NAME");
+		break;
+
+
+		}
+		delay(200);
+	}	
+}
+
+//Variable Initialization
+Whenever a block of code wants to use variables stored within the TINAH, an initialization block must be added to the beginning of the code:
+
+int var_1 = EEPROM.read(addr_1)*4;
+int var_2 = EEPROM.read(addr_1)*4;
+int var_3 = EEPROM.read(addr_2)*4;
+int var_4 = EEPROM.read(addr_3)*4;
+
+Please Note: The Factor of *4 is important as the maximum value that can be stored to TINAH iss 256 due to 8-bit limitations.
+
+For now, possible values that can be stored range from 0-1024. Please do not change the factor of 4 as the edit_variable() method takes this into account from a hard coding perspective.

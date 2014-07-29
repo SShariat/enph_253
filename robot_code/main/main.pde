@@ -1,35 +1,32 @@
 //Libraries
-#include <HardwareSerial.h>
-#include <phys253.h>
-#include <LiquidCrystal.h>
-#include <Servo253.h>
-#include <EEPROM.h>
+	#include <HardwareSerial.h>
+	#include <phys253.h>
+	#include <LiquidCrystal.h>
+	#include <Servo253.h>
+	#include <EEPROM.h>
 
-//ADDR Currently Being Used(Do not Write to Already Being Used ADDR)
+//Memory Addresses Currently Being Used(Do not Write to Already Being Used Ad)
 /*
 	TAPE FOLLOWING
 	K_p 		1
 	K_d 		2
 	tape_speed 	3
-	tape_thresh 4
-*/
+	tape_thresh 4*/
 
 
 //ROOT TREE
-#define ROOT 6
+	#define ROOT 6
 
-//ROOT CHILDREN
-#define TAPE_FOLLOW 1          // Follows tape utilizing PD control.
-#define IR_FOLLOW 2            // Follows an IR beacon.
-#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
-#define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
-#define RUN_ALL 5   		   // Runs everything above at once.
-#define TT_DEMO 6              // The demonstration function for time trials day.
+	//ROOT CHILDREN
+	#define TAPE_FOLLOW 1          // Follows tape utilizing PD control.
+	#define IR_FOLLOW 2            // Follows an IR beacon.
+	#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
+	#define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
+	#define RUN_ALL 5   		   // Runs everything above at once.
+	#define TT_DEMO 6              // The demonstration function for time trials day.
 
 //Editor Variables for Parameter Manipulation
 int current, new_value;
-
-
 
 // ---------------------------------------------------------------------------------------------------------- \\
 // Setup function
@@ -44,15 +41,12 @@ void setup(){
 	RCServo0.attach(RCServo0Output);
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
-	
 }
 
-
-
 // ---------------------------------------------------------------------------------------------------------- \\
-// Loop function
+// Root Loop function
 
-// ROOT LOOP
+//Main Loop Function
 void loop(){
 
 	clear();
@@ -107,11 +101,10 @@ void loop(){
 	delay(200);
 }
 
-
 // ---------------------------------------------------------------------------------------------------------- \\
-// Tape following functions
+// Tape Following Tree
 
-//TAPE Follow Tree Loop
+//Root Tape Following
 void tape_follow(){
 	
 	//TAPE FOLLOW TREE
@@ -119,7 +112,7 @@ void tape_follow(){
 	//TAPE CHILDREN
 	#define TAPE_VARS 1
 	#define TAPE_DEMO 2
-	#define TAPE_DEMO_2 3
+	#define ANALOG_PID 3
 	#define TAPE_SENSOR 4
 
 	while(!deselect()){
@@ -143,7 +136,7 @@ void tape_follow(){
 			}
 			break;
 
-			case TAPE_DEMO_2:
+			case ANALOG_PID:
 			print_child("Analog PID");
 			if(confirm()){
 				analog_pid();
@@ -287,6 +280,56 @@ void tape_follow_demo(){
 	motor.stop_all();
 }
 
+//Runs Analog PID Demonstration
+void analog_pid(){
+	int left, right;
+
+	int pro, der, result;
+
+	int current_error; 
+	int last_error = 0;
+
+	int i = 0; 
+
+	int K_p 		= EEPROM.read(1)*4;
+	int K_d 		= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+
+	while(!deselect()){
+		//Read from QRDs
+		left = analogRead(0);
+		right = analogRead(1);
+
+		current_error = left - right;
+
+		if (current_error > 300 ){
+			current_error = 300;
+		}
+
+		pro = K_p*current_error;
+		der = (current_error - last_error)*K_d;
+
+		result = pro + der;
+
+		motor.speed(3, tape_speed - result );
+		motor.speed(2, tape_speed + result);
+
+		last_error = current_error;
+
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+			i = 0;
+		}
+		i++;
+	}
+}
+
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
 	while(!deselect()){
@@ -302,49 +345,12 @@ void tape_follow_sensor(){
 	}
 }
 
-
-// ---------------------------------------------------------------------------------------------------------- \\
-// Motor control functions
-
-void motor_test(){
-	
-	//Motor Test Variables (These are the speeds of 2 Motors)
-	int speed_1, speed_2;
-	
-	while(!deselect()){
-		speed_1 = 2*(analogRead(6) - 511);
-		speed_2 = 2*(analogRead(7) - 511);
-
-		if (speed_1 >1023) {
-			speed_1 = 1023;
-		} else if ( speed_1 < -1023) {
-			speed_1 = -1023;
-		}
-
-		if (speed_2 >1023) {
-			speed_2 = 1023;
-		} else if ( speed_2 < -1023) {
-			speed_2 = -1023;
-		}
-
-		motor.speed(3,speed_1);
-		motor.speed(2,speed_2);
-
-		clear();
-		LCD.setCursor(0,0); LCD.print("M1: "); LCD.print(speed_1);
-		LCD.setCursor(0,1); LCD.print("M2: "); LCD.print(speed_2);
-
-		delay(50);
-	}
-	//Added Motor Stop Function
-	motor.stop_all();
-}
-
-
 // ---------------------------------------------------------------------------------------------------------- \\
 // IR following functions
 
+//Root Tree
 void ir_follow(){
+	//Number of Options
 	#define OPTIONS 3
 	//TAPE CHILDREN
 	#define IR_FOLLOW_VARS 1
@@ -395,8 +401,6 @@ void ir_follow_vars(){
 void ir_follow_demo(){
 	int low_left, hi_left;
 	int low_right, hi_right;
-
-	int left, right;
 
 	int pro, der, result;
 
@@ -449,7 +453,6 @@ void ir_follow_demo(){
 		}
 		i++;
 	}
-
 }
 
 //IR Following Without Motors Running
@@ -477,6 +480,7 @@ void ir_follow_sensor(){
 // ---------------------------------------------------------------------------------------------------------- \\
 // Artifact collection functions
 
+//Artifact Collection Root
 void artifact_collection(){
 
 	//TAPE FOLLOW TREE
@@ -519,7 +523,6 @@ void artifact_collection(){
 
 //Artifact Collection Variables
 void artifact_collection_vars(){
-
 }
 
 //Artifact Collection Demonstration
@@ -596,10 +599,48 @@ void artifact_collection_demo(){
 	}
 }
 
+// ---------------------------------------------------------------------------------------------------------- \\
+// Motor control functions
+
+//H-Bridge Testing Function
+void motor_test(){
+	
+	//Motor Test Variables (These are the speeds of 2 Motors)
+	int speed_1, speed_2;
+	
+	while(!deselect()){
+		speed_1 = 2*(analogRead(6) - 511);
+		speed_2 = 2*(analogRead(7) - 511);
+
+		if (speed_1 >1023) {
+			speed_1 = 1023;
+		} else if ( speed_1 < -1023) {
+			speed_1 = -1023;
+		}
+
+		if (speed_2 >1023) {
+			speed_2 = 1023;
+		} else if ( speed_2 < -1023) {
+			speed_2 = -1023;
+		}
+
+		motor.speed(3,speed_1);
+		motor.speed(2,speed_2);
+
+		clear();
+		LCD.setCursor(0,0); LCD.print("M1: "); LCD.print(speed_1);
+		LCD.setCursor(0,1); LCD.print("M2: "); LCD.print(speed_2);
+
+		delay(50);
+	}
+	//Added Motor Stop Function
+	motor.stop_all();
+}
 
 // ---------------------------------------------------------------------------------------------------------- \\ 
-// Time Trials functions
+// Time Trials Functions
 
+//
 void time_trial_demo(){
 
 	// Alright, here we go.
@@ -760,59 +801,10 @@ void time_trial_demo(){
 	motor.stop_all();
 }
 
-void analog_pid(){
-	int left, right;
-
-	int pro, der, result;
-
-	int current_error; 
-	int last_error = 0;
-
-	int i = 0; 
-
-	int K_p 		= EEPROM.read(1)*4;
-	int K_d 		= EEPROM.read(2)*4;
-	int tape_speed 	= EEPROM.read(3)*4;
-
-	while(!deselect()){
-		//Read from QRDs
-		left = analogRead(0);
-		right = analogRead(1);
-
-		current_error = left - right;
-
-		if (current_error > 300 ){
-			current_error = 300;
-		}
-
-		pro = K_p*current_error;
-		der = (current_error - last_error)*K_d;
-
-		result = pro + der;
-
-		motor.speed(3, tape_speed - result );
-		motor.speed(2, tape_speed + result);
-
-		last_error = current_error;
-
-		if( i == 50) {
-			LCD.clear();
-			LCD.home(); 
-
-			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
-			LCD.setCursor(0,1);
-			LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-			i = 0;
-		}
-		i++;
-	}
-
-}
-
 // ---------------------------------------------------------------------------------------------------------- \\
-// All functions
+// Run-All Functions
 
+//Run All Tree
 void run_all(){
 	
 	//TAPE FOLLOW TREE
@@ -823,7 +815,7 @@ void run_all(){
 	while(!deselect()){
 
 		clear();
-		print_root("Tape-Follow");
+		print_root("Run-All");
 
 		switch(menu_choice(OPTIONS)){
 
@@ -838,9 +830,7 @@ void run_all(){
 	}
 }
 
-
-// This melon farmer is a combination tape follow and artifact collection system.
-
+// This is combination tape follow and artifact collection system.
 void run_all_tape_collect(){
 
 	// Initialize tape following parameters
@@ -974,13 +964,10 @@ void run_all_tape_collect(){
 	}
 
 		motor.stop_all();
-
 }
 
-
-//////////////////////////
-//	 Helper FUNCTIONS 	//
-//////////////////////////
+// ---------------------------------------------------------------------------------------------------------- \\
+// Helper Functions
 
 //Knob 6 Value is converted to menu selection.
 int menu_choice(int num_choices){
@@ -1042,16 +1029,19 @@ void display_new_var(char name[]){
 	LCD.setCursor(0,1); LCD.print("C:"); LCD.print(current); LCD.print(" N:"); LCD.print(new_value);
 }
 
+//Prints the root name of the tree
 void print_root(char name[]){
 	
 	LCD.setCursor(0,0); LCD.print(name);
 }
 
+//Prints the child name of the tree
 void print_child(char name[]){
 
 	LCD.setCursor(0,1); LCD.print(name);
 }
 
+//Edits a variable and saves it to 
 void edit_variable(int addr, char name[] ){
 	current = EEPROM.read(addr)*4;
 	LCD.print(name);
