@@ -1,7 +1,15 @@
 Analog Pins Being Used
-	0-3 IR Sensor Pins
-	4-5	QRD Pins
-	6 is QRD for object detector???
+	
+	IR Pins
+	0 Left-High
+	1 Left-Low
+	2 Right-High
+	3 Right Low
+
+	4 Left QRD
+	5 Right QRD
+	
+	6 Detector QRD
 
 
 

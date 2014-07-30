@@ -19,21 +19,23 @@
 	ir_speed 	7
 
 	ARTIFACT COLLECTION
+	height		8
 
 	RUN ALL
 
 	*/
 
 //ROOT TREE
-	#define ROOT 6
+	#define ROOT 7
 
 	//ROOT CHILDREN
-	#define TAPE_FOLLOW 1          // Follows tape utilizing PD control.
-	#define IR_FOLLOW 2            // Follows an IR beacon.
-	#define ARTIFACT_COLLECTION 3  // Collects artifacts using the robot arm.
-	#define MOTOR 4                // H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
-	#define RUN_ALL 5   		   // Runs everything above at once.
-	#define TT_DEMO 6              // The demonstration function for time trials day.
+	#define TAPE_FOLLOW 1 			// Follows tape utilizing PD control.
+	#define IR_FOLLOW 2            	// Follows an IR beacon.
+	#define ARTIFACT_COLLECTION 3  	// Collects artifacts using the robot arm.
+	#define MOTOR 4                	// H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
+	#define RUN_ALL 5   		   	// Runs everything above at once.
+	#define TT_DEMO 6              	// The demonstration function for time trials day.
+	#define INITIALIZE 7			// Reset the Variable Values to Hard Coded Versions
 
 //Editor Variables for Parameter Manipulation
 int current, new_value;
@@ -106,7 +108,18 @@ void loop(){
 		if(confirm()){
 			time_trial_demo();
 		}
+		break;
 
+		case INITIALIZE:
+		print_child("Reset Vars?");
+		if(confirm()){
+			clear();
+			initialize_vars();
+			LCD.setCursor(0,0);LCD.print("Saved");
+			delay(500);
+			clear();
+		}	
+		break;
 	}
 	delay(200);
 }
@@ -231,8 +244,8 @@ void tape_follow_demo(){
 	while(!deselect()){
 
 		//Reading QRD Sensors
-		int l = analogRead(0); // Left QRD
-		int r = analogRead(1); // Right QRD (but you knew that already, you're smart)
+		int l = analogRead(4); // Left QRD
+		int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
 
 		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
 			state = 0;
@@ -533,11 +546,10 @@ void ir_follow_sensor(){
 void artifact_collection(){
 
 	//TAPE FOLLOW TREE
-	#define OPTIONS 3
+	#define OPTIONS 2
 	//TAPE CHILDREN
 	#define ARTIFACT_VARS 1
 	#define ARTIFACT_DEMO 2
-	#define ARTIFACT_SENSOR 3
 
 	while(!deselect()){
 		clear();
@@ -555,16 +567,11 @@ void artifact_collection(){
 			case ARTIFACT_DEMO:
 			print_child("Run Demo");
 			if(confirm()){
-				artifact_collection_demo();
+				clear();
+				collect_artifact();
 			}
 			break;
 
-			case ARTIFACT_SENSOR:
-			print_child("Check Sensors");
-			if(confirm()){
-				incomplete();
-			}
-			break;
 		}
 		delay(200);
 	}
@@ -572,8 +579,27 @@ void artifact_collection(){
 
 //Artifact Collection variables****************INCOMPLETE
 void artifact_collection_vars(){
+	
+	//Number of Variables
+	#define NUM_OF_CONSTANTS 1
 
-	incomplete();
+	#define HEIGHT 1
+
+	while(!deselect()){
+	
+		clear();
+		print_root("Variable: ");
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case HEIGHT:
+		//Changing Variable 1
+			edit_variable(8, "HEIGHT",180);
+		break;
+		}
+		
+		delay(200);
+	}	
 }
 
 //Artifact Collection Demonstration
@@ -590,14 +616,14 @@ void artifact_collection_demo(){
 
 	while(!deselect()){
 
-		// This code here simply is for debug purposes; it prints out the current value of the QRD so that we know what it's seeing.
+		//it prints out the current value of the QRD
 		clear();
-		LCD.setCursor(0,0); LCD.print( analogRead(3) );
+		LCD.setCursor(0,0); LCD.print( analogRead(6) );
 		delay(50);
 
 
 		// Artifact detection 'if' statement. Please note, if this is run concurrent with any sort of time-dependant function, the printing to the screen MUST be commented out; otherwise the delays and time taken will severely mess with the timing (like for the tape following code)
-		if(analogRead(3) < 80){
+		if(analogRead(6) < 80){
 			LCD.setCursor(0,1); LCD.print("Object Detected!");
 			delay(50);
 			servo = true; 
@@ -650,9 +676,9 @@ void artifact_collection_demo(){
 	}
 }
 
-//Returns Boolean Value if an Artifact is Collected ****************INCOMPLETE
+//Returns Boolean Value if an Artifact is Collected
 bool artifact_detected(){
-	if(true){
+	if(analogRead(6)>80){
 		return true;
 	}
 	else
@@ -661,7 +687,48 @@ bool artifact_detected(){
 
 //Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
 void collect_artifact(){
-	incomplete();
+
+	int height = EEPROM.read(8)*4;
+
+	motor.stop_all();
+
+	LCD.setCursor(0,0); LCD.print("Searching...");
+	while(!artifact_detected()){
+	}
+
+	clear();
+	LCD.setCursor(0,0); LCD.print("Collecting...");
+
+	for(int pos = height; pos < 100; pos += 1){
+		RCServo1.write(pos);
+		delay(15);
+	} 
+
+	// Horizontal arm, brings the idol into position over the bucket.
+	
+	// Again, it travels slowly.
+	for(int pos = 0; pos < 150; pos += 1){
+		RCServo2.write(pos); 
+		delay(10);
+	}
+
+	// Now, we drop off the artifact.
+			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
+	RCServo0.write(180); delay(1000);
+
+			// Then we return the end to its initial position.
+	RCServo0.write(0); delay(500);
+
+			// Next, the arm moves horizontally back to its starting position.
+			// This is quick, since we don't have an artifact on the end.
+	RCServo2.write(0); delay(500);
+
+			// Finally, the arm is lowered to its proper height.
+			// This is quickly done as well.
+	RCServo1.write(height);
+	
+	clear();
+	LCD.setCursor(0,0); LCD.print("Done");
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\
@@ -1069,7 +1136,7 @@ void edit_variable(int addr, char name[],int max_range){
 			if(new_value > max_range){
 				new_value = max_range;
 			}
-			
+
 			//new_value = knob(7);
 			display_new_var(name);
 			if(confirm()){
@@ -1079,4 +1146,36 @@ void edit_variable(int addr, char name[],int max_range){
 			delay(200);
 		}
 	}
+}
+
+//This is the Initializer Function that resets the value of all the editable variables to hard coded values
+void initialize_vars(){
+	/*
+	TAPE FOLLOWING
+	K_p 		1
+	K_d 		2
+	tape_speed 	3
+	tape_thresh 4
+
+	IR FOLLOWING
+	K_p			5
+	K_d			6
+	ir_speed 	7
+
+	ARTIFACT COLLECTION
+	height		8
+
+	RUN ALL
+	*/
+
+	EEPROM.write(1,(int)(250/4.0));
+	EEPROM.write(2,(int)(25/4.0));
+	EEPROM.write(3,(int)(300/4.0));
+	EEPROM.write(4,(int)(100/4.0));
+	
+	EEPROM.write(5,(int)(250/4.0));
+	EEPROM.write(6,(int)(25/4.0));
+	EEPROM.write(7,(int)(400/4.0));
+	
+	EEPROM.write(8,(int)(16/4.0));
 }
