@@ -357,8 +357,8 @@ void analog_pid(){
 void tape_follow_sensor(){
 	while(!deselect()){
 		//Read From QRD Sensors
-		int l = analogRead(0);
-		int r = analogRead(1);
+		int l = analogRead(4);
+		int r = analogRead(5);
 
 		//Print To Screen QRD Sensors
 		clear();
