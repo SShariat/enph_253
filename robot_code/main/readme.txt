@@ -1,3 +1,9 @@
+Analog Pins Being Used
+	0-3 IR Sensor Pins
+	4-5	QRD Pins
+	6 is QRD for object detector???
+
+
 
 ROOT TREE
 1. Tape Follow
