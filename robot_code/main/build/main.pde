@@ -183,22 +183,22 @@ void tape_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			edit_variable(1, "K_p");
+			edit_variable(1, "K_p",1000);
 		break;
 
 		case KD:
 		//Changing Variable 2
-			edit_variable(2, "K_d");
+			edit_variable(2, "K_d",1000);
 		break;
 		
 		case SPEED:
 		//Changing Variable 3
-			edit_variable(3, "Speed");
+			edit_variable(3, "Speed",1000);
 		break;
 
 		case THRESH:
 		//Changing Variable 4
-			edit_variable(4, "Thresh");
+			edit_variable(4, "Thresh",1000);
 		break;
 
 
@@ -418,17 +418,17 @@ void ir_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			edit_variable(5, "K_p");
+			edit_variable(5, "K_p",1000);
 		break;
 
 		case KD:
 		//Changing Variable 2
-			edit_variable(6, "K_d");
+			edit_variable(6, "K_d",1000);
 		break;
 		
 		case SPEED:
 		//Changing Variable 3
-			edit_variable(7, "Speed");
+			edit_variable(7, "Speed",1000);
 		break;
 		}
 		delay(200);
@@ -572,6 +572,8 @@ void artifact_collection(){
 
 //Artifact Collection variables****************INCOMPLETE
 void artifact_collection_vars(){
+
+	incomplete();
 }
 
 //Artifact Collection Demonstration
@@ -647,7 +649,6 @@ void artifact_collection_demo(){
 		}
 	}
 }
-
 
 //Returns Boolean Value if an Artifact is Collected ****************INCOMPLETE
 bool artifact_detected(){
@@ -978,7 +979,6 @@ void run_all_tape_collect(){
 		}
 	}
 	motor.stop_all();
-
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\
@@ -1057,13 +1057,20 @@ void print_child(char name[]){
 }
 
 //Edits a variable and saves it to 
-void edit_variable(int addr, char name[] ){
+void edit_variable(int addr, char name[],int max_range){
 	current = EEPROM.read(addr)*4;
 	LCD.print(name);
 	display_var(EEPROM.read(addr)*4);
 	if(confirm()){
 		while(!deselect()){
-			new_value = knob(7);
+			//Result := ((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow;
+			new_value = (int)(((float)knob(7)/1000.0)*max_range);
+
+			if(new_value > max_range){
+				new_value = max_range;
+			}
+			
+			//new_value = knob(7);
 			display_new_var(name);
 			if(confirm()){
 				EEPROM.write(addr,new_value/4);
