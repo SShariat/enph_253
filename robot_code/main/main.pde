@@ -279,8 +279,10 @@ void tape_follow_demo(){
 		result = pro + der;
 
 		// This writes our output to the motors
-		motor.speed(3, tape_speed - result );
-		motor.speed(2, tape_speed + result);  
+		// Motor 3 = Right
+		// Motor 2 = Left
+		motor.speed(3, tape_speed + result);
+		motor.speed(2, tape_speed - result);  
 
 
 		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
@@ -476,7 +478,7 @@ void ir_follow_demo(){
 		//Gain Switching
 		/*If Low Gain is Railing
 			Switch to High Gain*/
-		if((left_low+right_low)>2000){
+		if((left_high+right_high)>2000){
 			left = left_low;
 			right = right_low;
 		}
@@ -487,8 +489,12 @@ void ir_follow_demo(){
 
 		current_error = left - right;
 
-		if (current_error > 300 ){
-			current_error = 300;
+		if (current_error > 200 ){
+			current_error = 200;
+		}
+
+		if (current_error < -200 ){
+			current_error = -200;
 		}
 
 		pro = K_p*current_error;
@@ -496,8 +502,8 @@ void ir_follow_demo(){
 
 		result = pro + der;
 
-		motor.speed(3, tape_speed - result );
-		motor.speed(2, tape_speed + result);
+		motor.speed(3, tape_speed + result );
+		motor.speed(2, tape_speed - result);
 
 		last_error = current_error;
 
