@@ -47,6 +47,7 @@ void artifact_collection_vars();
 void artifact_collection_demo();
 bool artifact_detected(int thresh);
 void collect_artifact();
+void artifact_sensor_check();
 int menu_choice(int num_choices);
 void clear();
 bool confirm();
@@ -86,6 +87,10 @@ void setup(){
 	RCServo0.attach(RCServo0Output);
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
+
+	//Sets the Angle of the Servos
+	RCServo1.write(20);
+	RCServo2.write(36);
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\
@@ -163,10 +168,11 @@ void loop(){
 void artifact_collection(){
 
 	//TAPE FOLLOW TREE
-	#define OPTIONS 2
+	#define OPTIONS 3
 	//TAPE CHILDREN
 	#define ARTIFACT_VARS 1
 	#define ARTIFACT_DEMO 2
+	#define SENSOR_CHECK 3
 
 	while(!deselect()){
 		clear();
@@ -186,6 +192,13 @@ void artifact_collection(){
 			if(confirm()){
 				clear();
 				collect_artifact();
+			}
+			break;
+
+			case SENSOR_CHECK:
+			print_child("Sensor Check");
+			if(confirm()){
+				artifact_sensor_check();
 			}
 			break;
 
@@ -209,28 +222,28 @@ void artifact_collection_vars(){
 	while(!deselect()){
 	
 		clear();
-		print_root("Variable: ");
+		print_root("Var: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
 			case START_HEIGHT:
 			//Changing Variable 1
-				edit_variable(8, "Start Height",180);
+				edit_variable(8, "Start H",180);
 			break;
 
 			case RAISE_HEIGHT:
 			//Changing Variable 1
-				edit_variable(9,"Raise Height",180);
+				edit_variable(9,"Raise H",180);
 			break;
 
 			case START_ANGLE:
 			//Changing Variable 1
-				edit_variable(10,"Start Angle",180);
+				edit_variable(10,"Start A",180);
 			break;
 
 			case END_ANGLE:
 			//Changing Variable 1
-				edit_variable(11,"End Angle",180);
+				edit_variable(11,"End A",180);
 			break;
 
 			case THRESH:
@@ -319,7 +332,7 @@ void artifact_collection_demo(){
 //Returns Boolean Value if an Artifact is Collected
 bool artifact_detected(int thresh){
 
-	if(analogRead(6)>thresh){
+	if(analogRead(6)<thresh){
 		return true;
 	}
 	else
@@ -365,18 +378,32 @@ void collect_artifact(){
 
 	// Now, we drop off the artifact
 	// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
-	RCServo0.write(180);
+	RCServo0.write(180);delay(1000);
 	// Then we return the end to its initial position.
-	RCServo0.write(0);
+	RCServo0.write(0);delay(500);
 	// Next, the arm moves horizontally back to its starting position.
 	// This is quick, since we don't have an artifact on the end.
-	RCServo2.write(start_angle);
+	RCServo2.write(start_angle);delay(500);
 	// Finally, the arm is lowered to its proper height.
 	// This is quickly done as well.
-	RCServo1.write(start_height);
+	RCServo1.write(start_height);delay(500);
 	
 	clear();
 	LCD.setCursor(0,0); LCD.print("Done");
+}
+
+void artifact_sensor_check(){
+	int artifact_eye;
+	while(!deselect()){
+		
+		artifact_eye = analogRead(6);
+
+		clear();
+		
+		LCD.setCursor(0,0); LCD.print("Art.:"); LCD.print(artifact_eye);
+		
+		delay(200);
+	}
 }
 // ---------------------------------------------------------------------------------------------------------- \\
 // Helper Functions
@@ -566,7 +593,7 @@ void ir_follow_vars(){
 	while(!deselect()){
 	
 		clear();
-		print_root("Variable: ");
+		print_root("Var: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
@@ -840,7 +867,7 @@ void tape_follow_vars(){
 	while(!deselect()){
 	
 		clear();
-		print_root("Variable: ");
+		print_root("Var: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
@@ -1006,14 +1033,17 @@ void analog_pid(){
 
 //Runs QRD Sensor Module
 void tape_follow_sensor(){
+	int l;
+	int r;
+
 	while(!deselect()){
 		//Read From QRD Sensors
-		int l = analogRead(4);
-		int r = analogRead(5);
+		l = analogRead(4);
+		r = analogRead(5);
 
 		//Print To Screen QRD Sensors
 		clear();
-		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
+		
 		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
 		delay(200);
 	}
