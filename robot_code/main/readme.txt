@@ -9,7 +9,7 @@ Analog Pins Being Used
 	4 Left QRD
 	5 Right QRD
 	
-	6 Detector QRD
+	6  Detector QRD
 
 
 

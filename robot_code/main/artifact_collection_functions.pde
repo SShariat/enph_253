@@ -40,10 +40,14 @@ void artifact_collection(){
 void artifact_collection_vars(){
 	
 	//Number of Variables
-	#define NUM_OF_CONSTANTS 1
+	#define NUM_OF_CONSTANTS 5
 
-	#define HEIGHT 1
-
+	#define START_HEIGHT 1
+	#define RAISE_HEIGHT 2
+	#define START_ANGLE 3
+	#define END_ANGLE 4
+	#define THRESH 5
+		
 	while(!deselect()){
 	
 		clear();
@@ -51,10 +55,29 @@ void artifact_collection_vars(){
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case HEIGHT:
-		//Changing Variable 1
-			edit_variable(8, "HEIGHT",180);
-		break;
+			case START_HEIGHT:
+			//Changing Variable 1
+				edit_variable(8, "Start Height",180);
+			break;
+
+			case RAISE_HEIGHT:
+			//Changing Variable 1
+				edit_variable(9,"Raise Height",180);
+			break;
+
+			case START_ANGLE:
+			//Changing Variable 1
+				edit_variable(10,"Start Angle",180);
+			break;
+
+			case END_ANGLE:
+			//Changing Variable 1
+				edit_variable(11,"End Angle",180);
+			break;
+
+			case THRESH:
+				edit_variable(12,"Thresh",1000);
+			break;
 		}
 		
 		delay(200);
@@ -136,8 +159,9 @@ void artifact_collection_demo(){
 }
 
 //Returns Boolean Value if an Artifact is Collected
-bool artifact_detected(){
-	if(analogRead(6)>80){
+bool artifact_detected(int thresh){
+
+	if(analogRead(6)>thresh){
 		return true;
 	}
 	else
@@ -147,44 +171,51 @@ bool artifact_detected(){
 //Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
 void collect_artifact(){
 
-	int height = EEPROM.read(8)*4;
+	int timer;
+
+	int start_height = EEPROM.read(8)*4;
+	int raise_height = EEPROM.read(9)*4;
+	int start_angle = EEPROM.read(10)*4;
+	int end_angle =	EEPROM.read(11)*4;
+
+	//Artifact Collect Threshold
+	int thresh = EEPROM.read(12)*4;
 
 	motor.stop_all();
 
+	//Writing to Stuff
 	LCD.setCursor(0,0); LCD.print("Searching...");
-	while(!artifact_detected()){
+		
+	while(!artifact_detected(thresh)){
 	}
-
+	
 	clear();
 	LCD.setCursor(0,0); LCD.print("Collecting...");
 
-	for(int pos = height; pos < 100; pos += 1){
+	// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
+	for(int pos = start_height; pos < raise_height; pos += 1){
 		RCServo1.write(pos);
 		delay(15);
 	} 
 
 	// Horizontal arm, brings the idol into position over the bucket.
-	
 	// Again, it travels slowly.
-	for(int pos = 0; pos < 150; pos += 1){
+	for(int pos = start_angle; pos < end_angle; pos += 1){
 		RCServo2.write(pos); 
 		delay(10);
 	}
 
-	// Now, we drop off the artifact.
-			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
-	RCServo0.write(180); delay(1000);
-
-			// Then we return the end to its initial position.
-	RCServo0.write(0); delay(500);
-
-			// Next, the arm moves horizontally back to its starting position.
-			// This is quick, since we don't have an artifact on the end.
-	RCServo2.write(0); delay(500);
-
-			// Finally, the arm is lowered to its proper height.
-			// This is quickly done as well.
-	RCServo1.write(height);
+	// Now, we drop off the artifact
+	// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
+	RCServo0.write(180);
+	// Then we return the end to its initial position.
+	RCServo0.write(0);
+	// Next, the arm moves horizontally back to its starting position.
+	// This is quick, since we don't have an artifact on the end.
+	RCServo2.write(start_angle);
+	// Finally, the arm is lowered to its proper height.
+	// This is quickly done as well.
+	RCServo1.write(start_height);
 	
 	clear();
 	LCD.setCursor(0,0); LCD.print("Done");
