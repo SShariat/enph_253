@@ -242,6 +242,7 @@ void tape_follow_sensor(){
 		//Print To Screen QRD Sensors
 		clear();
 		
+		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
 		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
 		delay(200);
 	}

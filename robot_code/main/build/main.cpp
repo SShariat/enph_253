@@ -8,18 +8,23 @@
 //Memory Addresses Currently Being Used(Do not Write to Already Being Used Ad)
 /*
 	TAPE FOLLOWING
-	K_p 		1
-	K_d 		2
-	tape_speed 	3
-	tape_thresh 4
+	K_p 			1
+	K_d 			2
+	tape_speed 		3
+	tape_thresh	 	4
 
 	IR FOLLOWING
-	K_p			5
-	K_d			6
-	ir_speed 	7
+	K_p				5
+	K_d				6
+	ir_speed 		7
 
 	ARTIFACT COLLECTION
-	height		8
+	start_height 	8
+	raise_height 	9
+	start_angle 	10
+	end_angle 		11
+
+	thresh 			12
 
 	RUN ALL
 
@@ -65,7 +70,9 @@ void ir_follow_demo();
 void ir_follow_sensor();
 void motor_test();
 void run_all();
-void state_switch();
+void art_stop_collect();
+void run_all_vars();
+void state_switcher();
 void tape_follow();
 void tape_follow_vars();
 void tape_follow_demo();
@@ -191,7 +198,7 @@ void artifact_collection(){
 			print_child("Run Demo");
 			if(confirm()){
 				clear();
-				collect_artifact();
+				artifact_collection_demo();
 			}
 			break;
 
@@ -257,93 +264,7 @@ void artifact_collection_vars(){
 
 //Artifact Collection Demonstration
 void artifact_collection_demo(){
-
-	// // Artifact counter, currently unused.
-	// int artifacts = 0;
-
-	// Angle above ground, 16 seems good for now.
-	int height = 16; 
-	                 
-	// This variable ensures that once we detect something, we are committed to the pickup sequence.
-	bool servo = false;
-
-	while(!deselect()){
-
-		//it prints out the current value of the QRD
-		clear();
-		LCD.setCursor(0,0); LCD.print( analogRead(6) );
-		delay(50);
-
-
-		// Artifact detection 'if' statement. Please note, if this is run concurrent with any sort of time-dependant function, the printing to the screen MUST be commented out; otherwise the delays and time taken will severely mess with the timing (like for the tape following code)
-		if(analogRead(6) < 80){
-			LCD.setCursor(0,1); LCD.print("Object Detected!");
-			delay(50);
-			servo = true; 
-		} else{
-			// Just a 'scanning' text block to display on the screen when we don't see anything. It's cool.
-			LCD.setCursor(0,1); LCD.print("Scanning..."); 
-			delay(200);		
-		}
-
-		// The following is the series of commands for the arm to pick up an idol, drop it in the bucket, then return to its starting position.
-		if(servo == true){
-
-			// Stops motors, we currently can't move and pick stuff up.
-			motor.stop_all();
-
-			// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
-			// This will traverse slowly, so that the idol doesn't get knocked off.
-			for(int pos = height; pos < 100; pos += 1){
-				RCServo1.write(pos);
-				delay(15);
-			} 
-
-				// Horizontal arm, brings the idol into position over the bucket.
-				// Again, it travels slowly.
-			for(int pos = 0; pos < 150; pos += 1) {
-				RCServo2.write(pos); 
-				delay(10);
-			} 
-
-			// Now, we drop off the artifact.
-			// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
-			RCServo0.write(180); delay(1000);
-
-			// Then we return the end to its initial position.
-			RCServo0.write(0); delay(500);
-
-			// Next, the arm moves horizontally back to its starting position.
-			// This is quick, since we don't have an artifact on the end.
-			RCServo2.write(0); delay(500);
-
-			// Finally, the arm is lowered to its proper height.
-			// This is quickly done as well.
-			RCServo1.write(height);
-			delay(500);
-
-			// Now, we set the 'servo' function to false, and iterate the number of artifacts we've picked up. Again, this number will help us keep track of where we are on the course.
-			servo = false;
-			// artifacts++;
-		}
-	}
-}
-
-//Returns Boolean Value if an Artifact is Collected
-bool artifact_detected(int thresh){
-
-	if(analogRead(6)<thresh){
-		return true;
-	}
-	else
-		return false;
-}
-
-//Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
-void collect_artifact(){
-
-	int timer;
-
+	
 	int start_height = EEPROM.read(8)*4;
 	int raise_height = EEPROM.read(9)*4;
 	int start_angle = EEPROM.read(10)*4;
@@ -362,6 +283,58 @@ void collect_artifact(){
 	
 	clear();
 	LCD.setCursor(0,0); LCD.print("Collecting...");
+
+	// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
+	for(int pos = start_height; pos < raise_height; pos += 1){
+		RCServo1.write(pos);
+		delay(15);
+	} 
+
+	// Horizontal arm, brings the idol into position over the bucket.
+	// Again, it travels slowly.
+	for(int pos = start_angle; pos < end_angle; pos += 1){
+		RCServo2.write(pos); 
+		delay(10);
+	}
+
+	// Now, we drop off the artifact
+	// Unlike the last two, this is executed quickly, though we do have a delay after the execution, as the artifact may be swinging and may take more than half a second to disengage.
+	RCServo0.write(180);delay(1000);
+	// Then we return the end to its initial position.
+	RCServo0.write(0);delay(500);
+	// Next, the arm moves horizontally back to its starting position.
+	// This is quick, since we don't have an artifact on the end.
+	RCServo2.write(start_angle);delay(500);
+	// Finally, the arm is lowered to its proper height.
+	// This is quickly done as well.
+	RCServo1.write(start_height);delay(500);
+	
+	clear();
+	LCD.setCursor(0,0); LCD.print("Done");
+}
+
+//Returns Boolean Value if an Artifact is Collected
+bool artifact_detected(int thresh){
+
+	if(analogRead(6)<thresh){
+		return true;
+	}
+	else
+		return false;
+}
+
+//Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
+void collect_artifact(){
+
+	int start_height = EEPROM.read(8)*4;
+	int raise_height = EEPROM.read(9)*4;
+	int start_angle = EEPROM.read(10)*4;
+	int end_angle =	EEPROM.read(11)*4;
+
+	//Artifact Collect Threshold
+	int thresh = EEPROM.read(12)*4;
+
+	motor.stop_all();
 
 	// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
 	for(int pos = start_height; pos < raise_height; pos += 1){
@@ -754,9 +727,10 @@ void motor_test(){
 void run_all(){
 	
 	//TAPE FOLLOW TREE
-	#define OPTIONS 1
+	#define OPTIONS 2
 	//TAPE CHILDREN
-	#define FOLLOW_COLLECT 1
+	#define ART_STOP_COLLECT 1
+	#define VARS_EDIT 2
 
 	while(!deselect()){
 
@@ -765,10 +739,17 @@ void run_all(){
 
 		switch(menu_choice(OPTIONS)){
 
-			case FOLLOW_COLLECT:
-			print_child("State Switcher");
+			case ART_STOP_COLLECT:
+			print_child("Art+Stop Coll.");
 			if(confirm()){
-				state_switch();
+				art_stop_collect();
+			}
+			break;
+
+			case VARS_EDIT:
+			print_child("Edit Vars.");
+			if(confirm()){
+				run_all_vars();
 			}
 			break;
 		}
@@ -776,29 +757,195 @@ void run_all(){
 	}
 }
 
-// This is combination tape follow and artifact collection system.
-void state_switch(){
-	//This is the State Picking Code for the Robot
-	/*
-		switch(STATE)
-			case TAPE_FOLLOW:
+void art_stop_collect(){
+	// Initializing Tape Following Parameters
+		int state       = 0;  // The state of the robot (straight, left, right, or hard left/right)
+		int lastState   = 0;  // The previous state of the robot.
+		int thisState   = 0;  // The state which the robot is currently running in.
+		int lastTime    = 0;  // The time the robot spent in the last state.
+		int thisTime    = 0;  // The time the robot has spent in this state.
+		int i 		    = 0;  // i for iterations
 
-			break;
+		int pro         = 0;  // Proportional Function
+		int der         = 0;  // Derivative Function
+		int result      = 0;  // Result of Proportional and Derivative   
 
-			case ARTIFACT_COLLECT:
-			
-			break;
+		// Setting up the variables that will be edited
+		int K_p 		= EEPROM.read(1)*4;
+		int K_d 		= EEPROM.read(2)*4;
+		int tape_speed 	= EEPROM.read(3)*4;
+		int tape_thresh = EEPROM.read(4)*4;
 
-			case STATE_3:
-			break;
+		int thresh = EEPROM.read(12)*4;
+	while(!deselect()){
+		if(artifact_detected(thresh)){
+			collect_artifact();
+		}
+		//Tape Following Code
+		else{
+			//Reading QRD Sensors
+			int l = analogRead(4); // Left QRD
+			int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
 
-			case STATE_4:
-			break;
+			if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
+				state = 0;
+			} else if(l < tape_thresh && r > tape_thresh){ // The left QRD has moved off the tape.
+				state = -1;
+			} else if(l > tape_thresh && r < tape_thresh){ // The right QRD is now off the tape.
+				state = 1;
+			} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+				state = -5;
+			} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
+				state = 5;
+			} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
+				state = 0;
+			}
 
-	*/
+			if(state != thisState) {
+				lastState = thisState;
+				lastTime = thisTime;
+				thisTime = 1;
+			}
+
+			// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
+
+			// This is our P/D part; defining our (pro)portional and (der)ivative control
+			pro = K_p * state;
+			der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+
+			// They're then added together with the robot's speed to produce our output.
+			result = pro + der;
+
+			// This writes our output to the motors
+			// Motor 3 = Right
+			// Motor 2 = Left
+			motor.speed(3, tape_speed + result);
+			motor.speed(2, tape_speed - result);  
+
+			// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
+			if( i == 50) {
+				LCD.clear();
+				LCD.home(); 
+
+				LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+				LCD.setCursor(0,1);
+				LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+
+				i = 0;
+			}
+			i++;
+
+			thisTime++;
+			thisState = state;
+		}
+	}
+	motor.stop_all();
+}
+
+void run_all_vars(){
+	
+	//Number of Variables
+	#define NUM_OF_CONSTANTS 9
+
+	#define KP 1
+	#define KD 2
+	#define SPEED 3
+	#define THRESH_TAPE 4
+	#define START_HEIGHT 5
+	#define RAISE_HEIGHT 6
+	#define START_ANGLE 7
+	#define END_ANGLE 8
+	#define THRESH_ART 9
 
 	while(!deselect()){
-	}
+	
+		clear();
+		print_root("Var: ");
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case KP:
+		//Changing Variable 1
+			edit_variable(1, "K_p",1000);
+		break;
+
+		case KD:
+		//Changing Variable 2
+			edit_variable(2, "K_d",1000);
+		break;
+		
+		case SPEED:
+		//Changing Variable 3
+			edit_variable(3, "Speed",1000);
+		break;
+
+		case THRESH_TAPE:
+		//Changing Variable 4
+			edit_variable(4, "Thresh",1000);
+		break;
+
+		case START_HEIGHT:
+		//Changing Variable 1
+			edit_variable(8, "Start H",180);
+		break;
+
+		case RAISE_HEIGHT:
+		//Changing Variable 1
+			edit_variable(9,"Raise H",180);
+		break;
+
+		case START_ANGLE:
+		//Changing Variable 1
+			edit_variable(10,"Start A",180);
+		break;
+
+		case END_ANGLE:
+		//Changing Variable 1
+			edit_variable(11,"End A",180);
+		break;
+
+		case THRESH_ART:
+			edit_variable(12,"Thresh",1000);
+		break;
+
+		}
+		delay(200);
+	}	
+}
+
+// void full_run(){
+
+// 	//Number of States
+// 	#define NUM_OF_STATES
+
+// 	//Different Robot States
+// 	#define S1_ 1
+// 	#define S2_ 2
+// 	#define S3_ 3
+// 	#define S4_ 4
+
+// 	while(!deselect()){
+// 		switch(state_switcher()){
+// 			case :
+// 			break;
+
+// 			case :
+// 			break;
+
+// 			case :
+// 			break;
+// 		}
+// 	}
+// 	motor.stop_all();
+// }
+
+//Chooses the State of the Robot
+void state_switcher(){
+	/*
+		State Picker
+
+
+	*/
 }
 // ---------------------------------------------------------------------------------------------------------- \\
 // Tape Following Tree
@@ -1044,6 +1191,7 @@ void tape_follow_sensor(){
 		//Print To Screen QRD Sensors
 		clear();
 		
+		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
 		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
 		delay(200);
 	}

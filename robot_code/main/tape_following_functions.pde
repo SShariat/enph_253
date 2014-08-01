@@ -3,7 +3,7 @@
 
 
 //Root Tape Following
-void tape_follow(){
+void tape_follow_tree(){
 	
 	//TAPE FOLLOW TREE
 	#define OPTIONS 4
@@ -99,25 +99,25 @@ void tape_follow_vars(){
 void tape_follow_demo(){
 
 	// Initializing tape following parameters
-	int state       = 0;  // The state of the robot (straight, left, right, or hard left/right)
-	int lastState   = 0;  // The previous state of the robot.
-	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
-	int lastTime    = 0;  // The time the robot spent in the last state.
-	int thisTime    = 0;  // The time the robot has spent in this state.
-	int i 		    = 0;  // i for iterations, because I'm old-school like that.
+		int state;			  // The state of the robot (straight, left, right, or hard left/right)
+		int lastState   = 0;  // The previous state of the robot.
+		int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+		int lastTime    = 0;  // The time the robot spent in the last state.
+		int thisTime    = 0;  // The time the robot has spent in this state.
+		int i 		    = 0;  // i for iterations, because I'm old-school like that.
 
-	int pro         = 0;  // Taking a leaf out of Andre's book, this stands for the proportional function.
-	int der         = 0;  // As one might expect, this is the derivative function (no integrals on my watch!)
-	int result      = 0;  // The result of our pro and der, this goes to the motors.    
+		int pro;  			  // Taking a leaf out of Andre's book, this stands for the proportional function.
+		int der;  			  // As one might expect, this is the derivative function (no integrals on my watch!)
+		int result;  		  // The result of our pro and der, this goes to the motors.    
 
-	// Setting up the variables that will be edited
-	int K_p 		= EEPROM.read(1)*4;
-	int K_d 		= EEPROM.read(2)*4;
-	int tape_speed 	= EEPROM.read(3)*4;
-	int tape_thresh = EEPROM.read(4)*4;
+		// Setting up the variables that will be edited
+		int K_p 		= EEPROM.read(1)*4;
+		int K_d 		= EEPROM.read(2)*4;
+		int tape_speed 	= EEPROM.read(3)*4;
+		int tape_thresh = EEPROM.read(4)*4;
 
 	while(!deselect()){
-
+	//Follow Tape
 		//Reading QRD Sensors
 		int l = analogRead(4); // Left QRD
 		int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
@@ -242,7 +242,15 @@ void tape_follow_sensor(){
 		//Print To Screen QRD Sensors
 		clear();
 		
+		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
 		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
 		delay(200);
 	}
 }
+
+//NOT DONE
+//Checks to see if the QRDs see t
+bool tape_detected(){
+
+}
+

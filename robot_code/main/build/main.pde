@@ -8,18 +8,23 @@
 //Memory Addresses Currently Being Used(Do not Write to Already Being Used Ad)
 /*
 	TAPE FOLLOWING
-	K_p 		1
-	K_d 		2
-	tape_speed 	3
-	tape_thresh 4
+	K_p 			1
+	K_d 			2
+	tape_speed 		3
+	tape_thresh	 	4
 
 	IR FOLLOWING
-	K_p			5
-	K_d			6
-	ir_speed 	7
+	K_p				5
+	K_d				6
+	ir_speed 		7
 
 	ARTIFACT COLLECTION
-	height		8
+	start_height 	8
+	raise_height 	9
+	start_angle 	10
+	end_angle 		11
+
+	thresh 			12
 
 	RUN ALL
 

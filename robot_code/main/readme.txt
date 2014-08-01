@@ -101,29 +101,30 @@ void example_vars(){
 	#define VAR_3 3
 	#define VAR_4 4
 
+	//edit_variable() is incorrect, need a third parameter.
 	while(!deselect()){
 	
 		clear();
-		print_root("Variable: ");
+		print_root("Var: ");
 
 		switch(menu_choice(NUM_OF_CONSTANTS)){
 		
-		case KP:
+		case VAR_1:
 		//Changing Variable 1
 			edit_variable(addr_1, "VAR_1_NAME");
 		break;
 
-		case KD:
+		case VAR_2:
 		//Changing Variable 2
 			edit_variable(addr_2, "VAR_2_NAME");
 		break;
 		
-		case SPEED:
+		case VAR_3:
 		//Changing Variable 3
 			edit_variable(addr_3, "VAR_3_NAME");
 		break;
 
-		case THRESH:
+		case VAR_4:
 		//Changing Variable 4
 			edit_variable(addr_4, "VAR_4_NAME");
 		break;

@@ -2,7 +2,8 @@
 // IR following functions
 
 //Root Tree
-void ir_follow(){
+void ir_follow_tree(){
+	
 	//Number of Options
 	#define OPTIONS 3
 	//TAPE CHILDREN
@@ -171,4 +172,15 @@ void ir_follow_sensor(){
 		
 		delay(200);
 	}
+}
+
+//NOT DONE
+//Checks if the Sensors are seeing IR light
+bool ir_detected(){
+}
+
+//NOT DONE
+//Checks if the IR Values are higher than a Certain Value
+bool ir_thresh(){
+
 }

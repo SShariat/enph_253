@@ -8,25 +8,30 @@
 //Memory Addresses Currently Being Used(Do not Write to Already Being Used Ad)
 /*
 	TAPE FOLLOWING
-	K_p 		1
-	K_d 		2
-	tape_speed 	3
-	tape_thresh 4
+	K_p 			1
+	K_d 			2
+	tape_speed 		3
+	tape_thresh	 	4
 
 	IR FOLLOWING
-	K_p			5
-	K_d			6
-	ir_speed 	7
+	K_p				5
+	K_d				6
+	ir_speed 		7
 
 	ARTIFACT COLLECTION
-	height		8
+	start_height 	8
+	raise_height 	9
+	start_angle 	10
+	end_angle 		11
+
+	thresh 			12
 
 	RUN ALL
 
 	*/
 
 //ROOT TREE
-	#define ROOT 7
+	#define ROOT 6
 
 	//ROOT CHILDREN
 	#define TAPE_FOLLOW 1 			// Follows tape utilizing PD control.
@@ -34,8 +39,7 @@
 	#define ARTIFACT_COLLECTION 3  	// Collects artifacts using the robot arm.
 	#define MOTOR 4                	// H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
 	#define RUN_ALL 5   		   	// Runs everything above at once.
-	#define TT_DEMO 6              	// The demonstration function for time trials day.
-	#define INITIALIZE 7			// Reset the Variable Values to Hard Coded Versions
+	#define INITIALIZE 6			// Reset the Variable Values to Hard Coded Versions
 
 //Editor Variables for Parameter Manipulation
 int current, new_value;
@@ -75,21 +79,21 @@ void loop(){
 		print_child("Tape-Follow");
 		//This Implements the Different Tape Following Options
 		if(confirm()){
-			tape_follow();
+			tape_follow_tree();
 		}
 		break;
 
 		case IR_FOLLOW:
 		print_child("IR-Follow");
 		if(confirm()){
-			ir_follow();
+			ir_follow_tree();
 		}
 		break;
 
 		case ARTIFACT_COLLECTION:
 		print_child("Art. Collect");
 		if(confirm()){
-			artifact_collection();
+			artifact_collection_tree();
 		}
 		break;
 
@@ -103,14 +107,7 @@ void loop(){
 		case RUN_ALL:
 		print_child("Run-All");
 		if(confirm()){
-			run_all();
-		}
-		break;
-
-		case TT_DEMO:
-		print_child("Time Trial Demo");
-		if(confirm()){
-			time_trial_demo();
+			run_all_tree();
 		}
 		break;
 
