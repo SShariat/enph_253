@@ -5,10 +5,11 @@
 void run_all_tree(){
 	
 	//TAPE FOLLOW TREE
-	#define OPTIONS 2
+	#define OPTIONS 3
 	//TAPE CHILDREN
 	#define ART_STOP_COLLECT 1
 	#define VARS_EDIT 2
+	#define CHECK_SENSOR 3
 
 	while(!deselect()){
 
@@ -30,6 +31,12 @@ void run_all_tree(){
 				run_all_vars();
 			}
 			break;
+
+			case CHECK_SENSOR:
+			print_child("Check sensors");
+			if(confirm()){
+				run_all_sensors();
+			}
 		}
 		delay(200);
 	}
@@ -251,4 +258,23 @@ void full_run(){
 		}
 	}
 	motor.stop_all();
+}
+
+//Runs QRD Sensor Module
+void run_all_sensors(){
+	int l;
+	int r;
+
+	while(!deselect()){
+		//Read From QRD Sensors
+		l = analogRead(4);
+		r = analogRead(5);
+
+		//Print To Screen QRD Sensors
+		clear();
+		
+		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
+		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
+		delay(200);
+	}
 }
