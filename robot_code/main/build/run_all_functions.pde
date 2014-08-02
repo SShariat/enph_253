@@ -2,7 +2,7 @@
 // Run-All Functions
 
 //Run All Tree
-void run_all(){
+void run_all_tree(){
 	
 	//TAPE FOLLOW TREE
 	#define OPTIONS 2
@@ -191,37 +191,64 @@ void run_all_vars(){
 	}	
 }
 
-// void full_run(){
+void full_run(){
 
-// 	//Number of States
-// 	#define NUM_OF_STATES
+	//Different Robot States
+	#define FOLLOW_TAPE 	1
+	#define COLLECT_ART 	2
+	#define FOLLOW_IR 		3
+	#define COLLECT_IDOL	4
+	#define ROTATE_ROBOT 	5
 
-// 	//Different Robot States
-// 	#define S1_ 1
-// 	#define S2_ 2
-// 	#define S3_ 3
-// 	#define S4_ 4
+	//Initializing Starting State
+	int robot_state = FOLLOW_TAPE;
 
-// 	while(!deselect()){
-// 		switch(state_switcher()){
-// 			case :
-// 			break;
+	while(!deselect()){
+		switch(robot_state){
+			case FOLLOW_TAPE:
+				if(artifact_detected(80)){
+					robot_state = COLLECT_ART;
+				}
+				else if(ir_detected()){
+					robot_state = FOLLOW_IR;
+				}
+				else{
+					//Follow Tape
+					
+				}
+			break;
 
-// 			case :
-// 			break;
+			case COLLECT_ART:
+				collect_artifact();
+				robot_state = FOLLOW_TAPE; 
+			break;
 
-// 			case :
-// 			break;
-// 		}
-// 	}
-// 	motor.stop_all();
-// }
+			case FOLLOW_IR:
+				if(ir_thresh()){
+					robot_state = COLLECT_IDOL;
+				}
+				else if(tape_detected()){
+					robot_state = FOLLOW_TAPE;
+				}
+				else{
 
-//Chooses the State of the Robot
-void state_switcher(){
-	/*
-		State Picker
+				}
+			break;
 
+			case COLLECT_IDOL:
+				collect_idol();
+				robot_state = ROTATE_ROBOT;
+			break;
 
-	*/
+			case ROTATE_ROBOT:
+				if(ir_detected()){
+					robot_state = FOLLOW_IR;
+				}
+				else{
+					//Rotate Robot
+				}
+			break;
+		}
+	}
+	motor.stop_all();
 }

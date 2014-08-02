@@ -174,6 +174,10 @@ void ir_follow_sensor(){
 	}
 }
 
+void follow_ir(){
+	
+}
+
 //NOT DONE
 //Checks if the Sensors are seeing IR light
 bool ir_detected(){
@@ -184,3 +188,4 @@ bool ir_detected(){
 bool ir_thresh(){
 
 }
+

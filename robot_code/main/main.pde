@@ -59,8 +59,8 @@ void setup(){
 	RCServo2.attach(RCServo2Output);
 
 	//Sets the Angle of the Servos
-	RCServo1.write(20);
-	RCServo2.write(36);
+	RCServo1.write(50);
+	RCServo2.write(20);
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\
