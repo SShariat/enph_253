@@ -257,84 +257,84 @@ bool tape_detected(){
 
 }
 
-
 void follow_tape(){
-
-	// Initializing tape following parameters
-	static	int state;			  // The state of the robot (straight, left, right, or hard left/right)
-	static	int lastState   = 0;  // The previous state of the robot.
-	static	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
-	static	int lastTime    = 0;  // The time the robot spent in the last state.
-	static	int thisTime    = 0;  // The time the robot has spent in this state.
-	static	int i 		    = 0;  // i for iterations, because I'm old-school like that.
-
-	static	int pro;  			  // Taking a leaf out of Andre's book, this stands for the proportional function.
-	static	int der;  			  // As one might expect, this is the derivative function (no integrals on my watch!)
-	static	int result;  		  // The result of our pro and der, this goes to the motors.    
-
-		// Setting up the variables that will be edited
-	static	int tape_K_p 	= EEPROM.read(1)*4;
-	static	int tape_K_d 	= EEPROM.read(2)*4;
-	static	int tape_speed 	= EEPROM.read(3)*4;
-	static	int tape_thresh = EEPROM.read(4)*4;
-
 	
-	//Follow Tape
-	//Reading QRD Sensors
-	int l = analogRead(4); // Left QRD
-	int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
+	// Initializing tape following parameters
+		static	int state;			  // The state of the robot (straight, left, right, or hard left/right)
+		static	int lastState   = 0;  // The previous state of the robot.
+		static	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+		static	int lastTime    = 0;  // The time the robot spent in the last state.
+		static	int thisTime    = 0;  // The time the robot has spent in this state.
+		static	int i 		    = 0;  // i for iterations, because I'm old-school like that.
 
-	if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
-		state = 0;
-	} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
-		state = -1;
-	} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
-		state = 1;
-	} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
-		state = -5;
-	} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
-		state = 5;
-	} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
-		state = 0;
-	}
+		static	int pro;  			  // Taking a leaf out of Andre's book, this stands for the proportional function.
+		static	int der;  			  // As one might expect, this is the derivative function (no integrals on my watch!)
+		static	int result;  		  // The result of our pro and der, this goes to the motors.    
 
+			// Setting up the variables that will be edited
+		static	int tape_K_p 	= EEPROM.read(1)*4;
+		static	int tape_K_d 	= EEPROM.read(2)*4;
+		static	int tape_speed 	= EEPROM.read(3)*4;
+		static	int tape_thresh = EEPROM.read(4)*4;
 
-	// To be honest, I'm not 100% sure of what this does. Something important, I'm sure. I think it is to do with the whole 'remembering' thing. Ironic.
-	if(state != thisState) {
-		lastState = thisState;
-		lastTime = thisTime;
-		thisTime = 1;
-	}
+		
+		//Follow Tape
+		//Reading QRD Sensors
+		int l = analogRead(4); // Left QRD
+		int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
 
-	// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
-
-	// This is our P/D part; defining our (pro)portional and (der)ivative control
-	pro = tape_K_p * state;
-	der = (int)((float)tape_K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
-
-	// They're then added together with the robot's speed to produce our output.
-	result = pro + der;
-
-	// This writes our output to the motors
-	// Motor 3 = Left
-	// Motor 2 = Right
-	motor.speed(2, tape_speed + result);
-	motor.speed(3, tape_speed - result);  
+		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
+			state = 0;
+		} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
+			state = -1;
+		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
+			state = 1;
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+			state = -5;
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
+			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
+			state = 0;
+		}
 
 
-	// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
-	if( i == 50) {
-		LCD.clear();
-		LCD.home(); 
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure. I think it is to do with the whole 'remembering' thing. Ironic.
+		if(state != thisState) {
+			lastState = thisState;
+			lastTime = thisTime;
+			thisTime = 1;
+		}
 
-		LCD.setCursor(0,0);	LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-		LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(tape_K_p); LCD.print(" Kd:"); LCD.print(tape_K_d);
+		// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
 
-		i = 0;
-	}
-	i++;
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
+		pro = tape_K_p * state;
+		der = (int)((float)tape_K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
-	thisTime++;
-	thisState = state;
+		// They're then added together with the robot's speed to produce our output.
+		result = pro + der;
+
+		// This writes our output to the motors
+		// Motor 3 = Left
+		// Motor 2 = Right
+		motor.speed(2, tape_speed + result);
+		motor.speed(3, tape_speed - result);  
+
+
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.setCursor(0,0);	LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+			LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(tape_K_p); LCD.print(" Kd:"); LCD.print(tape_K_d);
+
+			i = 0;
+		}
+		i++;
+
+		thisTime++;
+		thisState = state;
+
 }
 

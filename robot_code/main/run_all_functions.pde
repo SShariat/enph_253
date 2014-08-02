@@ -203,6 +203,7 @@ void full_run(){
 	//Initializing Starting State
 	int robot_state = FOLLOW_TAPE;
 
+
 	while(!deselect()){
 		switch(robot_state){
 			case FOLLOW_TAPE:

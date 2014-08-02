@@ -28,7 +28,10 @@ void ir_follow_tree(){
 			case IR_FOLLOW_DEMO:
 			print_child("Run Demo");
 			if(confirm()){
-				ir_follow_demo();
+				while(!deselect()){
+					follow_ir();
+				}
+				motor.stop_all();
 			}
 			break;
 
@@ -175,6 +178,7 @@ void ir_follow_sensor(){
 }
 
 void follow_ir(){
+
 	//Initializing Variables
 	static int left_low, left_high;
 	static int right_low, right_high;
