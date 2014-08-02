@@ -175,7 +175,72 @@ void ir_follow_sensor(){
 }
 
 void follow_ir(){
-	
+	//Initializing Variables
+	static int left_low, left_high;
+	static int right_low, right_high;
+
+	static int left, right;
+
+	static int pro, der, result;
+
+	static int current_error; 
+	static int last_error = 0;
+
+	static int i = 0; 
+
+	static int ir_K_p 		= EEPROM.read(5)*4;
+	static int ir_K_d 		= EEPROM.read(6)*4;
+	static int ir_speed 	= EEPROM.read(7)*4;
+
+
+	left_high 	= analogRead(0);
+	left_low 	= analogRead(1);
+	right_high 	= analogRead(2);
+	right_low 	= analogRead(3);
+
+	//Gain Switching
+	/*If Low Gain is Railing
+		Switch to High Gain*/
+	if((left_high+right_high)>2000){
+		left = left_low;
+		right = right_low;
+	}
+	else{
+		left = left_high;
+		right = right_high;
+	}
+
+	current_error = left - right;
+
+	if (current_error > 200 ){
+		current_error = 200;
+	}
+
+	if (current_error < -200 ){
+		current_error = -200;
+	}
+
+	pro = ir_K_p*current_error;
+	der = (current_error - last_error)*ir_K_d;
+
+	result = pro + der;
+
+	motor.speed(3, ir_speed + result );
+	motor.speed(2, ir_speed - result);
+
+	last_error = current_error;
+
+	if( i == 50) {
+		LCD.clear();
+		LCD.home(); 
+
+		LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+		LCD.setCursor(0,1);
+		LCD.print("Kp:"); LCD.print(ir_K_p); LCD.print(" Kd:"); LCD.print(ir_K_d);
+
+		i = 0;
+	}
+	i++;
 }
 
 //NOT DONE

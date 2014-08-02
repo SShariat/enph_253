@@ -273,8 +273,8 @@ void follow_tape(){
 	static	int result;  		  // The result of our pro and der, this goes to the motors.    
 
 		// Setting up the variables that will be edited
-	static	int K_p 		= EEPROM.read(1)*4;
-	static	int K_d 		= EEPROM.read(2)*4;
+	static	int tape_K_p 	= EEPROM.read(1)*4;
+	static	int tape_K_d 	= EEPROM.read(2)*4;
 	static	int tape_speed 	= EEPROM.read(3)*4;
 	static	int tape_thresh = EEPROM.read(4)*4;
 
@@ -309,8 +309,8 @@ void follow_tape(){
 	// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
 
 	// This is our P/D part; defining our (pro)portional and (der)ivative control
-	pro = K_p * state;
-	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+	pro = tape_K_p * state;
+	der = (int)((float)tape_K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
 
 	// They're then added together with the robot's speed to produce our output.
 	result = pro + der;
@@ -328,7 +328,7 @@ void follow_tape(){
 		LCD.home(); 
 
 		LCD.setCursor(0,0);	LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-		LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
+		LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(tape_K_p); LCD.print(" Kd:"); LCD.print(tape_K_d);
 
 		i = 0;
 	}

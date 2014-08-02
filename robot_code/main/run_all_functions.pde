@@ -230,7 +230,7 @@ void full_run(){
 					robot_state = FOLLOW_TAPE;
 				}
 				else{
-
+					follow_ir();
 				}
 			break;
 
