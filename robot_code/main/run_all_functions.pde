@@ -262,21 +262,34 @@ void full_run(){
 	motor.stop_all();
 }
 
-//Runs QRD Sensor Module
+//Runs all sensor checks, using the sensor checks from the "home" functions
+//could use some way to differentiate the sensors, rather than just L and R
 void run_all_sensors(){
-	int l;
-	int r;
+
+	#define NUM_OF_OPTIONS 3
+	//SENSOR CHLDREN
+	#define QRD_SENSOR 1
+	#define LR_QRD_SENSORS 2
+	#define IR_SENSORS 3
 
 	while(!deselect()){
-		//Read From QRD Sensors
-		l = analogRead(4);
-		r = analogRead(5);
 
-		//Print To Screen QRD Sensors
 		clear();
 		
-		LCD.setCursor(0,0); LCD.print("L:"); LCD.print(l);
-		LCD.setCursor(0,1); LCD.print("R:"); LCD.print(r);
+		switch(menu_choice(NUM_OF_OPTIONS)){
+
+			case QRD_SENSOR:
+			artifact_sensor_check();
+			break;
+
+			case LR_QRD_SENSORS:
+			tape_follow_sensor();
+			break;
+
+			case IR_SENSORS:
+			ir_follow_sensor();
+			break;
+		}
 		delay(200);
 	}
 }
