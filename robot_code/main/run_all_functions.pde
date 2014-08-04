@@ -7,7 +7,7 @@ void run_all_tree(){
 	//TAPE FOLLOW TREE
 	#define OPTIONS 3
 	//TAPE CHILDREN
-	#define ART_STOP_COLLECT 1
+	#define FULL_RUN 1
 	#define VARS_EDIT 2
 	#define CHECK_SENSOR 3
 
@@ -18,10 +18,10 @@ void run_all_tree(){
 
 		switch(menu_choice(OPTIONS)){
 
-			case ART_STOP_COLLECT:
-			print_child("Art+Stop Coll.");
+			case FULL_RUN:
+			print_child("Full Run");
 			if(confirm()){
-				art_stop_collect();
+				full_run();
 			}
 			break;
 
@@ -210,8 +210,8 @@ void full_run(){
 	//Initializing Starting State
 	int robot_state = FOLLOW_TAPE;
 
-
 	while(!deselect()){
+
 		switch(robot_state){
 			case FOLLOW_TAPE:
 				if(artifact_detected(80)){
@@ -221,7 +221,7 @@ void full_run(){
 					robot_state = FOLLOW_IR;
 				}
 				else{
-					follow_tape();
+					follow_tape(false);
 				}
 			break;
 
@@ -235,10 +235,11 @@ void full_run(){
 					robot_state = COLLECT_IDOL;
 				}
 				else if(tape_detected()){
+					follow_tape(1);
 					robot_state = FOLLOW_TAPE;
 				}
 				else{
-					follow_ir();
+					follow_ir(0);
 				}
 			break;
 
@@ -249,6 +250,7 @@ void full_run(){
 
 			case ROTATE_ROBOT:
 				if(ir_detected()){
+					follow_ir(1);
 					robot_state = FOLLOW_IR;
 				}
 				else{

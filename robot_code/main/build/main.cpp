@@ -68,6 +68,7 @@ void ir_follow_tree();
 void ir_follow_vars();
 void ir_follow_demo();
 void ir_follow_sensor();
+void follow_ir(bool reset);
 bool ir_detected();
 bool ir_thresh();
 void motor_test();
@@ -81,7 +82,7 @@ void tape_follow_demo();
 void analog_pid();
 void tape_follow_sensor();
 bool tape_detected();
-void follow_tape();
+void follow_tape(bool reset);
 void time_trial_demo();
 int current, new_value;
 
@@ -294,8 +295,10 @@ bool artifact_detected(int thresh){
 
 //Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
 void collect_artifact(){
+	clear();
+	LCD.setCursor(0,1); LCD.print("Collecting...");
 
-	int start_height = 50;
+	int start_height = 45;
 	int raise_height = 150;
 	int start_angle = 20;
 	int end_angle =	160;
@@ -334,7 +337,7 @@ void collect_artifact(){
 //Sequence of Servo Commands to pick up the Idol
 void collect_idol(){
 
-	int start_height = 60;
+	int start_height = 55;
 	int raise_height = 150;
 	int start_angle = 20;
 	int end_angle =	160;
@@ -558,7 +561,10 @@ void ir_follow_tree(){
 			case IR_FOLLOW_DEMO:
 			print_child("Run Demo");
 			if(confirm()){
-				ir_follow_demo();
+				while(!deselect()){
+					follow_ir(0);
+				}
+				motor.stop_all();
 			}
 			break;
 
@@ -704,9 +710,92 @@ void ir_follow_sensor(){
 	}
 }
 
+void follow_ir(bool reset){
+	//Initializing Variables
+		static int left_low, left_high;
+		static int right_low, right_high;
+
+		static int left, right;
+
+		static int pro, der, result;
+
+		static int current_error; 
+		static int last_error = 0;
+
+		static int i = 0; 
+
+		int ir_K_p 		= EEPROM.read(5)*4;
+		int ir_K_d 		= EEPROM.read(6)*4;
+		int ir_speed 	= EEPROM.read(7)*4;
+	if(reset){
+		//Reset Variables
+			last_error = 0;
+			i = 0;
+	}
+	else{	
+		//IR Following
+		left_high 	= analogRead(0);
+		left_low 	= analogRead(1);
+		right_high 	= analogRead(2);
+		right_low 	= analogRead(3);
+
+		//Gain Switching
+		/*If Low Gain is Railing
+			Switch to High Gain*/
+		if((left_high+right_high)>2000){
+			left = left_low;
+			right = right_low;
+		}
+		else{
+			left = left_high;
+			right = right_high;
+		}
+
+		current_error = left - right;
+
+		if (current_error > 200 ){
+			current_error = 200;
+		}
+
+		if (current_error < -200 ){
+			current_error = -200;
+		}
+
+		pro = ir_K_p*current_error;
+		der = (current_error - last_error)*ir_K_d;
+
+		result = pro + der;
+
+		motor.speed(3, ir_speed + result );
+		motor.speed(2, ir_speed - result);
+
+		last_error = current_error;
+
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+			LCD.setCursor(0,1);
+			LCD.print("Kp:"); LCD.print(ir_K_p); LCD.print(" Kd:"); LCD.print(ir_K_d);
+
+			i = 0;
+		}
+		i++;
+	}
+}
+
 //NOT DONE
 //Checks if the Sensors are seeing IR light
 bool ir_detected(){
+	int left_high = analogRead(0);
+	int right_high = analogRead(2);
+
+	if((left_high+right_high)>200){
+		return true;
+	}
+	else
+		return false;
 }
 
 //NOT DONE
@@ -714,6 +803,7 @@ bool ir_detected(){
 bool ir_thresh(){
 
 }
+
 // ---------------------------------------------------------------------------------------------------------- \\
 // Motor control functions
 
@@ -760,7 +850,7 @@ void run_all_tree(){
 	//TAPE FOLLOW TREE
 	#define OPTIONS 2
 	//TAPE CHILDREN
-	#define ART_STOP_COLLECT 1
+	#define FULL_RUN 1
 	#define VARS_EDIT 2
 
 	while(!deselect()){
@@ -770,10 +860,10 @@ void run_all_tree(){
 
 		switch(menu_choice(OPTIONS)){
 
-			case ART_STOP_COLLECT:
-			print_child("Art+Stop Coll.");
+			case FULL_RUN:
+			print_child("Full Run");
 			if(confirm()){
-				art_stop_collect();
+				full_run();
 			}
 			break;
 
@@ -957,6 +1047,7 @@ void full_run(){
 	int robot_state = FOLLOW_TAPE;
 
 	while(!deselect()){
+
 		switch(robot_state){
 			case FOLLOW_TAPE:
 				if(artifact_detected(80)){
@@ -966,8 +1057,7 @@ void full_run(){
 					robot_state = FOLLOW_IR;
 				}
 				else{
-					//Follow Tape
-					
+					follow_tape(false);
 				}
 			break;
 
@@ -981,10 +1071,11 @@ void full_run(){
 					robot_state = COLLECT_IDOL;
 				}
 				else if(tape_detected()){
+					follow_tape(1);
 					robot_state = FOLLOW_TAPE;
 				}
 				else{
-
+					follow_ir(0);
 				}
 			break;
 
@@ -995,6 +1086,7 @@ void full_run(){
 
 			case ROTATE_ROBOT:
 				if(ir_detected()){
+					follow_ir(1);
 					robot_state = FOLLOW_IR;
 				}
 				else{
@@ -1038,7 +1130,7 @@ void tape_follow_tree(){
 			print_child("Run Demo");
 			if(confirm()){
 				while(!deselect()){
-					follow_tape();
+					follow_tape(0);
 				}
 				motor.stop_all();
 			}
@@ -1264,9 +1356,7 @@ bool tape_detected(){
 
 }
 
-
-void follow_tape(){
-
+void follow_tape(bool reset){
 	// Initializing tape following parameters
 	static	int state;			  // The state of the robot (straight, left, right, or hard left/right)
 	static	int lastState   = 0;  // The previous state of the robot.
@@ -1280,69 +1370,78 @@ void follow_tape(){
 	static	int result;  		  // The result of our pro and der, this goes to the motors.    
 
 		// Setting up the variables that will be edited
-	static	int K_p 		= EEPROM.read(1)*4;
-	static	int K_d 		= EEPROM.read(2)*4;
-	static	int tape_speed 	= EEPROM.read(3)*4;
-	static	int tape_thresh = EEPROM.read(4)*4;
-
+	int tape_K_p 	= EEPROM.read(1)*4;
+	int tape_K_d 	= EEPROM.read(2)*4;
+	int tape_speed 	= EEPROM.read(3)*4;
+	int tape_thresh = EEPROM.read(4)*4;
 	
-	//Follow Tape
-	//Reading QRD Sensors
-	int l = analogRead(4); // Left QRD
-	int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
-
-	if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
-		state = 0;
-	} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
-		state = -1;
-	} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
-		state = 1;
-	} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
-		state = -5;
-	} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
-		state = 5;
-	} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
-		state = 0;
+	if(reset){
+		//Reset Variables
+		lastState   = 0;  // The previous state of the robot.
+		thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+		lastTime    = 0;  // The time the robot spent in the last state.
+		thisTime    = 0;  // The time the robot has spent in this state.
+		i 		    = 0;  // i for iterations, because I'm old-school like that.
 	}
+	else{
+		//Reading QRD Sensors
+		int l = analogRead(4); // Left QRD
+		int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
+
+		if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
+			state = 0;
+		} else if(l < tape_thresh && r > tape_thresh) { // The left QRD has moved off the tape.
+			state = -1;
+		} else if(l > tape_thresh && r < tape_thresh) { // The right QRD is now off the tape.
+			state = 1;
+
+		} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
+			state = -5;
+		} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
+			state = 5;
+		} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
+			state = 0;
+		}
 
 
-	// To be honest, I'm not 100% sure of what this does. Something important, I'm sure. I think it is to do with the whole 'remembering' thing. Ironic.
-	if(state != thisState) {
-		lastState = thisState;
-		lastTime = thisTime;
-		thisTime = 1;
+		// To be honest, I'm not 100% sure of what this does. Something important, I'm sure. I think it is to do with the whole 'remembering' thing. Ironic.
+		if(state != thisState) {
+			lastState = thisState;
+			lastTime = thisTime;
+			thisTime = 1;
+		}
+
+		// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
+
+		// This is our P/D part; defining our (pro)portional and (der)ivative control
+		pro = tape_K_p * state;
+		der = (int)((float)tape_K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
+
+		// They're then added together with the robot's speed to produce our output.
+		result = pro + der;
+
+		// This writes our output to the motors
+		// Motor 3 = Left
+		// Motor 2 = Right
+		motor.speed(2, tape_speed + result);
+		motor.speed(3, tape_speed - result);  
+
+
+		// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
+		if( i == 50) {
+			LCD.clear();
+			LCD.home(); 
+
+			LCD.setCursor(0,0);	LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
+			LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(tape_K_p); LCD.print(" Kd:"); LCD.print(tape_K_d);
+
+			i = 0;
+		}
+		i++;
+
+		thisTime++;
+		thisState = state;
 	}
-
-	// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
-
-	// This is our P/D part; defining our (pro)portional and (der)ivative control
-	pro = K_p * state;
-	der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
-
-	// They're then added together with the robot's speed to produce our output.
-	result = pro + der;
-
-	// This writes our output to the motors
-	// Motor 3 = Left
-	// Motor 2 = Right
-	motor.speed(2, tape_speed + result);
-	motor.speed(3, tape_speed - result);  
-
-
-	// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
-	if( i == 50) {
-		LCD.clear();
-		LCD.home(); 
-
-		LCD.setCursor(0,0);	LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-		LCD.setCursor(0,1); LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-		i = 0;
-	}
-	i++;
-
-	thisTime++;
-	thisState = state;
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\ 
