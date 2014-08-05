@@ -251,10 +251,12 @@ void tape_follow_sensor(){
 	}
 }
 
-//NOT DONE
-//Checks to see if the QRDs see t
-bool tape_detected(){
-
+//Checks to see if the QRDs see the tape
+bool tape_detected(int thresh){
+	if((analogRead(4)+analogRead(5))>thresh)
+		return true;
+	else
+		return false;
 }
 
 void follow_tape(bool reset){

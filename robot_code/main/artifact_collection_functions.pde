@@ -117,7 +117,6 @@ void artifact_sensor_check(){
 
 //Returns Boolean Value if an Artifact is Collected
 bool artifact_detected(int thresh){
-
 	if(analogRead(6)<thresh){
 		return true;
 	}

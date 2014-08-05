@@ -252,22 +252,27 @@ void follow_ir(bool reset){
 	}
 }
 
-//NOT DONE
 //Checks if the Sensors are seeing IR light
-bool ir_detected(){
+bool ir_detected(int thresh){
 	int left_high = analogRead(0);
 	int right_high = analogRead(2);
 
-	if((left_high+right_high)>200){
+	if((left_high+right_high)>thresh){
 		return true;
 	}
 	else
 		return false;
 }
 
-//NOT DONE
 //Checks if the IR Values are higher than a Certain Value
-bool ir_thresh(){
-
+bool ir_thresh(int thresh){
+	if((analogRead(1)+analogRead(3))>thresh)
+		return true;
+	else
+		return false;
 }
 
+void rotate_bot(int left_motor, int right_motor){
+	motor.speed(3, left_motor);
+	motor.speed(2, right_motor);	
+}

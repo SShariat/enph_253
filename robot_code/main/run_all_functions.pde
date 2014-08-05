@@ -217,7 +217,7 @@ void full_run(){
 				if(artifact_detected(80)){
 					robot_state = COLLECT_ART;
 				}
-				else if(ir_detected()){
+				else if(ir_detected(200)){
 					robot_state = FOLLOW_IR;
 				}
 				else{
@@ -231,15 +231,15 @@ void full_run(){
 			break;
 
 			case FOLLOW_IR:
-				if(ir_thresh()){
+				if(ir_thresh(1000)){
 					robot_state = COLLECT_IDOL;
 				}
 				else if(tape_detected()){
-					follow_tape(1);
+					follow_tape(true);
 					robot_state = FOLLOW_TAPE;
 				}
 				else{
-					follow_ir(0);
+					follow_ir(false);
 				}
 			break;
 
@@ -249,12 +249,13 @@ void full_run(){
 			break;
 
 			case ROTATE_ROBOT:
-				if(ir_detected()){
-					follow_ir(1);
+				if(ir_detected(200)){
+					follow_ir(true);
 					robot_state = FOLLOW_IR;
 				}
 				else{
 					//Rotate Robot
+					rotate_bot(200,-250);
 				}
 			break;
 		}
