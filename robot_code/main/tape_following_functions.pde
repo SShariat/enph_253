@@ -346,4 +346,3 @@ void follow_tape(bool reset){
 		thisState = state;
 	}
 }
-

@@ -234,7 +234,7 @@ void full_run(){
 				if(ir_thresh(1000)){
 					robot_state = COLLECT_IDOL;
 				}
-				else if(tape_detected()){
+				else if(tape_detected(300)){
 					follow_tape(true);
 					robot_state = FOLLOW_TAPE;
 				}
