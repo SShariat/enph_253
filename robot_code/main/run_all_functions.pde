@@ -279,15 +279,21 @@ void run_all_sensors(){
 		switch(menu_choice(NUM_OF_OPTIONS)){
 
 			case QRD_SENSOR:
-			artifact_sensor_check();
+			if(confirm()){
+				artifact_sensor_check();
+			}
 			break;
 
 			case LR_QRD_SENSORS:
-			tape_follow_sensor();
+			if(confirm()){
+				tape_follow_sensor();
+			}
 			break;
 
 			case IR_SENSORS:
-			ir_follow_sensor();
+			if(confirm()){
+				ir_follow_sensor();
+			}
 			break;
 		}
 		delay(200);
