@@ -1,3 +1,20 @@
+Addresses in memory
+
+	1 K_P for tape following 
+	2 K_D for tape following
+	3 Speed for tape following
+	4 Threshold for tape following
+	5 K_P for IR following	
+	6 K_D for IR following
+	7 Speed for IR following
+	8 Starting height of crane arm
+	9 Final height of crane arm
+	10 Starting angle of crane arm
+	11 Final angle of crane arm 
+	12 Threshold for artifact detection QRD
+
+
+
 Analog Pins Being Used
 	
 	IR Pins
