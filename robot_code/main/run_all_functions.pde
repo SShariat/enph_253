@@ -275,22 +275,26 @@ void run_all_sensors(){
 	while(!deselect()){
 
 		clear();
+		print_root("Select sensor:");
 		
 		switch(menu_choice(NUM_OF_OPTIONS)){
 
 			case QRD_SENSOR:
+			print_child("Artifact sensor");
 			if(confirm()){
 				artifact_sensor_check();
 			}
 			break;
 
 			case LR_QRD_SENSORS:
+			print_child("Tape sensors");
 			if(confirm()){
 				tape_follow_sensor();
 			}
 			break;
 
 			case IR_SENSORS:
+			print_child("Infrared sensors");
 			if(confirm()){
 				ir_follow_sensor();
 			}
