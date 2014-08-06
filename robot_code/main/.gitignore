@@ -3,6 +3,7 @@ $ cat .gitignore
 *.a
 *.o
 *.c
+*.cpp
 
 
-build\
+build/
