@@ -2,5 +2,6 @@ $ cat .gitignore
 
 *.a
 *.o
+*.c
 
 build/
