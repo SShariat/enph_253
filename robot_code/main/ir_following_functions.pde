@@ -218,22 +218,22 @@ void follow_ir(bool reset){
 			right = right_high;
 		}
 
-		current_error = left - right;
+		current_error = (int)((float)(left - right)/100.0);
 
-		if (current_error > 200 ){
-			current_error = 200;
+		if (current_error > 2 ){
+			current_error = 2;
 		}
 
-		if (current_error < -200 ){
-			current_error = -200;
+		if (current_error < -2){
+			current_error = -2;
 		}
 
 		if((left+right)<100){
 			if(last_error < 0){
-				current_error = -300;
+				current_error = -3;
 			}
 			else if(last_error>0){
-				current_error = 300;
+				current_error = 3;
 			}
 		}
 
