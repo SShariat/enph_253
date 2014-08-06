@@ -243,8 +243,8 @@ void follow_ir(bool reset){
 
 		result = pro + der;
 
-		motor.speed(3, ir_speed + result );
-		motor.speed(2, ir_speed - result);
+		motor.speed(3, ir_speed - result );
+		motor.speed(2, ir_speed + result);
 
 		last_error = current_error;
 

@@ -53,7 +53,7 @@ void artifact_collection_tree(){
 	}
 }
 
-//Artifact Collection variables****************INCOMPLETE
+//Artifact Collection variables
 void artifact_collection_vars(){
 	
 	//Number of Variables
@@ -124,7 +124,7 @@ bool artifact_detected(int thresh){
 		return false;
 }
 
-//Sets Arm to Appropriate Angles and Stores the artifact ****************INCOMPLETE
+//Sets Arm to Appropriate Angles and Stores the artifact
 void collect_artifact(){
 	clear();
 	LCD.setCursor(0,1); LCD.print("Collecting...");
