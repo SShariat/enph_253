@@ -12,6 +12,9 @@ Addresses in memory
 	10 Starting angle of crane arm
 	11 Final angle of crane arm 
 	12 Threshold for artifact detection QRD
+	13 Forward speed for brake test
+	14 Reverse speed for brake test
+	15 Delay for brake test
 
 
 

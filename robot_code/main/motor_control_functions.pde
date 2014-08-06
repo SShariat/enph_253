@@ -2,6 +2,103 @@
 // Motor control functions
 
 //H-Bridge Testing Function
+//Tree Template
+void motor_tree(){
+	
+	//NUM OF CHILD
+	#define OPTIONS 3
+	
+	//TAPE CHILDREN
+	#define MOTOR_TEST 1
+	#define BRAKE_TEST 2
+	#define EDIT_VARS 3
+
+	while(!deselect()){
+
+		clear();
+		print_root("Motor options:");
+
+		switch(menu_choice(OPTIONS)){
+
+			case MOTOR_TEST: 
+			print_child("Motor test");
+			if(confirm()){
+				motor_test();
+			}
+			break;
+
+			case BRAKE_TEST:
+			print_child("Brake test");
+			if(confirm()){
+				brake_test();
+			}
+			break;
+
+			case EDIT_VARS:
+			print_child("Edit variables");
+			if(confirm()){
+				motor_vars();
+			}
+			break;
+		}
+		delay(200);
+	}
+}
+
+void motor_vars(){
+	
+	//Number of Variables
+	#define NUM_OF_CONSTANTS 3
+
+	#define FORWARD_SPEED 1
+	#define REVERSE_SPEED 2
+	#define DELAY_DURATION 3
+	
+
+	//edit_variable() is incorrect, need a third parameter.
+	while(!deselect()){
+	
+		clear();
+		print_root("Variable: ");
+
+		switch(menu_choice(NUM_OF_CONSTANTS)){
+		
+		case FORWARD_SPEED:
+		//Changing Variable 1
+			edit_variable(13, "Stall speed", 1000);
+		break;
+
+		case REVERSE_SPEED:
+		//Changing Variable 2
+			edit_variable(14, "Reverse speed", 1000);
+		break;
+		
+		case DELAY_DURATION:
+		//Changing Variable 3
+			edit_variable(15, "Time to delay", 1000);
+		break;
+		}
+		delay(200);
+	}	
+}
+
+void brake_test(){
+	int forward = EEPROM.read(3)*4;
+
+	while(!deselect()){
+		if(confirm()){
+			//get up to speed
+			motor.speed(2,forward);
+			motor.speed(3,forward);
+			delay(1500);
+
+			//test brakes
+			full_stop();
+		}
+	}
+	motor.stop_all();
+}
+
 void motor_test(){
 	
 	//Motor Test Variables (These are the speeds of 2 Motors)
@@ -34,4 +131,16 @@ void motor_test(){
 	}
 	//Added Motor Stop Function
 	motor.stop_all();
+}
+
+void full_stop(){
+	int stall = EEPROM.read(13)*4;
+	int reverse = EEPROM.read(14)*4;
+	int delay_period = EEPROM.read(15)*4;
+
+	motor.speed(2, -reverse);
+	motor.speed(3, -reverse); 
+	delay(delay_period);
+	motor.speed(2, stall);
+	motor.speed(3, stall); 
 }

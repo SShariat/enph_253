@@ -130,14 +130,17 @@ void collect_artifact(){
 	LCD.setCursor(0,1); LCD.print("Collecting...");
 
 	int start_height = 45;
-	int raise_height = 150;
+	int raise_height = 110;
 	int start_angle = 20;
 	int end_angle =	160;
 
 	//Artifact Collect Threshold
 	int thresh = EEPROM.read(12)*4;
 
-	motor.stop_all();
+	motor.speed(2, -100);
+	motor.speed(3, -100); 
+	motor.speed(2, 100);
+	motor.speed(3, 100); 
 
 	// Vertical arm, this executes first, raising up to an approximate 50 degree angle.
 	for(int pos = start_height; pos <= raise_height; pos++){
@@ -168,8 +171,8 @@ void collect_artifact(){
 //Sequence of Servo Commands to pick up the Idol
 void collect_idol(){
 
-	int start_height = 55;
-	int raise_height = 150;
+	int start_height = 50;
+	int raise_height = 110;
 	int start_angle = 20;
 	int end_angle =	160;
 

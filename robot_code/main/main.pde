@@ -59,7 +59,7 @@ void setup(){
 	RCServo2.attach(RCServo2Output);
 
 	//Sets the Angle of the Servos
-	RCServo1.write(50);
+	RCServo1.write(45);
 	RCServo2.write(20);
 }
 
@@ -100,7 +100,7 @@ void loop(){
 		case MOTOR:
 		print_child("Motor");
 		if(confirm()){
-			motor_test();
+			motor_tree();
 		}
 		break;
 

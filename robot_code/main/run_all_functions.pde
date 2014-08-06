@@ -166,7 +166,7 @@ void run_all_vars(){
 
 		case THRESH_TAPE:
 		//Changing Variable 4
-			edit_variable(4, "Thresh",1000);
+			edit_variable(4, "Tape thresh",1000);
 		break;
 
 		case START_HEIGHT:
@@ -190,7 +190,7 @@ void run_all_vars(){
 		break;
 
 		case THRESH_ART:
-			edit_variable(12,"Thresh",1000);
+			edit_variable(12,"Art. thresh",1000);
 		break;
 
 		}
@@ -209,12 +209,13 @@ void full_run(){
 
 	//Initializing Starting State
 	int robot_state = FOLLOW_TAPE;
-
+	clear();
 	while(!deselect()){
 
 		switch(robot_state){
 			case FOLLOW_TAPE:
 				if(artifact_detected(80)){
+					full_stop();
 					robot_state = COLLECT_ART;
 				}
 				else if(ir_detected(200)){
@@ -232,6 +233,7 @@ void full_run(){
 
 			case FOLLOW_IR:
 				if(ir_thresh(1000)){
+					full_stop();
 					robot_state = COLLECT_IDOL;
 				}
 				else if(tape_detected(300)){
@@ -267,38 +269,72 @@ void full_run(){
 //could use some way to differentiate the sensors, rather than just L and R
 void run_all_sensors(){
 
-	#define NUM_OF_OPTIONS 3
+	#define NUM_OF_OPTIONS 4
 	//SENSOR CHLDREN
 	#define QRD_SENSOR 1
 	#define LR_QRD_SENSORS 2
-	#define IR_SENSORS 3
+	#define IR_SENSORS_LOW 3
+	#define IR_SENSORS_HIGH 4
 
 	while(!deselect()){
+			int artifact_thresh = EEPROM.read(12)*4;
+			int tape_thresh = EEPROM.read(4)*4;
+
 
 		clear();
-		print_root("Select sensor:");
+		//print_root("Select sensor:");
 		
 		switch(menu_choice(NUM_OF_OPTIONS)){
 
 			case QRD_SENSOR:
-			print_child("Artifact sensor");
-			if(confirm()){
-				artifact_sensor_check();
-			}
+				int artifact_eye;
+				artifact_eye = analogRead(6);
+			
+				print_root("Idol sensed?");
+				if(artifact_eye < artifact_thresh){
+					LCD.print(" Yes");
+				}
+				else{
+					LCD.print(" No");
+				}
+				LCD.setCursor(0,1); LCD.print("Sensor: "); LCD.print(artifact_eye);
+
 			break;
 
 			case LR_QRD_SENSORS:
-			print_child("Tape sensors");
-			if(confirm()){
-				tape_follow_sensor();
-			}
+				int l;
+				int r;
+				l = analogRead(4);
+				r = analogRead(5);
+
+				print_root("Tape sensed?");
+				if(l > tape_thresh && r > tape_thresh){
+					LCD.print(" Yes");
+				}
+				else{
+					LCD.print(" No");
+				}
+				LCD.setCursor(0,1); LCD.print("L:"); LCD.print(l); LCD.print("  R:"); LCD.print(r);
 			break;
 
-			case IR_SENSORS:
-			print_child("Infrared sensors");
-			if(confirm()){
-				ir_follow_sensor();
-			}
+			case IR_SENSORS_LOW:
+				int left_low;
+				int right_low;
+				left_low = (float)(analogRead(1));
+				right_low = (float)(analogRead(3));
+				
+				print_root("IR sensors low");	
+				LCD.setCursor(0,1);LCD.print("L:"); LCD.print(left_low); LCD.print("  R:"); LCD.print(right_low);
+			break;
+
+			case IR_SENSORS_HIGH:
+				int left_high;
+				int right_high;
+				left_high = (float)(analogRead(0));
+				right_high = (float)(analogRead(2));
+				
+				print_root("IR sensors high");	
+				LCD.setCursor(0,1);LCD.print("L:"); LCD.print(left_high); LCD.print("  R:"); LCD.print(right_high);
 			break;
 		}
 		delay(200);
