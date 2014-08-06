@@ -26,10 +26,10 @@ void ir_follow_tree(){
 			break;
 
 			case IR_FOLLOW_DEMO:
-			print_child("Run Demo");
+			print_child("Full IR");
 			if(confirm()){
 				while(!deselect()){
-					follow_ir(0);
+					follow_ir(0);				
 				}
 				motor.stop_all();
 			}

@@ -21,16 +21,23 @@ void motor_tree(){
 		switch(menu_choice(OPTIONS)){
 
 			case MOTOR_TEST: 
-			print_child("Motor test");
+			print_child("Motor Test");
 			if(confirm()){
 				motor_test();
 			}
 			break;
 
 			case BRAKE_TEST:
-			print_child("Brake test");
+			print_child("Brake Test");
 			if(confirm()){
 				brake_test();
+			}
+			break;
+
+			case ROTATE_TEST:
+			print_child("Rotate Test");
+			if(confirm()){
+				rotate_test();
 			}
 			break;
 
@@ -143,4 +150,8 @@ void full_stop(){
 	delay(delay_period);
 	motor.speed(2, stall);
 	motor.speed(3, stall); 
+}
+
+void rotate_test(){
+	
 }
