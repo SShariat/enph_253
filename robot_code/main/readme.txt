@@ -16,8 +16,6 @@ Addresses in memory
 	14 Reverse speed for brake test
 	15 Delay for brake test
 
-
-
 Analog Pins Being Used
 	
 	IR Pins
@@ -31,34 +29,30 @@ Analog Pins Being Used
 	
 	6  Detector QRD
 
-
-
 ROOT TREE
-1. Tape Follow
-	a. Variables
-	b. Demo
-	c. Sensor Check
+	1. Tape Follow
+		a. Variables
+		b. Demo
+		c. Sensor Check
 
-2. IR Follow
-	a. Variables
-	b. Demo
-	c. Sensor Check
+	2. IR Follow
+		a. Variables
+		b. Demo
+		c. Sensor Check
 
-3. Artifact Collection
-	a. Variables(IC)
-	b. Demo
+	3. Artifact Collection
+		a. Variables(IC)
+		b. Demo
 
-4. MOTOR
-	a. Motor Test
+	4. MOTOR
+		a. Motor Test
 
-5. Run All
-	a.
+	5. Run All
+		a.
 
-6. Time Trial Demo
+	6. Time Trial Demo
 
-
-
-//Tree Template
+TREE TEMPLATE
 void tree_example(){
 	
 	//NUM OF CHILD
@@ -109,8 +103,8 @@ void tree_example(){
 	}
 }
 
-//Editting Variables Template
-//NOTE: When wanting to add new variables, they MUST be given Unique Addresses. The list of Already Used Addresses can be found at the top of the main.pde.
+EDITING VARIABLE TEMPLATE
+NOTE: When wanting to add new variables, they MUST be given Unique Addresses. The list of Already Used Addresses can be found at the top of the main.pde.
 void example_vars(){
 	
 	//Number of Variables
@@ -131,22 +125,22 @@ void example_vars(){
 		
 		case VAR_1:
 		//Changing Variable 1
-			edit_variable(addr_1, "VAR_1_NAME");
+			edit_variable(addr_1, "VAR_1_NAME",max_1);
 		break;
 
 		case VAR_2:
 		//Changing Variable 2
-			edit_variable(addr_2, "VAR_2_NAME");
+			edit_variable(addr_2, "VAR_2_NAME",max_2);
 		break;
 		
 		case VAR_3:
 		//Changing Variable 3
-			edit_variable(addr_3, "VAR_3_NAME");
+			edit_variable(addr_3, "VAR_3_NAME",max_3);
 		break;
 
 		case VAR_4:
 		//Changing Variable 4
-			edit_variable(addr_4, "VAR_4_NAME");
+			edit_variable(addr_4, "VAR_4_NAME",max_4);
 		break;
 
 

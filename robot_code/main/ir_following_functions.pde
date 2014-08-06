@@ -65,12 +65,12 @@ void ir_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			edit_variable(5, "K_p",1000);
+			edit_variable(5, "K_p",50);
 		break;
 
 		case KD:
 		//Changing Variable 2
-			edit_variable(6, "K_d",1000);
+			edit_variable(6, "K_d",50);
 		break;
 		
 		case SPEED:
@@ -228,6 +228,16 @@ void follow_ir(bool reset){
 			current_error = -200;
 		}
 
+		if((left+right)<100){
+			if(last_error < 0){
+				current_error = -300;
+			}
+			else if(last_error>0){
+				current_error = 300;
+			}
+		}
+
+
 		pro = ir_K_p*current_error;
 		der = (current_error - last_error)*ir_K_d;
 
@@ -242,9 +252,9 @@ void follow_ir(bool reset){
 			LCD.clear();
 			LCD.home(); 
 
-			LCD.print("L: "); LCD.print(left); LCD.print(" R: "); LCD.print(right);
+			LCD.print("L:"); LCD.print(left); LCD.print(" R:"); LCD.print(right);
 			LCD.setCursor(0,1);
-			LCD.print("Kp:"); LCD.print(ir_K_p); LCD.print(" Kd:"); LCD.print(ir_K_d);
+			LCD.print("RES:"); LCD.print(result); LCD.print(" CE:"); LCD.print(current_error);
 
 			i = 0;
 		}
