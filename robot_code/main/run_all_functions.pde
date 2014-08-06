@@ -232,7 +232,7 @@ void full_run(){
 			break;
 
 			case FOLLOW_IR:
-				if(artifact_detected()){
+				if(artifact_detected(150)){
 					full_stop();
 					robot_state = COLLECT_IDOL;
 				}
@@ -257,7 +257,7 @@ void full_run(){
 				}
 				else{
 					//Rotate Robot
-					rotate_bot(250,-250);
+					rotate_bot(250);
 				}
 			break;
 		}

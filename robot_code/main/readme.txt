@@ -15,6 +15,7 @@ Addresses in memory
 	13 Forward speed for brake test
 	14 Reverse speed for brake test
 	15 Delay for brake test
+	16 Rotation Speed
 
 Analog Pins Being Used
 	

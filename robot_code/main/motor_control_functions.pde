@@ -6,12 +6,13 @@
 void motor_tree(){
 	
 	//NUM OF CHILD
-	#define OPTIONS 3
+	#define OPTIONS 4
 	
 	//TAPE CHILDREN
 	#define MOTOR_TEST 1
 	#define BRAKE_TEST 2
-	#define EDIT_VARS 3
+	#define ROTATE_TEST 3
+	#define EDIT_VARS 4
 
 	while(!deselect()){
 
@@ -55,11 +56,12 @@ void motor_tree(){
 void motor_vars(){
 	
 	//Number of Variables
-	#define NUM_OF_CONSTANTS 3
+	#define NUM_OF_CONSTANTS 4
 
 	#define FORWARD_SPEED 1
 	#define REVERSE_SPEED 2
 	#define DELAY_DURATION 3
+	#define ROTATE_SPEED 4
 	
 
 	//edit_variable() is incorrect, need a third parameter.
@@ -84,6 +86,12 @@ void motor_vars(){
 		//Changing Variable 3
 			edit_variable(15, "Time to delay", 1000);
 		break;
+
+		case ROTATE_SPEED:
+		//Changing Variable 4
+			edit_variable(16, "Rot. Speed", 1000);
+		break;
+
 		}
 		delay(200);
 	}	
@@ -153,5 +161,9 @@ void full_stop(){
 }
 
 void rotate_test(){
-	
+	int speed = EEPROM.read(16)*4;
+	while(!deselect()){
+		rotate_bot(speed);
+	}
+	motor.stop_all();
 }

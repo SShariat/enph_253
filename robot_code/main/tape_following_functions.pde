@@ -260,30 +260,30 @@ bool tape_detected(int thresh){
 
 void follow_tape(bool reset){
 	// Initializing tape following parameters
-	static	int state;			  // The state of the robot (straight, left, right, or hard left/right)
-	static	int lastState   = 0;  // The previous state of the robot.
-	static	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
-	static	int lastTime    = 0;  // The time the robot spent in the last state.
-	static	int thisTime    = 0;  // The time the robot has spent in this state.
-	static	int i 		    = 0;  // i for iterations, because I'm old-school like that.
+		static	int state;			  // The state of the robot (straight, left, right, or hard left/right)
+		static	int lastState   = 0;  // The previous state of the robot.
+		static	int thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+		static	int lastTime    = 0;  // The time the robot spent in the last state.
+		static	int thisTime    = 0;  // The time the robot has spent in this state.
+		static	int i 		    = 0;  // i for iterations, because I'm old-school like that.
 
-	static	int pro;  			  // Taking a leaf out of Andre's book, this stands for the proportional function.
-	static	int der;  			  // As one might expect, this is the derivative function (no integrals on my watch!)
-	static	int result;  		  // The result of our pro and der, this goes to the motors.    
+		static	int pro;  			  // Taking a leaf out of Andre's book, this stands for the proportional function.
+		static	int der;  			  // As one might expect, this is the derivative function (no integrals on my watch!)
+		static	int result;  		  // The result of our pro and der, this goes to the motors.    
 
-		// Setting up the variables that will be edited
-	int tape_K_p 	= EEPROM.read(1)*4;
-	int tape_K_d 	= EEPROM.read(2)*4;
-	int tape_speed 	= EEPROM.read(3)*4;
-	int tape_thresh = EEPROM.read(4)*4;
-	
+	// Setting up the variables that will be edited
+		int tape_K_p 	= EEPROM.read(1)*4;
+		int tape_K_d 	= EEPROM.read(2)*4;
+		int tape_speed 	= EEPROM.read(3)*4;
+		int tape_thresh = EEPROM.read(4)*4;
+		
 	if(reset){
 		//Reset Variables
-		lastState   = 0;  // The previous state of the robot.
-		thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
-		lastTime    = 0;  // The time the robot spent in the last state.
-		thisTime    = 0;  // The time the robot has spent in this state.
-		i 		    = 0;  // i for iterations, because I'm old-school like that.
+			lastState   = 0;  // The previous state of the robot.
+			thisState   = 0;  // The state which the robot is currently running in (i.e. a plateau)
+			lastTime    = 0;  // The time the robot spent in the last state.
+			thisTime    = 0;  // The time the robot has spent in this state.
+			i 		    = 0;  // i for iterations, because I'm old-school like that.
 	}
 	else{
 		//Reading QRD Sensors

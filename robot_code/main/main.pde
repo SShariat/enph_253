@@ -5,33 +5,8 @@
 	#include <Servo253.h>
 	#include <EEPROM.h>
 
-//Memory Addresses Currently Being Used(Do not Write to Already Being Used Ad)
-/*
-	TAPE FOLLOWING
-	K_p 			1
-	K_d 			2
-	tape_speed 		3
-	tape_thresh	 	4
-
-	IR FOLLOWING
-	K_p				5
-	K_d				6
-	ir_speed 		7
-
-	ARTIFACT COLLECTION
-	start_height 	8
-	raise_height 	9
-	start_angle 	10
-	end_angle 		11
-
-	thresh 			12
-
-	RUN ALL
-
-	*/
-
 //ROOT TREE
-	#define ROOT 6
+	#define ROOT 5
 
 	//ROOT CHILDREN
 	#define TAPE_FOLLOW 1 			// Follows tape utilizing PD control.
@@ -39,7 +14,6 @@
 	#define ARTIFACT_COLLECTION 3  	// Collects artifacts using the robot arm.
 	#define MOTOR 4                	// H-Bridge Test Program that Simultaneously Runs 2 Motors at the same time.
 	#define RUN_ALL 5   		   	// Runs everything above at once.
-	#define INITIALIZE 6			// Reset the Variable Values to Hard Coded Versions
 
 //Editor Variables for Parameter Manipulation
 int current, new_value;
@@ -109,17 +83,6 @@ void loop(){
 		if(confirm()){
 			run_all_tree();
 		}
-		break;
-
-		case INITIALIZE:
-		print_child("Reset Vars?");
-		if(confirm()){
-			clear();
-			initialize_vars();
-			LCD.setCursor(0,0);LCD.print("Saved");
-			delay(500);
-			clear();
-		}	
 		break;
 	}
 	delay(200);

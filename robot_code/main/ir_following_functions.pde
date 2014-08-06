@@ -282,7 +282,7 @@ bool ir_thresh(int thresh){
 		return false;
 }
 
-void rotate_bot(int left_motor, int right_motor){
-	motor.speed(3, left_motor);
-	motor.speed(2, right_motor);	
+void rotate_bot(int rotate_speed){
+	motor.speed(3, -rotate_speed);
+	motor.speed(2, rotate_speed);	
 }
