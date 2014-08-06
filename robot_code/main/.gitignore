@@ -1,0 +1,6 @@
+$ cat .gitignore
+
+*.a
+*.o
+
+build/
