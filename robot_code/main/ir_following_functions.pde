@@ -65,12 +65,12 @@ void ir_follow_vars(){
 		
 		case KP:
 		//Changing Variable 1
-			edit_variable(5, "K_p",50);
+			edit_variable(5, "K_p",1000);
 		break;
 
 		case KD:
 		//Changing Variable 2
-			edit_variable(6, "K_d",50);
+			edit_variable(6, "K_d",1000);
 		break;
 		
 		case SPEED:
