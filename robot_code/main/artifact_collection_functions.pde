@@ -129,7 +129,7 @@ void collect_artifact(){
 	clear();
 	LCD.setCursor(0,1); LCD.print("Coll. Art...");
 
-	int start_height = 45;
+	int start_height = 36;
 	int raise_height = 110;
 	int start_angle = 20;
 	int end_angle =	160;
