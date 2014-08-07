@@ -5,11 +5,12 @@
 void run_all_tree(){
 	
 	//TAPE FOLLOW TREE
-	#define OPTIONS 3
+	#define OPTIONS 4
 	//TAPE CHILDREN
 	#define FULL_RUN 1
 	#define VARS_EDIT 2
 	#define CHECK_SENSOR 3
+	#define COLLECT_ONE	4
 
 	while(!deselect()){
 
@@ -37,94 +38,15 @@ void run_all_tree(){
 			if(confirm()){
 				run_all_sensors();
 			}
+
+			case COLLECT_ONE:
+			print_child("Get One");
+			if(confirm()){
+				collect_one();
+			}
 		}
 		delay(200);
 	}
-}
-
-void art_stop_collect(){
-	// Initializing Tape Following Parameters
-		int state       = 0;  // The state of the robot (straight, left, right, or hard left/right)
-		int lastState   = 0;  // The previous state of the robot.
-		int thisState   = 0;  // The state which the robot is currently running in.
-		int lastTime    = 0;  // The time the robot spent in the last state.
-		int thisTime    = 0;  // The time the robot has spent in this state.
-		int i 		    = 0;  // i for iterations
-
-		int pro         = 0;  // Proportional Function
-		int der         = 0;  // Derivative Function
-		int result      = 0;  // Result of Proportional and Derivative   
-
-		// Setting up the variables that will be edited
-		int K_p 		= EEPROM.read(1)*4;
-		int K_d 		= EEPROM.read(2)*4;
-		int tape_speed 	= EEPROM.read(3)*4;
-		int tape_thresh = EEPROM.read(4)*4;
-
-		int thresh = EEPROM.read(12)*4;
-	while(!deselect()){
-		if(artifact_detected(thresh)){
-			collect_artifact();
-		}
-		//Tape Following Code
-		else{
-			//Reading QRD Sensors
-			int l = analogRead(4); // Left QRD
-			int r = analogRead(5); // Right QRD (but you knew that already, you're smart)
-
-			if(l > tape_thresh && r > tape_thresh) { // Both QRDs are on the tape
-				state = 0;
-			} else if(l < tape_thresh && r > tape_thresh){ // The left QRD has moved off the tape.
-				state = -1;
-			} else if(l > tape_thresh && r < tape_thresh){ // The right QRD is now off the tape.
-				state = 1;
-			} else if(l < tape_thresh && r < tape_thresh && state < 0) { // Both QRDs are off the tape, and the robot is tilted to the left.
-				state = -5;
-			} else if(l < tape_thresh && r < tape_thresh && state > 0) { // Both QRDs are off, the robot is tilted to the right.
-				state = 5;
-			} else if(l < tape_thresh && r < tape_thresh && state == 0) { // Both QRDs are now off the tape, but the robot was last straight on. This indicates that we somehow lifted both up at the same time (top of the hill), and so we continue straight ahead. Courtesy of Andre Marziali.
-				state = 0;
-			}
-
-			if(state != thisState) {
-				lastState = thisState;
-				lastTime = thisTime;
-				thisTime = 1;
-			}
-
-			// Big ol' note: in our case, the 'state' variables are the error from the centre, just renamed so we understand better. Not everyone can be Andre Marziali!
-
-			// This is our P/D part; defining our (pro)portional and (der)ivative control
-			pro = K_p * state;
-			der = (int)((float)K_d * (float)(state-lastState) / (float)(thisTime + lastTime));
-
-			// They're then added together with the robot's speed to produce our output.
-			result = pro + der;
-
-			// This writes our output to the motors
-			// Motor 3 = Right
-			// Motor 2 = Left
-			motor.speed(3, tape_speed + result);
-			motor.speed(2, tape_speed - result);  
-
-			// Simply a diagnostic function; prints out what each sensor is seeing, as well as the current K-values, every 50 iterations. This can be removed if there is not enough space on the LCD screen.
-			if( i == 50) {
-				LCD.clear();
-				LCD.home(); 
-
-				LCD.print("L: "); LCD.print(l); LCD.print(" R: "); LCD.print(r);
-				LCD.setCursor(0,1);
-				LCD.print("Kp:"); LCD.print(K_p); LCD.print(" Kd:"); LCD.print(K_d);
-
-				i = 0;
-			}
-			i++;
-
-			thisTime++;
-			thisState = state;
-		}
-	}
-	motor.stop_all();
 }
 
 void run_all_vars(){
@@ -206,6 +128,7 @@ void full_run(){
 	#define FOLLOW_IR 		3
 	#define COLLECT_IDOL	4
 	#define ROTATE_ROBOT 	5
+	#define TURN_LEFT		6
 
 	//Initializing Starting State
 	int robot_state = FOLLOW_TAPE;
@@ -236,9 +159,8 @@ void full_run(){
 					full_stop();
 					robot_state = COLLECT_IDOL;
 				}
-				else if(tape_detected(100)){
-					follow_tape(true);
-					robot_state = FOLLOW_TAPE;
+				else if(white_detected()){
+					robot_state = TURN_LEFT;
 				}
 				else{
 					follow_ir(false);
@@ -256,9 +178,17 @@ void full_run(){
 					robot_state = FOLLOW_IR;
 				}
 				else{
-					//Rotate Robot
 					rotate_bot(250);
 				}
+			break;
+
+			case TURN_LEFT:
+				if(tape_detected(100)){
+					full_stop();
+					robot_state = FOLLOW_TAPE;
+				}
+				else
+					turn_left();
 			break;
 		}
 	}
@@ -339,4 +269,43 @@ void run_all_sensors(){
 		}
 		delay(200);
 	}
+}
+
+void collect_one(){
+
+	//Different Robot States
+	#define FOLLOW_TAPE 	1
+	#define COLLECT_ART 	2
+	#define ROTATE_ROBOT 	3
+	
+	int state = FOLLOW_TAPE;  
+	
+	while(!deselect()){
+		switch (state){
+			case FOLLOW_TAPE:
+				if(artifact_detected(150)){
+					full_stop();
+					state = COLLECT_ART;
+				}
+				else
+					follow_tape(0);
+			break;
+
+			case COLLECT_ART:
+				collect_artifact();
+				state = ROTATE_ROBOT;
+			break;
+
+			case ROTATE_ROBOT:
+				rotate_bot(250);
+				delay(500);
+				if(tape_detected(100)){
+					full_stop();
+					follow_tape(1);
+					state = FOLLOW_TAPE;
+				}
+			break;
+		} 
+	}
+	motor.stop_all();
 }

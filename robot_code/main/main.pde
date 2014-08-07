@@ -32,9 +32,17 @@ void setup(){
 	RCServo1.attach(RCServo1Output);
 	RCServo2.attach(RCServo2Output);
 
-	//Sets the Angle of the Servos
-	RCServo1.write(45);
+	//Sets the Ending Angle of the Servos
+	delay(1000);
+	RCServo1.write(180);
+	delay(1000);
+	RCServo2.write(0);
+	delay(1000);
+	RCServo2.write(160);
+	delay(1000);
 	RCServo2.write(20);
+	delay(1000);
+	RCServo1.write(45);
 }
 
 // ---------------------------------------------------------------------------------------------------------- \\

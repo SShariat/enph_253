@@ -127,7 +127,7 @@ bool artifact_detected(int thresh){
 //Sets Arm to Appropriate Angles and Stores the artifact
 void collect_artifact(){
 	clear();
-	LCD.setCursor(0,1); LCD.print("Collecting...");
+	LCD.setCursor(0,1); LCD.print("Coll. Art...");
 
 	int start_height = 45;
 	int raise_height = 110;
@@ -170,6 +170,8 @@ void collect_artifact(){
 
 //Sequence of Servo Commands to pick up the Idol
 void collect_idol(){
+	clear();
+	LCD.setCursor(0,1); LCD.print("Coll. Idol...");
 
 	int start_height = 50;
 	int raise_height = 110;

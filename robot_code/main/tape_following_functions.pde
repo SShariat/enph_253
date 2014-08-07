@@ -334,7 +334,7 @@ void follow_tape(bool reset){
 			LCD.clear();
 			LCD.home(); 
 
-			LCD.setCursor(0,0);	LCD.print("L:"); LCD.print(l); LCD.print(" R:"); LCD.print(r);
+			LCD.setCursor(0,0);	LCD.print("L:"); LCD.print(l); LCD.print(" R:"); LCD.print(r); LCD.print(" TP");
 			LCD.setCursor(0,1); LCD.print("RES:"); LCD.print(result); LCD.print(" CE:"); LCD.print(state);
 
 			i = 0;

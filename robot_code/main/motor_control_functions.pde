@@ -167,3 +167,20 @@ void rotate_test(){
 	}
 	motor.stop_all();
 }
+
+void turn_left(){
+	// This writes our output to the motors
+		// Motor 3 = Left
+		// Motor 2 = Right
+	motor.speed(2, 350);
+	motor.speed(3, 250);  
+}
+
+bool white_detected(){
+	int tape_thresh = EEPROM.read(4)*4;
+
+	if(analogRead(4) < tape_thresh && analogRead(5) < tape_thresh)
+		return true;
+	else
+		return false;
+}

@@ -249,12 +249,10 @@ void follow_ir(bool reset){
 		last_error = current_error;
 
 		if( i == 50) {
-			LCD.clear();
-			LCD.home(); 
+			clear();
 
-			LCD.print("L:"); LCD.print(left); LCD.print(" R:"); LCD.print(right);
-			LCD.setCursor(0,1);
-			LCD.print("RES:"); LCD.print(result); LCD.print(" CE:"); LCD.print(current_error);
+			LCD.setCursor(0,0); LCD.print("L:"); LCD.print(left); LCD.print(" R:"); LCD.print(right); LCD.print(" IR");
+			LCD.setCursor(0,1);	LCD.print("RES:"); LCD.print(result); LCD.print(" CE:"); LCD.print(current_error);
 
 			i = 0;
 		}
@@ -283,6 +281,7 @@ bool ir_thresh(int thresh){
 }
 
 void rotate_bot(int rotate_speed){
-	motor.speed(3, -rotate_speed);
+	LCD.setCursor(0,0);LCD.print("Rotating...");
+	motor.speed(3, (int)(-(float)(rotate_speed)*1.5));
 	motor.speed(2, rotate_speed);	
 }
