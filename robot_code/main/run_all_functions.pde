@@ -133,6 +133,7 @@ void full_run(){
 	//Initializing Starting State
 	int robot_state = FOLLOW_TAPE;
 	clear();
+	
 	while(!deselect()){
 
 		switch(robot_state){
@@ -294,11 +295,11 @@ void collect_one(){
 			case COLLECT_ART:
 				collect_artifact();
 				state = ROTATE_ROBOT;
+				rotate_bot(250);
+				delay(200);
 			break;
 
 			case ROTATE_ROBOT:
-				rotate_bot(250);
-				delay(500);
 				if(tape_detected(100)){
 					full_stop();
 					follow_tape(1);
